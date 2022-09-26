@@ -40,6 +40,7 @@
 #include "os/window.h"
 #include "render/render.h"
 #include "ui/manager.h"
+#include "ui/scale.h"
 #include "ui/system.h"
 
 #include <array>
