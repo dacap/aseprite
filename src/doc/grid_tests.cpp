@@ -79,6 +79,78 @@ TEST(Grid, RectWithOffset)
   EXPECT_EQ(Rect(1, 1, 1, 1), grid.canvasToTile(Rect(30, 30, 1, 1)));
 }
 
+TEST(Grid, MakeAlignedMask)
+{
+  auto grid = Grid::MakeRect(Size(4, 4));
+  grid.origin(gfx::Point(1,1));
+  auto mask = Mask();
+  mask.replace(gfx::Rect(3, 3, 4, 4));
+  auto gridAlignedMask = grid.makeAlignedMask(&mask);
+  EXPECT_EQ(gfx::Rect(1,1,8,8), gridAlignedMask.bounds());
+
+  mask.replace(gfx::Rect(1, 1, 4, 4));
+  auto gridAlignedMask2 = grid.makeAlignedMask(&mask);
+  EXPECT_EQ(gfx::Rect(1,1,4,4), gridAlignedMask2.bounds());
+
+  mask.add(gfx::Rect(8, 4, 1, 1));
+  mask.add(gfx::Rect(7, 7, 1, 1));
+  auto gridAlignedMask3 = grid.makeAlignedMask(&mask);
+  bool expected[8*8] = {
+     1, 1, 1, 1,  1, 1, 1, 1,
+     1, 1, 1, 1,  1, 1, 1, 1,
+     1, 1, 1, 1,  1, 1, 1, 1,
+     1, 1, 1, 1,  1, 1, 1, 1,
+
+     0, 0, 0, 0,  1, 1, 1, 1,
+     0, 0, 0, 0,  1, 1, 1, 1,
+     0, 0, 0, 0,  1, 1, 1, 1,
+     0, 0, 0, 0,  1, 1, 1, 1,
+  };
+  int c=0;
+  for (int j=0; j<8; ++j)
+    for (int i=0; i<8; ++i)
+      EXPECT_EQ(expected[c++], gridAlignedMask3.bitmap()->getPixel(i, j));
+
+  mask.replace(gfx::Rect(4, 4, 1, 1));
+  mask.add(gfx::Rect(5, 5, 1, 1));
+  mask.add(gfx::Rect(8, 4, 1, 1));
+  mask.add(gfx::Rect(9, 1, 1, 1));
+  auto gridAlignedMask4 = grid.makeAlignedMask(&mask);
+  bool expected2[12*8] = {
+     1, 1, 1, 1,  1, 1, 1, 1,  1, 1, 1, 1,
+     1, 1, 1, 1,  1, 1, 1, 1,  1, 1, 1, 1,
+     1, 1, 1, 1,  1, 1, 1, 1,  1, 1, 1, 1,
+     1, 1, 1, 1,  1, 1, 1, 1,  1, 1, 1, 1,
+
+     0, 0, 0, 0,  1, 1, 1, 1,  0, 0, 0, 0,
+     0, 0, 0, 0,  1, 1, 1, 1,  0, 0, 0, 0,
+     0, 0, 0, 0,  1, 1, 1, 1,  0, 0, 0, 0,
+     0, 0, 0, 0,  1, 1, 1, 1,  0, 0, 0, 0,
+  };
+  c=0;
+  for (int j=0; j<8; ++j)
+    for (int i=0; i<12; ++i)
+      EXPECT_EQ(expected2[c++], gridAlignedMask4.bitmap()->getPixel(i, j));
+
+  grid.origin(gfx::Point(2,1));
+  auto gridAlignedMask5 = grid.makeAlignedMask(&mask);
+  bool expected3[8*8] = {
+     1, 1, 1, 1,  1, 1, 1, 1,
+     1, 1, 1, 1,  1, 1, 1, 1,
+     1, 1, 1, 1,  1, 1, 1, 1,
+     1, 1, 1, 1,  1, 1, 1, 1,
+
+     1, 1, 1, 1,  0, 0, 0, 0,
+     1, 1, 1, 1,  0, 0, 0, 0,
+     1, 1, 1, 1,  0, 0, 0, 0,
+     1, 1, 1, 1,  0, 0, 0, 0,
+  };
+  c=0;
+  for (int j=0; j<8; ++j)
+    for (int i=0; i<8; ++i)
+      EXPECT_EQ(expected3[c++], gridAlignedMask5.bitmap()->getPixel(i, j));
+}
+
 int main(int argc, char** argv)
 {
   ::testing::InitGoogleTest(&argc, argv);
