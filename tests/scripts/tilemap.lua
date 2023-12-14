@@ -1326,3 +1326,372 @@ do
                      0,   0,     1|d,   (1|x|d),
                      0,   0,     1|y|d, (1|x|y|d) })
 end
+
+----------------------------------------------------------------------
+-- Tests moving images/tilemaps along multiple Layers and TilemapLayers
+----------------------------------------------------------------------
+
+do
+  if app.isUIAvailable then
+    local spr = Sprite(16,16, ColorMode.INDEXED)
+    local layer0 = app.layer
+    layer0.color = Color(220,220,220)
+    layer0.name = "Simple"
+
+    local pal = Palette(6)
+    pal:setColor(1, Color(255,0,0))
+    pal:setColor(2, Color(0,255,0))
+    pal:setColor(3, Color(0,0,255))
+    pal:setColor(4, Color(255,255,255))
+    pal:setColor(5, Color(220,220,220))
+    spr:setPalette(pal)
+    app.preferences.document().grid.bounds = Rectangle(0, 0, 3, 3)
+
+    app.command.NewLayer{ tilemap=true, gridBounds=app.preferences.document().grid.bounds }
+    local layer1 = app.layer
+    layer1.color = Color(255,0,0)
+    layer1.name = "Tilemap1 3x3"
+    app.useTool { tool='pencil',
+                  brush=Brush(1),
+                  color=pal:getColor(1),
+                  points={Point(3,0), Point(5,0), Point(5,2), Point(3,2), Point(3,1)},
+                  tilemapMode=TilemapMode.PIXELS,
+                  tilesetMode=TilesetMode.AUTO }
+
+    app.command.NewLayer{ tilemap=true, gridBounds=app.preferences.document().grid.bounds }
+    local layer2 = app.layer
+    layer2.color = Color(0,255,0)
+    layer2.name = "Tilemap2 3x3"
+    app.useTool { tool='pencil',
+                  brush=Brush(1),
+                  color=pal:getColor(2),
+                  points={Point(4,1)},
+                  tilemapMode=TilemapMode.PIXELS,
+                  tilesetMode=TilesetMode.AUTO }
+
+    local grid2x2Bounds = Rectangle(0,0,2,2)
+    app.command.NewLayer{ tilemap=true, gridBounds=grid2x2Bounds }
+    local layer3 = app.layer
+    layer3.color = Color(0,0,255)
+    layer3.name = "Tilemap3 2x2"
+    app.useTool { tool='pencil',
+                  brush=Brush(1),
+                  color=pal:getColor(3),
+                  points={Point(2,2), Point(7,2), Point(7,7), Point(2,7), Point(2,2)},
+                  tilemapMode=TilemapMode.PIXELS,
+                  tilesetMode=TilesetMode.AUTO }
+
+    local site = app.site
+    if not site.tilemapMode then
+      app.command.ToggleTilesMode {}
+    end
+
+    -- Initial image
+    spr:flatten()
+    assert(spr.cels[1].bounds.origin == Point(2,0))
+    expect_img(spr.cels[1].image,
+              { 0,1,1, 1,0,0,
+                0,1,2, 1,0,0,
+                3,3,3, 3,3,3,
+
+                3,0,0, 0,0,3,
+                3,0,0, 0,0,3,
+                3,0,0, 0,0,3,
+
+                3,0,0, 0,0,3,
+                3,3,3, 3,3,3 })
+    app.undo()
+
+    app.useTool { tool='rectangular_marquee', points={Point(3,0),Point(5,2)} }
+
+    --------------------------------------------------------------------------------
+    -- Current layer will be layer3 which gridSize is 2x2
+    app.layer = layer3
+    app.range.layers = { layer1, layer2, layer3 }
+
+    app.command.MoveMask {
+      target='content',
+      wrap=false,
+      direction='left',
+      units='pixel',
+      quantity=1
+    }
+    app.command.DeselectMask { }
+    spr:flatten()
+    assert(spr.cels[1].bounds.origin == Point(0,0))
+    expect_img(spr.cels[1].image,
+              { 1,1,1, 0,0,0, 0,0,
+                1,2,1, 0,0,0, 0,0,
+                3,3,3, 3,0,0, 3,3,
+
+                3,0,0, 0,0,0, 0,3,
+                0,0,3, 0,0,0, 0,3,
+                0,0,3, 0,0,0, 0,3,
+
+                0,0,3, 0,0,0, 0,3,
+                0,0,3, 3,3,3, 3,3 })
+    app.undo()
+    app.undo()
+    app.undo()
+
+    -- Movement to bottom
+    app.command.MoveMask {
+      target='content',
+      wrap=false,
+      direction='down',
+      units='pixel',
+      quantity=1
+    }
+    app.command.DeselectMask { }
+    spr:flatten()
+    assert(spr.cels[1].bounds.origin == Point(2,0))
+    expect_img(spr.cels[1].image,
+              { 0,1,1, 1,0,0,
+                0,1,2, 1,0,0,
+                0,1,1, 1,3,3,
+
+                0,0,0, 0,0,3,
+                3,3,3, 3,0,3,
+                3,0,0, 0,0,3,
+
+                3,0,0, 0,0,3,
+                3,3,3, 3,3,3 })
+    app.undo()
+    app.undo()
+    app.undo()
+
+    -- Movement to bottom x2
+    app.command.MoveMask {
+      target='content',
+      wrap=false,
+      direction='down',
+      units='pixel',
+      quantity=2
+    }
+    app.command.DeselectMask { }
+    spr:flatten()
+    assert(spr.cels[1].bounds.origin == Point(2,2))
+    expect_img(spr.cels[1].image,
+              { 0,0,0, 0,3,3,
+                0,1,1, 1,0,3,
+                3,1,2, 1,0,3,
+
+                3,1,1, 1,0,3,
+                3,3,3, 3,0,3,
+                3,0,0, 0,3,3 })
+    app.undo()
+    app.undo()
+    app.undo()
+
+    -- Movement to right x2
+
+    app.command.MoveMask {
+      target='content',
+      wrap=false,
+      direction='right',
+      units='pixel',
+      quantity=2
+    }
+    app.command.DeselectMask { }
+    spr:flatten()
+    assert(spr.cels[1].bounds.origin == Point(2,0))
+    expect_img(spr.cels[1].image,
+              { 0,0, 0,0, 1,1, 1,0,
+                0,0, 0,0, 1,2, 1,0,
+
+                0,0, 0,0, 3,3, 3,3,
+                0,0, 0,0, 3,0, 0,0,
+
+                3,0, 0,0, 0,3, 0,0,
+                3,0, 0,0, 0,3, 0,0,
+
+                3,0, 0,0, 0,3, 0,0,
+                3,3, 3,3, 3,3, 0,0 })
+    app.undo()
+    app.undo()
+    app.undo()
+
+    --------------------------------------------------------------------------------
+    -- Current layer will be layer1 which gridSize is 3x3
+    app.layer = layer1
+    app.range.layers = { layer1, layer2, layer3 }
+
+    app.command.MaskAll {}
+    app.command.MoveMask {
+      target='content',
+      wrap=false,
+      direction='right',
+      units='pixel',
+      quantity=1
+    }
+    app.command.DeselectMask { }
+    spr:flatten()
+    assert(spr.cels[1].bounds.origin == Point(4,0))
+    expect_img(spr.cels[1].image,
+              { 0,0,1, 1,1,0,
+                0,0,1, 2,1,0,
+                3,3,3, 3,3,3,
+
+                3,0,0, 0,0,3,
+                3,0,0, 0,0,3,
+                3,0,0, 0,0,3,
+
+                3,0,0, 0,0,3,
+                3,3,3, 3,3,3 })
+    app.undo()
+    app.undo()
+
+    app.useTool { tool='rectangular_marquee', points={Point(6,0),Point(8,2)} }
+    app.command.MoveMask {
+      target='content',
+      wrap=false,
+      direction='left',
+      units='pixel',
+      quantity=1
+    }
+    app.command.DeselectMask { }
+    spr:flatten()
+    assert(spr.cels[1].bounds.origin == Point(2,0))
+    expect_img(spr.cels[1].image,
+              { 0,1,1, 1,0,0, 0,0,
+                0,1,2, 1,0,0, 0,0,
+                3,3,3, 3,0,0, 0,0,
+
+                0,0,0, 3,0,0, 0,0,
+                0,0,3, 0,0,0, 0,3,
+                0,0,3, 0,0,0, 0,3,
+
+                0,0,3, 0,0,0, 0,3,
+                0,0,3, 3,3,3, 3,3 })
+    app.undo()
+    app.undo()
+    app.undo()
+
+    app.command.MoveMask {
+      target='content',
+      wrap=false,
+      direction='down',
+      units='pixel',
+      quantity=2
+    }
+    app.command.DeselectMask { }
+    spr:flatten()
+    assert(spr.cels[1].bounds.origin == Point(4,2))
+    expect_img(spr.cels[1].image,
+              { 3,3,0, 0,0,0,
+                3,0,0, 0,0,0,
+                3,0,0, 0,0,3,
+
+                3,0,0, 0,0,3,
+                3,0,1, 1,1,3,
+                3,3,3, 3,3,3,
+
+                0,0,3, 3,3,3,
+                0,0,0, 0,0,3, })
+    app.undo()
+    app.undo()
+    app.undo()
+    app.command.DeselectMask { }
+
+    --------------------------------------------------------------------------------
+    -- Current layer will be layer0 (non-tilemap layer)
+    -- Making simple image on simple Layer
+    app.layer = layer0
+    app.useTool { tool='pencil',
+                  brush=Brush(1),
+                  color=pal:getColor(4),
+                  points={Point(5,3), Point(8,3), Point(8,6), Point(5,6), Point(5,3)}}
+    app.useTool { tool='pencil',
+                  brush=Brush(1),
+                  color=pal:getColor(5),
+                  points={Point(6,4), Point(7,5)}}
+
+    --------------------------------------------------------------------------------
+    -- Current layer will be layer3 which gridSize is 2x2
+    app.layer = layer3
+    app.useTool { tool='rectangular_marquee', points={Point(4,2),Point(9,7)} }
+
+    app.range.layers = { layer0, layer1, layer2, layer3 }
+    app.command.MoveMask {
+      target='content',
+      wrap=false,
+      direction='left',
+      units='pixel',
+      quantity=1
+    }
+    app.command.DeselectMask { }
+    spr:flatten()
+    assert(spr.cels[1].bounds.origin == Point(2,0))
+    expect_img(spr.cels[1].image,
+              { 0,1,1, 1,0,0,
+                0,1,2, 1,0,0,
+                3,3,3, 3,3,3,
+
+                3,4,4, 4,4,3,
+                3,4,5, 0,4,3,
+                3,4,0, 5,4,3,
+
+                3,4,4, 4,4,3,
+                3,3,3, 3,3,3 })
+    app.undo()
+    app.undo()
+    app.undo()
+
+    app.command.MoveMask {
+      target='content',
+      wrap=false,
+      direction='down',
+      units='pixel',
+      quantity=2
+    }
+    app.command.DeselectMask { }
+    spr:flatten()
+    assert(spr.cels[1].bounds.origin == Point(4,3))
+    expect_img(spr.cels[1].image,
+              { 0,0,1, 1,1,0,
+                0,0,1, 2,1,0,
+                0,0,1, 1,1,0,
+                3,3,3, 3,3,3,
+                3,4,4, 4,4,3,
+                3,4,5, 0,4,3,
+
+                3,4,0, 5,4,3,
+                3,4,4, 4,4,3,
+                3,3,3, 3,3,3 })
+    app.undo()
+    app.undo()
+    app.undo()
+
+    app.command.MoveMask {
+      target='content',
+      wrap=false,
+      direction='down',
+      units='pixel',
+      quantity=3
+    }
+    app.command.MoveMask {
+      target='content',
+      wrap=false,
+      direction='right',
+      units='pixel',
+      quantity=3
+    }
+    app.command.DeselectMask { }
+    spr:flatten()
+    assert(spr.cels[1].bounds.origin == Point(10,6))
+    expect_img(spr.cels[1].image,
+              { 0,0,1, 1,1,0,
+                0,0,1, 2,1,0,
+                3,3,3, 3,3,3,
+
+                3,4,4, 4,4,3,
+                3,4,5, 0,4,3,
+                3,4,0, 5,4,3,
+
+                3,4,4, 4,4,3,
+                3,3,3, 3,3,3 })
+    app.undo()
+    app.undo()
+    app.undo()
+  end
+end
