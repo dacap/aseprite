@@ -112,13 +112,12 @@ PixelsMovement::InnerCmd::MakeStamp(const Transformation& t)
 
 PixelsMovement::PixelsMovement(
   Context* context,
-  Site site,
+  Editor* editor,
   const Image* moveThis,
   const Mask* mask,
   const char* operationName)
   : m_reader(context)
-  , m_site(site)
-  , m_document(site.document())
+  , m_editor(editor)
   , m_tx(Tx::DontLockDoc, context,
          context->activeDocument(), operationName)
   , m_isDragging(false)
@@ -126,11 +125,20 @@ PixelsMovement::PixelsMovement(
   , m_handle(NoHandle)
   , m_originalImage(Image::createCopy(moveThis))
   , m_opaque(false)
-  , m_maskColor(m_site.sprite()->transparentColor())
   , m_canHandleFrameChange(false)
   , m_fastMode(false)
   , m_needsRotSpriteRedraw(false)
 {
+  if (m_editor) {
+    m_site = m_editor->getSite();
+    m_document = m_site.document();
+    m_maskColor = m_site.sprite()->transparentColor();
+    // Save and Lock the TilemapMode.
+    // TO DO: enable TilemapMode exchanges during PixelMovement.
+    m_initialTilemapMode = m_site.tilemapMode();
+    if (m_site.layer()->isTilemap() && m_editor->colorBar())
+      m_editor->colorBar()->enableTilemapModeButton(false);
+  }
   double cornerThick = (m_site.tilemapMode() == TilemapMode::Tiles) ?
                           CORNER_THICK_FOR_TILEMAP_MODE :
                           CORNER_THICK_FOR_PIXELS_MODE;
@@ -169,6 +177,16 @@ PixelsMovement::PixelsMovement(
     m_tx(new cmd::SetMask(m_document, m_currentMask.get()));
     m_document->generateMaskBoundaries(m_currentMask.get());
     update_screen_for_document(m_document);
+  }
+}
+
+PixelsMovement::~PixelsMovement()
+{
+  // Restore and Unlock the tilemap mode
+  if (m_editor && m_editor->colorBar()) {
+    if (m_site.tilemapMode() == TilemapMode::Tiles)
+      m_editor->colorBar()->setSelected(m_initialTilemapMode == TilemapMode::Tiles);
+    m_editor->colorBar()->enableTilemapModeButton(true);
   }
 }
 

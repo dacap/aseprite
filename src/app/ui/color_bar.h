@@ -99,6 +99,9 @@ namespace app {
     ColorButton* fgColorButton() { return &m_fgColor; }
     ColorButton* bgColorButton() { return &m_bgColor; }
 
+    void enableTilemapModeButton(bool state);
+    bool isTilemapModeEnabled() const;
+
     // ContextObserver impl
     void onActiveSiteChange(const Site& site) override;
 

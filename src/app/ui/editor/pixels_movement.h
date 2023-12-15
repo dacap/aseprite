@@ -14,6 +14,7 @@
 #include "app/site.h"
 #include "app/transformation.h"
 #include "app/tx.h"
+#include "app/ui/editor/editor.h"
 #include "app/ui/editor/handle_type.h"
 #include "doc/algorithm/flip_type.h"
 #include "doc/frame.h"
@@ -70,10 +71,12 @@ namespace app {
     };
 
     PixelsMovement(Context* context,
-                   Site site,
+                   Editor* editor,
                    const Image* moveThis,
                    const Mask* mask,
                    const char* operationName);
+
+    ~PixelsMovement();
 
     HandleType handle() const { return m_handle; }
     bool canHandleFrameChange() const { return m_canHandleFrameChange; }
@@ -175,6 +178,7 @@ namespace app {
 
     PixelsMovementDelegate* m_delegate = nullptr;
     const ContextReader m_reader;
+    Editor* m_editor;
     Site m_site;
     Doc* m_document;
     Tx m_tx;
@@ -199,6 +203,8 @@ namespace app {
     // avoiding RotSprite on each mouse movement.
     bool m_fastMode;
     bool m_needsRotSpriteRedraw;
+
+    TilemapMode m_initialTilemapMode;
 
     // Commands used in the interaction with the transformed pixels.
     // This is used to re-create the whole interaction on each

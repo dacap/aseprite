@@ -794,7 +794,7 @@ void StandbyState::transformSelection(Editor* editor, MouseMessage* msg, HandleT
 
     PixelsMovementPtr pixelsMovement(
       new PixelsMovement(UIContext::instance(),
-                         site,
+                         editor,
                          tmpImage.get(),
                          document->mask(),
                          "Transformation"));

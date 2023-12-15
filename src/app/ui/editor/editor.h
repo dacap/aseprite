@@ -124,6 +124,13 @@ namespace app {
     // Returns the current state.
     EditorStatePtr getState() { return m_state; }
 
+    ColorBar* colorBar() {
+    #ifdef ENABLE_UI
+      return ColorBar::instance();
+    #endif
+      return nullptr;
+    }
+
     bool isMovingPixels() const;
     void dropMovingPixels();
 

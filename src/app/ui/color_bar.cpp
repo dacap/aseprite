@@ -824,6 +824,16 @@ void ColorBar::onTilesButtonClick()
                                             TilemapMode::Pixels));
 }
 
+void ColorBar::enableTilemapModeButton(bool state)
+{
+  m_tilesButton.setEnabled(state);
+}
+
+bool ColorBar::isTilemapModeEnabled() const
+{
+  return m_tilesButton.isEnabled();
+}
+
 void ColorBar::onTilesButtonRightClick()
 {
   auto& pref = Preferences::instance();

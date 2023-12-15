@@ -2734,7 +2734,7 @@ void Editor::pasteImage(const Image* image, const Mask* mask)
   mask2.setOrigin(x, y);
 
   PixelsMovementPtr pixelsMovement(
-    new PixelsMovement(UIContext::instance(), site,
+    new PixelsMovement(UIContext::instance(), this,
                        image, &mask2, "Paste"));
 
   setState(EditorStatePtr(new MovingPixelsState(this, NULL, pixelsMovement, NoHandle)));
