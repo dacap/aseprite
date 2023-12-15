@@ -9,6 +9,7 @@
 #pragma once
 
 #include "doc/image_ref.h"
+#include "doc/mask.h"
 #include "gfx/fwd.h"
 #include "gfx/point.h"
 #include "gfx/size.h"
@@ -74,6 +75,9 @@ namespace doc {
 
     // Returns an array of tile positions that are touching the given region in the canvas
     std::vector<gfx::Point> tilesInCanvasRegion(const gfx::Region& rgn) const;
+
+    // Returns a mask aligned to the current grid, starting from other not aligned mask
+    Mask makeAlignedMask(const Mask* mask) const;
 
   private:
     gfx::Size m_tileSize;
