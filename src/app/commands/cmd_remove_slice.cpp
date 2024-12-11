@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -93,7 +93,7 @@ void RemoveSliceCommand::onExecute(Context* context)
     Slice* slice = slicesToDelete.frontAs<Slice>();
     ASSERT(slice);
     if (slice)
-    sliceName = slice->name();
+      sliceName = slice->name();
   }
 
   {
@@ -121,8 +121,8 @@ void RemoveSliceCommand::onExecute(Context* context)
 
   StatusBar::instance()->invalidate();
   if (!sliceName.empty()) {
-    StatusBar::instance()->showTip(
-      1000, Strings::remove_slice_x_removed(sliceName));
+    StatusBar::instance()->showTip(1000,
+                                   Strings::remove_slice_x_removed(sliceName));
   }
   else {
     StatusBar::instance()->showTip(
@@ -135,4 +135,4 @@ Command* CommandFactory::createRemoveSliceCommand()
   return new RemoveSliceCommand;
 }
 
-} // namespace app
+}  // namespace app

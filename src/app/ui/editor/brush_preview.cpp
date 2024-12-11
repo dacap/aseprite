@@ -5,10 +5,10 @@
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
 
-#define BP_TRACE(...) // TRACEARGS(__VA_ARGS__)
+#define BP_TRACE(...)  // TRACEARGS(__VA_ARGS__)
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/editor/brush_preview.h"
@@ -51,14 +51,9 @@ namespace app {
 
 using namespace doc;
 
-static int g_crosshair_pattern[7*7] = {
-  0, 0, 0, 1, 0, 0, 0,
-  0, 0, 0, 1, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0,
-  1, 1, 0, 0, 0, 1, 1,
-  0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 1, 0, 0, 0,
-  0, 0, 0, 1, 0, 0, 0,
+static int g_crosshair_pattern[7 * 7] = {
+  0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0,
+  0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0,
 };
 
 // We're going to keep a cache of native mouse cursor for each
@@ -107,9 +102,8 @@ BrushPreview::~BrushPreview()
 
 BrushRef BrushPreview::getCurrentBrush()
 {
-  return App::instance()
-    ->contextBar()
-    ->activeBrush(m_editor->getCurrentEditorTool());
+  return App::instance()->contextBar()->activeBrush(
+    m_editor->getCurrentEditorTool());
 }
 
 // static
@@ -142,9 +136,9 @@ void BrushPreview::show(const gfx::Point& screenPos)
   Doc* document = m_editor->document();
   Sprite* sprite = m_editor->sprite();
   Site site = m_editor->getSite();
-  Layer* layer = (m_editor->layer() &&
-                  m_editor->layer()->isImage() ? m_editor->layer():
-                                                 nullptr);
+  Layer* layer =
+    (m_editor->layer() && m_editor->layer()->isImage() ? m_editor->layer() :
+                                                         nullptr);
   ASSERT(sprite);
 
   // Get drawable region
@@ -169,8 +163,9 @@ void BrushPreview::show(const gfx::Point& screenPos)
 
   gfx::Rect origBrushBounds =
     ((isFloodfill && brush->type() != BrushType::kImageBrushType) ||
-     tilemapMode == TilemapMode::Tiles ? gfx::Rect(0, 0, 1, 1)
-                                       : brush->bounds());
+         tilemapMode == TilemapMode::Tiles ?
+       gfx::Rect(0, 0, 1, 1) :
+       brush->bounds());
   gfx::Rect brushBounds = origBrushBounds;
 
   // Cursor in the screen (view)
@@ -178,8 +173,7 @@ void BrushPreview::show(const gfx::Point& screenPos)
 
   // Get cursor position in the editor
   gfx::Point spritePos = m_editor->screenToEditor(screenPos);
-  if (pref.cursor.snapToGrid() &&
-      m_editor->docPref().grid.snap()) {
+  if (pref.cursor.snapToGrid() && m_editor->docPref().grid.snap()) {
     spritePos = snap_to_grid(m_editor->docPref().grid.bounds(),
                              spritePos,
                              PreferSnapTo::ClosestGridVertex) +
@@ -195,19 +189,19 @@ void BrushPreview::show(const gfx::Point& screenPos)
   color_t mask_index = sprite->transparentColor();
 
   // Check dynamics option for freehand tools
-  if (tool &&
-      tool->getController(0)->isFreehand() &&
+  if (tool && tool->getController(0)->isFreehand() &&
       // TODO add support for dynamics to contour tool
       tool->getFill(0) == tools::FillNone) {
     const auto& dynamics = App::instance()->contextBar()->getDynamics();
     if (brush->type() != doc::kImageBrushType &&
         (dynamics.size != tools::DynamicSensor::Static ||
          dynamics.angle != tools::DynamicSensor::Static)) {
-      brush.reset(
-        new Brush(
-          brush->type(),
-          (dynamics.size != tools::DynamicSensor::Static ? dynamics.minSize: brush->size()),
-          (dynamics.angle != tools::DynamicSensor::Static ? dynamics.minAngle: brush->angle())));
+      brush.reset(new Brush(
+        brush->type(),
+        (dynamics.size != tools::DynamicSensor::Static ? dynamics.minSize :
+                                                         brush->size()),
+        (dynamics.angle != tools::DynamicSensor::Static ? dynamics.minAngle :
+                                                          brush->angle())));
     }
   }
 
@@ -217,15 +211,15 @@ void BrushPreview::show(const gfx::Point& screenPos)
   else if (
     (tilemapMode == TilemapMode::Pixels) &&
     (brush->type() == kImageBrushType ||
-     ((isFloodfill ? 1: brush->size()) > (1.0 / m_editor->zoom().scale()))) &&
-    (// Use cursor bounds for inks that are effects (eraser, blur, etc.)
-     (ink->isEffect()) ||
-     // or when the brush color is transparent and we are not in the background layer
-     (!ink->isShading() &&
-      (layer && layer->isTransparent()) &&
-      ((sprite->pixelFormat() == IMAGE_INDEXED && brush_color == mask_index) ||
-       (sprite->pixelFormat() == IMAGE_RGB && rgba_geta(brush_color) == 0) ||
-       (sprite->pixelFormat() == IMAGE_GRAYSCALE && graya_geta(brush_color) == 0))))) {
+     ((isFloodfill ? 1 : brush->size()) > (1.0 / m_editor->zoom().scale()))) &&
+    (  // Use cursor bounds for inks that are effects (eraser, blur, etc.)
+      (ink->isEffect()) ||
+      // or when the brush color is transparent and we are not in the background layer
+      (!ink->isShading() && (layer && layer->isTransparent()) &&
+       ((sprite->pixelFormat() == IMAGE_INDEXED && brush_color == mask_index) ||
+        (sprite->pixelFormat() == IMAGE_RGB && rgba_geta(brush_color) == 0) ||
+        (sprite->pixelFormat() == IMAGE_GRAYSCALE &&
+         graya_geta(brush_color) == 0))))) {
     m_type = BRUSH_BOUNDARIES;
   }
   else {
@@ -267,8 +261,7 @@ void BrushPreview::show(const gfx::Point& screenPos)
 
   // For tiles as we show the edges of the tile, we add the crosshair
   // in the mouse position as a helper.
-  if (m_type & BRUSH_BOUNDARIES &&
-      tilemapMode == TilemapMode::Tiles)
+  if (m_type & BRUSH_BOUNDARIES && tilemapMode == TilemapMode::Tiles)
     m_type |= CROSSHAIR;
 
   if (m_type & SELECTION_CROSSHAIR)
@@ -284,7 +277,8 @@ void BrushPreview::show(const gfx::Point& screenPos)
   }
 
   // Use a simple cross
-  if (pref.cursor.paintingCursorType() == gen::PaintingCursorType::SIMPLE_CROSSHAIR) {
+  if (pref.cursor.paintingCursorType() ==
+      gen::PaintingCursorType::SIMPLE_CROSSHAIR) {
     m_type &= ~(CROSSHAIR | SELECTION_CROSSHAIR);
     m_type |= NATIVE_CROSSHAIR;
   }
@@ -305,20 +299,24 @@ void BrushPreview::show(const gfx::Point& screenPos)
     gfx::Rect extraCelBoundsInCanvas = brushBounds;
 
     // Tiled mode might require a bigger extra cel (to show the tiled)
-    if (int(m_editor->docPref().tiled.mode()) & int(filters::TiledMode::X_AXIS)) {
+    if (int(m_editor->docPref().tiled.mode()) &
+        int(filters::TiledMode::X_AXIS)) {
       brushBounds.x = wrap_value(brushBounds.x, sprite->width());
       extraCelBoundsInCanvas.x = brushBounds.x;
       if ((extraCelBoundsInCanvas.x < 0 && extraCelBoundsInCanvas.x2() > 0) ||
-          (extraCelBoundsInCanvas.x < sprite->width() && extraCelBoundsInCanvas.x2() > sprite->width())) {
+          (extraCelBoundsInCanvas.x < sprite->width() &&
+           extraCelBoundsInCanvas.x2() > sprite->width())) {
         extraCelBoundsInCanvas.x = 0;
         extraCelBoundsInCanvas.w = sprite->width();
       }
     }
-    if (int(m_editor->docPref().tiled.mode()) & int(filters::TiledMode::Y_AXIS)) {
+    if (int(m_editor->docPref().tiled.mode()) &
+        int(filters::TiledMode::Y_AXIS)) {
       brushBounds.y = wrap_value(brushBounds.y, sprite->height());
       extraCelBoundsInCanvas.y = brushBounds.y;
       if ((extraCelBoundsInCanvas.y < 0 && extraCelBoundsInCanvas.y2() > 0) ||
-          (extraCelBoundsInCanvas.y < sprite->height() && extraCelBoundsInCanvas.y2() > sprite->height())) {
+          (extraCelBoundsInCanvas.y < sprite->height() &&
+           extraCelBoundsInCanvas.y2() > sprite->height())) {
         extraCelBoundsInCanvas.y = 0;
         extraCelBoundsInCanvas.h = sprite->height();
       }
@@ -336,32 +334,36 @@ void BrushPreview::show(const gfx::Point& screenPos)
     }
 
     BP_TRACE("BrushPreview:",
-             "brushBounds", brushBounds,
-             "extraCelBounds", extraCelBounds,
-             "extraCelBoundsInCanvas", extraCelBoundsInCanvas);
+             "brushBounds",
+             brushBounds,
+             "extraCelBounds",
+             extraCelBounds,
+             "extraCelBoundsInCanvas",
+             extraCelBoundsInCanvas);
 
     // Create the extra cel to show the brush preview
     Cel* cel = site.cel();
 
     int t, opacity = 255;
-    if (cel) opacity = MUL_UN8(opacity, cel->opacity(), t);
-    if (layer) opacity = MUL_UN8(opacity, static_cast<LayerImage*>(layer)->opacity(), t);
+    if (cel)
+      opacity = MUL_UN8(opacity, cel->opacity(), t);
+    if (layer)
+      opacity = MUL_UN8(opacity, static_cast<LayerImage*>(layer)->opacity(), t);
 
     if (!m_extraCel)
       m_extraCel.reset(new ExtraCel);
 
-    m_extraCel->create(
-      ExtraCel::Purpose::BrushPreview,
-      tilemapMode,
-      document->sprite(),
-      extraCelBoundsInCanvas,
-      extraCelBounds.size(),
-      site.frame(),
-      opacity);
+    m_extraCel->create(ExtraCel::Purpose::BrushPreview,
+                       tilemapMode,
+                       document->sprite(),
+                       extraCelBoundsInCanvas,
+                       extraCelBounds.size(),
+                       site.frame(),
+                       opacity);
     m_extraCel->setType(render::ExtraType::NONE);
-    m_extraCel->setBlendMode(
-      (layer ? static_cast<LayerImage*>(layer)->blendMode():
-               BlendMode::NORMAL));
+    m_extraCel->setBlendMode((layer ?
+                                static_cast<LayerImage*>(layer)->blendMode() :
+                                BlendMode::NORMAL));
 
     document->setExtraCel(m_extraCel);
 
@@ -372,33 +374,33 @@ void BrushPreview::show(const gfx::Point& screenPos)
     }
     else {
       extraImage->setMaskColor(mask_index);
-      clear_image(extraImage,
-                  (extraImage->pixelFormat() == IMAGE_INDEXED ? mask_index: 0));
+      clear_image(
+        extraImage,
+        (extraImage->pixelFormat() == IMAGE_INDEXED ? mask_index : 0));
     }
 
     if (layer) {
-      render::Render().renderLayer(
-        extraImage, layer, site.frame(),
-        gfx::Clip(0, 0, extraCelBoundsInCanvas),
-        BlendMode::SRC);
+      render::Render().renderLayer(extraImage,
+                                   layer,
+                                   site.frame(),
+                                   gfx::Clip(0, 0, extraCelBoundsInCanvas),
+                                   BlendMode::SRC);
 
       // This extra cel is a patch for the current layer/frame
       m_extraCel->setType(render::ExtraType::PATCH);
     }
 
     {
-      std::unique_ptr<tools::ToolLoop> loop(
-        create_tool_loop_preview(
-          m_editor, brush, extraImage,
-          extraCelBounds.origin()));
+      std::unique_ptr<tools::ToolLoop> loop(create_tool_loop_preview(
+        m_editor, brush, extraImage, extraCelBounds.origin()));
       if (loop) {
         loop->getInk()->prepareInk(loop.get());
         loop->getController()->prepareController(loop.get());
         loop->getIntertwine()->prepareIntertwine(loop.get());
         loop->getPointShape()->preparePointShape(loop.get());
 
-        tools::Stroke::Pt pt(brushBounds.x-origBrushBounds.x,
-                             brushBounds.y-origBrushBounds.y);
+        tools::Stroke::Pt pt(brushBounds.x - origBrushBounds.x,
+                             brushBounds.y - origBrushBounds.y);
         pt.size = brush->size();
         pt.angle = brush->angle();
         loop->getPointShape()->transformPoint(loop.get(), pt);
@@ -406,15 +408,15 @@ void BrushPreview::show(const gfx::Point& screenPos)
     }
 
     document->notifySpritePixelsModified(
-      sprite, gfx::Region(m_lastBounds = extraCelBoundsInCanvas),
+      sprite,
+      gfx::Region(m_lastBounds = extraCelBoundsInCanvas),
       m_lastFrame = site.frame());
 
     m_withRealPreview = true;
   }
 
   // Save area and draw the cursor
-  if (!(m_type & NATIVE_CROSSHAIR) ||
-      (m_type & BRUSH_BOUNDARIES)) {
+  if (!(m_type & NATIVE_CROSSHAIR) || (m_type & BRUSH_BOUNDARIES)) {
     ui::ScreenGraphics g(m_editor->display());
     ui::SetClip clip(&g);
     gfx::Color uiCursorColor = color_utils::color_for_ui(appCursorColor);
@@ -423,8 +425,10 @@ void BrushPreview::show(const gfx::Point& screenPos)
       createCrosshairCursor(&g, uiCursorColor);
     }
 
-    forEachBrushPixel(&g, spritePos, uiCursorColor, &BrushPreview::savePixelDelegate);
-    forEachBrushPixel(&g, spritePos, uiCursorColor, &BrushPreview::drawPixelDelegate);
+    forEachBrushPixel(
+      &g, spritePos, uiCursorColor, &BrushPreview::savePixelDelegate);
+    forEachBrushPixel(
+      &g, spritePos, uiCursorColor, &BrushPreview::drawPixelDelegate);
     m_withModifiedPixels = true;
   }
 
@@ -469,8 +473,8 @@ void BrushPreview::hide()
     // Restore pixels
     ui::ScreenGraphics g(m_editor->display());
     ui::SetClip clip(&g);
-    forEachBrushPixel(&g, m_editorPosition, gfx::ColorNone,
-                      &BrushPreview::clearPixelDelegate);
+    forEachBrushPixel(
+      &g, m_editorPosition, gfx::ColorNone, &BrushPreview::clearPixelDelegate);
   }
 
   // Clean pixel/brush preview
@@ -537,15 +541,12 @@ void BrushPreview::generateBoundaries(const Site& site,
   Layer* currentLayer = site.layer();
   TilemapMode tilemapMode = site.tilemapMode();
 
-  if (tilemapMode == TilemapMode::Pixels &&
-      tilemapMode == m_lastTilemapMode &&
-      !m_brushBoundaries.isEmpty() &&
-      m_brushGen == brush->gen()) {
+  if (tilemapMode == TilemapMode::Pixels && tilemapMode == m_lastTilemapMode &&
+      !m_brushBoundaries.isEmpty() && m_brushGen == brush->gen()) {
     return;
   }
   else if (tilemapMode == TilemapMode::Tiles &&
-           tilemapMode == m_lastTilemapMode &&
-           m_lastLayer == currentLayer) {
+           tilemapMode == m_lastTilemapMode && m_lastLayer == currentLayer) {
     // When tilemapMode is 'Tiles' is needed an offset
     // re-calculation of the brush boundaries, even
     // if it's no need to update the mask.
@@ -562,9 +563,8 @@ void BrushPreview::generateBoundaries(const Site& site,
   Image* mask = nullptr;
   bool deleteMask = true;
   if (tilemapMode == TilemapMode::Tiles) {
-    mask = Image::create(IMAGE_BITMAP,
-                         site.grid().tileSize().w,
-                         site.grid().tileSize().h);
+    mask = Image::create(
+      IMAGE_BITMAP, site.grid().tileSize().w, site.grid().tileSize().h);
     mask->clear((color_t)1);
   }
   else if (isOnePixel) {
@@ -577,11 +577,10 @@ void BrushPreview::generateBoundaries(const Site& site,
     mask = brush->maskBitmap();
   }
 
-  m_brushBoundaries.regen(mask ? mask: brushImage);
+  m_brushBoundaries.regen(mask ? mask : brushImage);
   if (tilemapMode == TilemapMode::Pixels) {
     if (!isOnePixel)
-      m_brushBoundaries.offset(-brush->center().x,
-                               -brush->center().y);
+      m_brushBoundaries.offset(-brush->center().x, -brush->center().y);
   }
   else
     calculateTileBoundariesOrigin(site.grid(), spritePos);
@@ -636,13 +635,13 @@ void BrushPreview::createCrosshairCursor(ui::Graphics* g,
     int k = 0;
     if (m_type & CROSSHAIR) {
       int bit = 0;
-      for (int v=0; v<7; v++) {
-        for (int u=0; u<7; u++) {
-          if (g_crosshair_pattern[v*7+u]) {
-            color_t c = g->getPixel(m_screenPosition.x-3+u,
-                                    m_screenPosition.y-3+v);
+      for (int v = 0; v < 7; v++) {
+        for (int u = 0; u < 7; u++) {
+          if (g_crosshair_pattern[v * 7 + u]) {
+            color_t c = g->getPixel(m_screenPosition.x - 3 + u,
+                                    m_screenPosition.y - 3 + v);
             c = color_utils::blackandwhite_neg(c);
-            if (rgba_getr(c) == 255) { // White
+            if (rgba_getr(c) == 255) {  // White
               k |= (1 << bit);
             }
             ++bit;
@@ -651,19 +650,18 @@ void BrushPreview::createCrosshairCursor(ui::Graphics* g,
       }
     }
     if (requireLittleCenterDot) {
-      color_t c = g->getPixel(m_screenPosition.x,
-                              m_screenPosition.y);
+      color_t c = g->getPixel(m_screenPosition.x, m_screenPosition.y);
       c = color_utils::blackandwhite_neg(c);
-      if (rgba_getr(c) == 255) {       // White
-        k |= (m_type & CROSSHAIR ? 0x200: 0x301);
+      if (rgba_getr(c) == 255) {  // White
+        k |= (m_type & CROSSHAIR ? 0x200 : 0x301);
       }
-      else {                           // Black
-        k |= (m_type & CROSSHAIR ? 0x100: 0x300);
+      else {  // Black
+        k |= (m_type & CROSSHAIR ? 0x100 : 0x300);
       }
     }
 
     ASSERT(k < int(g_bwCursors.size()));
-    if (k >= int(g_bwCursors.size())) // Unexpected key value in release mode
+    if (k >= int(g_bwCursors.size()))  // Unexpected key value in release mode
       return;
 
     // Use cached cursor
@@ -674,16 +672,14 @@ void BrushPreview::createCrosshairCursor(ui::Graphics* g,
       const gfx::Color black = gfx::rgba(0, 0, 0);
       const gfx::Color white = gfx::rgba(255, 255, 255);
       os::SurfaceRef cursorSurface =
-        os::instance()->makeRgbaSurface(cursorBounds.w,
-                                        cursorBounds.h);
+        os::instance()->makeRgbaSurface(cursorBounds.w, cursorBounds.h);
       cursorSurface->clear();
       int bit = 0;
       if (m_type & CROSSHAIR) {
-        for (int v=0; v<7; v++) {
-          for (int u=0; u<7; u++) {
-            if (g_crosshair_pattern[v*7+u]) {
-              cursorSurface->putPixel(
-                (k & (1 << bit) ? white: black), u, v);
+        for (int v = 0; v < 7; v++) {
+          for (int u = 0; u < 7; u++) {
+            if (g_crosshair_pattern[v * 7 + u]) {
+              cursorSurface->putPixel((k & (1 << bit) ? white : black), u, v);
               ++bit;
             }
           }
@@ -691,24 +687,21 @@ void BrushPreview::createCrosshairCursor(ui::Graphics* g,
       }
       if (requireLittleCenterDot) {
         if (m_type & CROSSHAIR) {
-          if (k & (0x100 | 0x200)) { // 0x100 or 0x200
-            cursorSurface->putPixel(
-              (k & 0x100 ? black: white),
-              cursorBounds.w/2, cursorBounds.h/2);
+          if (k & (0x100 | 0x200)) {  // 0x100 or 0x200
+            cursorSurface->putPixel((k & 0x100 ? black : white),
+                                    cursorBounds.w / 2,
+                                    cursorBounds.h / 2);
           }
         }
-        else {                       // 0x300 or 0x301
-          cursorSurface->putPixel(
-            (k == 0x300 ? black: white),
-            cursorBounds.w/2, cursorBounds.h/2);
+        else {  // 0x300 or 0x301
+          cursorSurface->putPixel((k == 0x300 ? black : white),
+                                  cursorBounds.w / 2,
+                                  cursorBounds.h / 2);
         }
       }
 
       cursor = g_bwCursors[k] =
-        os::instance()->makeCursor(
-          cursorSurface.get(),
-          cursorCenter,
-          scale);
+        os::instance()->makeCursor(cursorSurface.get(), cursorCenter, scale);
     }
   }
   // Cursor with solid color (easiest case, we don't have to check the
@@ -734,23 +727,20 @@ void BrushPreview::createCrosshairCursor(ui::Graphics* g,
     }
     else {
       os::SurfaceRef cursorSurface =
-        os::instance()->makeRgbaSurface(cursorBounds.w,
-                                        cursorBounds.h);
+        os::instance()->makeRgbaSurface(cursorBounds.w, cursorBounds.h);
       cursorSurface->clear();
       if (m_type & CROSSHAIR) {
-        for (int v=0; v<7; v++)
-          for (int u=0; u<7; u++)
-            if (g_crosshair_pattern[v*7+u])
+        for (int v = 0; v < 7; v++)
+          for (int u = 0; u < 7; u++)
+            if (g_crosshair_pattern[v * 7 + u])
               cursorSurface->putPixel(cursorColor, u, v);
       }
       if (requireLittleCenterDot)
-        cursorSurface->putPixel(cursorColor, cursorBounds.w/2, cursorBounds.h/2);
+        cursorSurface->putPixel(
+          cursorColor, cursorBounds.w / 2, cursorBounds.h / 2);
 
       cursor = g_solidCursors[k] =
-        os::instance()->makeCursor(
-          cursorSurface.get(),
-          cursorCenter,
-          scale);
+        os::instance()->makeCursor(cursorSurface.get(), cursorCenter, scale);
     }
   }
 
@@ -761,11 +751,10 @@ void BrushPreview::createCrosshairCursor(ui::Graphics* g,
   }
 }
 
-void BrushPreview::forEachBrushPixel(
-  ui::Graphics* g,
-  const gfx::Point& spritePos,
-  gfx::Color color,
-  PixelDelegate pixelDelegate)
+void BrushPreview::forEachBrushPixel(ui::Graphics* g,
+                                     const gfx::Point& spritePos,
+                                     gfx::Color color,
+                                     PixelDelegate pixelDelegate)
 {
   m_savedPixelsIterator = 0;
 
@@ -779,36 +768,33 @@ void BrushPreview::forEachBrushPixel(
 }
 
 // Old thick cross (used for selection tools)
-void BrushPreview::traceSelectionCrossPixels(
-  ui::Graphics* g,
-  const gfx::Point& pt, gfx::Color color,
-  int thickness, PixelDelegate pixelDelegate)
+void BrushPreview::traceSelectionCrossPixels(ui::Graphics* g,
+                                             const gfx::Point& pt,
+                                             gfx::Color color,
+                                             int thickness,
+                                             PixelDelegate pixelDelegate)
 {
-  static int cross[6*6] = {
-    0, 0, 1, 1, 0, 0,
-    0, 0, 1, 1, 0, 0,
-    1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1,
-    0, 0, 1, 1, 0, 0,
-    0, 0, 1, 1, 0, 0,
+  static int cross[6 * 6] = {
+    0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0,
   };
   gfx::Point out, outpt = m_editor->editorToScreen(pt);
   const render::Projection& proj = m_editor->projection();
-  gfx::Size size(proj.applyX(thickness/2),
-                 proj.applyY(thickness/2));
-  gfx::Size size2(proj.applyX(thickness),
-                  proj.applyY(thickness));
-  if (size2.w == 0) size2.w = 1;
-  if (size2.h == 0) size2.h = 1;
+  gfx::Size size(proj.applyX(thickness / 2), proj.applyY(thickness / 2));
+  gfx::Size size2(proj.applyX(thickness), proj.applyY(thickness));
+  if (size2.w == 0)
+    size2.w = 1;
+  if (size2.h == 0)
+    size2.h = 1;
 
-  for (int v=0; v<6; v++) {
-    for (int u=0; u<6; u++) {
-      if (!cross[v*6+u])
+  for (int v = 0; v < 6; v++) {
+    for (int u = 0; u < 6; u++) {
+      if (!cross[v * 6 + u])
         continue;
 
       out = outpt;
-      out.x += ((u<3) ? u-size.w-3: u-size.w-3+size2.w);
-      out.y += ((v<3) ? v-size.h-3: v-size.h-3+size2.h);
+      out.x += ((u < 3) ? u - size.w - 3 : u - size.w - 3 + size2.w);
+      out.y += ((v < 3) ? v - size.h - 3 : v - size.h - 3 + size2.h);
 
       (this->*pixelDelegate)(g, out, color);
     }
@@ -827,17 +813,19 @@ void BrushPreview::traceBrushBoundaries(ui::Graphics* g,
     bounds = m_editor->editorToScreen(bounds);
 
     if (seg.open()) {
-      if (seg.vertical()) --bounds.x;
-      else --bounds.y;
+      if (seg.vertical())
+        --bounds.x;
+      else
+        --bounds.y;
     }
 
     gfx::Point pt(bounds.x, bounds.y);
     if (seg.vertical()) {
-      for (; pt.y<bounds.y+bounds.h; ++pt.y)
+      for (; pt.y < bounds.y + bounds.h; ++pt.y)
         (this->*pixelDelegate)(g, pt, color);
     }
     else {
-      for (; pt.x<bounds.x+bounds.w; ++pt.x)
+      for (; pt.x < bounds.x + bounds.w; ++pt.x)
         (this->*pixelDelegate)(g, pt, color);
     }
   }
@@ -846,7 +834,9 @@ void BrushPreview::traceBrushBoundaries(ui::Graphics* g,
 //////////////////////////////////////////////////////////////////////
 // Pixel delegates
 
-void BrushPreview::savePixelDelegate(ui::Graphics* g, const gfx::Point& pt, gfx::Color color)
+void BrushPreview::savePixelDelegate(ui::Graphics* g,
+                                     const gfx::Point& pt,
+                                     gfx::Color color)
 {
   if (m_clippingRegion.contains(pt)) {
     color_t c = g->getPixel(pt.x, pt.y);
@@ -860,7 +850,9 @@ void BrushPreview::savePixelDelegate(ui::Graphics* g, const gfx::Point& pt, gfx:
   }
 }
 
-void BrushPreview::drawPixelDelegate(ui::Graphics* gfx, const gfx::Point& pt, gfx::Color color)
+void BrushPreview::drawPixelDelegate(ui::Graphics* gfx,
+                                     const gfx::Point& pt,
+                                     gfx::Color color)
 {
   if (m_savedPixelsIterator < (int)m_savedPixels.size() &&
       m_clippingRegion.contains(pt)) {
@@ -870,7 +862,8 @@ void BrushPreview::drawPixelDelegate(ui::Graphics* gfx, const gfx::Point& pt, gf
       int g = gfx::getg(c);
       int b = gfx::getb(c);
 
-      gfx->putPixel(color_utils::blackandwhite_neg(gfx::rgba(r, g, b)), pt.x, pt.y);
+      gfx->putPixel(
+        color_utils::blackandwhite_neg(gfx::rgba(r, g, b)), pt.x, pt.y);
     }
     else {
       gfx->putPixel(color, pt.x, pt.y);
@@ -879,7 +872,9 @@ void BrushPreview::drawPixelDelegate(ui::Graphics* gfx, const gfx::Point& pt, gf
   }
 }
 
-void BrushPreview::clearPixelDelegate(ui::Graphics* g, const gfx::Point& pt, gfx::Color color)
+void BrushPreview::clearPixelDelegate(ui::Graphics* g,
+                                      const gfx::Point& pt,
+                                      gfx::Color color)
 {
   if (m_savedPixelsIterator < (int)m_savedPixels.size()) {
     if (m_oldClippingRegion.contains(pt)) {
@@ -892,9 +887,10 @@ void BrushPreview::clearPixelDelegate(ui::Graphics* g, const gfx::Point& pt, gfx
 #if _DEBUG
   if (!(m_savedPixelsIterator <= m_savedPixelsLimit)) {
     TRACE("m_savedPixelsIterator <= m_savedPixelsLimit: %d <= %d failed\n",
-          m_savedPixelsIterator, m_savedPixelsLimit);
+          m_savedPixelsIterator,
+          m_savedPixelsLimit);
   }
 #endif
 }
 
-} // namespace app
+}  // namespace app

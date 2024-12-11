@@ -13,9 +13,11 @@
 
 namespace base {
 
-  template<> doc::PixelRatio convert_to(const std::string& from);
-  template<> std::string convert_to(const doc::PixelRatio& from);
+template<>
+doc::PixelRatio convert_to(const std::string& from);
+template<>
+std::string convert_to(const doc::PixelRatio& from);
 
-} // namespace base
+}  // namespace base
 
 #endif

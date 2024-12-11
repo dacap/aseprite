@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/filename_field.h"
@@ -24,8 +24,8 @@ using namespace ui;
 
 FilenameField::FilenameField(const Type type,
                              const std::string& pathAndFilename)
-  : m_entry(type == EntryAndButton ? new ui::Entry(1024, ""): nullptr)
-  , m_button(type == EntryAndButton ? Strings::select_file_browse():
+  : m_entry(type == EntryAndButton ? new ui::Entry(1024, "") : nullptr)
+  , m_button(type == EntryAndButton ? Strings::select_file_browse() :
                                       Strings::select_file_text())
 {
   setFocusStop(true);
@@ -41,20 +41,18 @@ FilenameField::FilenameField(const Type type,
   setFilename(pathAndFilename);
 
   if (m_entry) {
-    m_entry->Change.connect(
-      [this]{
-        m_file = m_entry->text();
-        Change();
-      });
+    m_entry->Change.connect([this] {
+      m_file = m_entry->text();
+      Change();
+    });
   }
 
-  m_button.Click.connect(
-    [this]{
-      std::string fn = SelectFile();
-      if (!fn.empty()) {
-        setFilename(fn);
-      }
-    });
+  m_button.Click.connect([this] {
+    std::string fn = SelectFile();
+    if (!fn.empty()) {
+      setFilename(fn);
+    }
+  });
 
   initTheme();
 }
@@ -112,4 +110,4 @@ void FilenameField::updateWidgets()
   Change();
 }
 
-} // namespace app
+}  // namespace app

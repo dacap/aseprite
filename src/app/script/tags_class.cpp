@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/script/docobj.h"
@@ -15,8 +15,7 @@
 #include "doc/sprite.h"
 #include "doc/tag.h"
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 using namespace doc;
 
@@ -25,12 +24,16 @@ namespace {
 struct TagsObj {
   ObjectId spriteId;
   TagsObj(Sprite* sprite)
-    : spriteId(sprite->id()) {
+    : spriteId(sprite->id())
+  {
   }
   TagsObj(const TagsObj&) = delete;
   TagsObj& operator=(const TagsObj&) = delete;
 
-  Sprite* sprite(lua_State* L) { return check_docobj(L, doc::get<Sprite>(spriteId)); }
+  Sprite* sprite(lua_State* L)
+  {
+    return check_docobj(L, doc::get<Sprite>(spriteId));
+  }
 };
 
 int Tags_gc(lua_State* L)
@@ -52,20 +55,18 @@ int Tags_index(lua_State* L)
   auto& tags = obj->sprite(L)->tags();
   const int i = lua_tonumber(L, 2);
   if (i >= 1 && i <= int(tags.size()))
-    push_docobj(L, *(tags.begin()+i-1));
+    push_docobj(L, *(tags.begin() + i - 1));
   else
     lua_pushnil(L);
   return 1;
 }
 
-const luaL_Reg Tags_methods[] = {
-  { "__gc", Tags_gc },
-  { "__len", Tags_len },
-  { "__index", Tags_index },
-  { nullptr, nullptr }
-};
+const luaL_Reg Tags_methods[] = { { "__gc", Tags_gc },
+                                  { "__len", Tags_len },
+                                  { "__index", Tags_index },
+                                  { nullptr, nullptr } };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(TagsObj);
 
@@ -80,5 +81,4 @@ void push_sprite_tags(lua_State* L, Sprite* sprite)
   push_new<TagsObj>(L, sprite);
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

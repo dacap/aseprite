@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/cels_range.h"
@@ -47,7 +47,7 @@ CelsRange::iterator::iterator(const Sprite* sprite,
     if (layer->isImage()) {
       m_frameIterator = m_selFrames.begin();
       auto endFrame = m_selFrames.end();
-      for (; m_frameIterator!=endFrame; ++m_frameIterator) {
+      for (; m_frameIterator != endFrame; ++m_frameIterator) {
         m_cel = layer->cel(*m_frameIterator);
         if (m_cel)
           break;
@@ -75,7 +75,7 @@ CelsRange::iterator& CelsRange::iterator::operator++()
   m_cel = nullptr;
   while (layer && !m_cel) {
     if (layer->isImage()) {
-      for (; m_frameIterator!=endFrame; ++m_frameIterator) {
+      for (; m_frameIterator != endFrame; ++m_frameIterator) {
         m_cel = layer->cel(*m_frameIterator);
         if (m_cel) {
           if (m_flags == CelsRange::UNIQUE) {
@@ -100,4 +100,4 @@ CelsRange::iterator& CelsRange::iterator::operator++()
   return *this;
 }
 
-} // namespace doc
+}  // namespace doc

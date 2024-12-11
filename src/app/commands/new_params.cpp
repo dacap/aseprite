@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/commands/new_params.h"
@@ -30,9 +30,9 @@
 #include "gfx/size.h"
 
 #ifdef ENABLE_SCRIPTING
-#include "app/script/engine.h"
-#include "app/script/luacpp.h"
-#include "app/script/values.h"
+  #include "app/script/engine.h"
+  #include "app/script/luacpp.h"
+  #include "app/script/values.h"
 #endif
 
 namespace app {
@@ -197,7 +197,8 @@ void Param<filters::OutlineFilter::Matrix>::fromString(const std::string& value)
 }
 
 template<>
-void Param<filters::HueSaturationFilter::Mode>::fromString(const std::string& value)
+void Param<filters::HueSaturationFilter::Mode>::fromString(
+  const std::string& value)
 {
   if (base::utf8_icmp(value, "hsv") == 0 ||
       base::utf8_icmp(value, "hsv_mul") == 0)
@@ -216,11 +217,9 @@ void Param<filters::ColorCurve>::fromString(const std::string& value)
   filters::ColorCurve curve;
   std::vector<std::string> parts;
   base::split_string(value, parts, ",");
-  for (int i=0; i+1<int(parts.size()); i+=2) {
-    curve.addPoint(
-      gfx::Point(
-        base::convert_to<int>(parts[i]),
-        base::convert_to<int>(parts[i+1])));
+  for (int i = 0; i + 1 < int(parts.size()); i += 2) {
+    curve.addPoint(gfx::Point(base::convert_to<int>(parts[i]),
+                              base::convert_to<int>(parts[i + 1])));
   }
   setValue(curve);
 }
@@ -440,7 +439,7 @@ void CommandWithNewParamsBase::loadParamsFromLuaTable(lua_State* L, int index)
         if (ParamBase* p = onGetParam(k))
           p->fromLua(L, -1);
       }
-      lua_pop(L, 1);            // Pop the value, leave the key
+      lua_pop(L, 1);  // Pop the value, leave the key
     }
   }
   m_skipLoadParams = true;
@@ -463,4 +462,4 @@ void CommandWithNewParamsBase::onLoadParams(const Params& params)
   }
 }
 
-} // namespace app
+}  // namespace app

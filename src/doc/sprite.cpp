@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/sprite.h"
@@ -58,14 +58,13 @@ void Sprite::SetDefaultGridBounds(const gfx::Rect& defGridBounds)
 //////////////////////////////////////////////////////////////////////
 // Constructors/Destructor
 
-Sprite::Sprite(const ImageSpec& spec,
-               int ncolors)
+Sprite::Sprite(const ImageSpec& spec, int ncolors)
   : WithUserData(ObjectType::Sprite)
   , m_document(nullptr)
   , m_spec(spec)
   , m_pixelRatio(1, 1)
   , m_frames(1)
-  , m_frlens(1, 100)            // First frame with 100 msecs of duration
+  , m_frlens(1, 100)  // First frame with 100 msecs of duration
   , m_root(new LayerGroup(this))
   , m_gridBounds(Sprite::DefaultGridBounds())
   , m_tags(this)
@@ -74,19 +73,22 @@ Sprite::Sprite(const ImageSpec& spec,
 {
   // Generate palette
   switch (spec.colorMode()) {
-    case ColorMode::GRAYSCALE: ncolors = 256; break;
-    case ColorMode::BITMAP: ncolors = 2; break;
+    case ColorMode::GRAYSCALE:
+      ncolors = 256;
+      break;
+    case ColorMode::BITMAP:
+      ncolors = 2;
+      break;
   }
 
   Palette pal(frame_t(0), ncolors);
 
   switch (spec.colorMode()) {
-
     // For black and white images
     case ColorMode::GRAYSCALE:
     case ColorMode::BITMAP:
-      for (int c=0; c<ncolors; c++) {
-        int g = 255 * c / (ncolors-1);
+      for (int c = 0; c < ncolors; c++) {
+        int g = 255 * c / (ncolors - 1);
         g = std::clamp(g, 0, 255);
         pal.setEntry(c, rgba(g, g, g, 255));
       }
@@ -109,15 +111,16 @@ Sprite::~Sprite()
     PalettesList::iterator end = m_palettes.end();
     PalettesList::iterator it = m_palettes.begin();
     for (; it != end; ++it)
-      delete *it;               // palette
+      delete *it;  // palette
   }
 }
 
-static Sprite* makeSprite(const ImageSpec& spec,
-                          const ImageRef& image,
-                          std::function<std::unique_ptr<LayerImage>(Sprite* sprite)> makeLayer,
-                          const int ncolors,
-                          const ImageBufferPtr& imageBuf)
+static Sprite* makeSprite(
+  const ImageSpec& spec,
+  const ImageRef& image,
+  std::function<std::unique_ptr<LayerImage>(Sprite* sprite)> makeLayer,
+  const int ncolors,
+  const ImageBufferPtr& imageBuf)
 {
   // Create the sprite.
   std::unique_ptr<Sprite> sprite = std::make_unique<Sprite>(spec, ncolors);
@@ -133,11 +136,12 @@ static Sprite* makeSprite(const ImageSpec& spec,
 
       // Add the cel in the layer.
       layer->addCel(cel.get());
-      cel.release();            // Release the cel because it is in the layer
+      cel.release();  // Release the cel because it is in the layer
     }
 
     // Add the layer in the sprite.
-    sprite->root()->addLayer(layer.release()); // Release the layer because it's owned by the sprite
+    sprite->root()->addLayer(
+      layer.release());  // Release the layer because it's owned by the sprite
   }
 
   return sprite.release();
@@ -153,11 +157,11 @@ Sprite* Sprite::MakeStdSprite(const ImageSpec& spec,
   clear_image(image.get(), 0);
 
   auto makeLayer = [](Sprite* sprite) {
-                     // Create a transparent layer.
-                     auto layer = std::make_unique<LayerImage>(sprite);
-                     layer->setName("Layer 1");
-                     return layer;
-                   };
+    // Create a transparent layer.
+    auto layer = std::make_unique<LayerImage>(sprite);
+    layer->setName("Layer 1");
+    return layer;
+  };
   return makeSprite(spec, image, makeLayer, ncolors, imageBuf);
 }
 
@@ -175,15 +179,14 @@ Sprite* Sprite::MakeStdTilemapSpriteWithTileset(const ImageSpec& spec,
   clear_image(image.get(), 0);
 
   auto makeLayer = [&tileset](Sprite* sprite) {
-                     // Create a tilemap layer.
-                     // We first need to add the tileset to the sprite.
-                     sprite->tilesets()->add(
-                       Tileset::MakeCopyCopyingImages(&tileset));
+    // Create a tilemap layer.
+    // We first need to add the tileset to the sprite.
+    sprite->tilesets()->add(Tileset::MakeCopyCopyingImages(&tileset));
 
-                     auto layer = std::make_unique<LayerTilemap>(sprite, 0);
-                     layer->setName("Tilemap 1");
-                     return layer;
-                   };
+    auto layer = std::make_unique<LayerTilemap>(sprite, 0);
+    layer->setName("Tilemap 1");
+    return layer;
+  };
   return makeSprite(spec, image, makeLayer, ncolors, imageBuf);
 }
 
@@ -251,12 +254,12 @@ void Sprite::setTransparentColor(color_t color)
 {
 #if _DEBUG
   if (colorMode() == ColorMode::INDEXED) {
-    ASSERT(color != -1);       // Setting mask = -1 is a logic error
+    ASSERT(color != -1);  // Setting mask = -1 is a logic error
   }
   else {
-    ASSERT(color == 0);        // Always 0 for non-indexed color modes
+    ASSERT(color == 0);  // Always 0 for non-indexed color modes
   }
-#endif // _DEBUG
+#endif  // _DEBUG
 
   m_spec.setMaskColor(color);
 
@@ -393,9 +396,9 @@ void Sprite::resetPalettes()
   PalettesList::iterator it = m_palettes.begin();
 
   if (it != end) {
-    ++it;                       // Leave the first palette only.
+    ++it;  // Leave the first palette only.
     while (it != end) {
-      delete *it;               // palette
+      delete *it;  // palette
       it = m_palettes.erase(it);
       end = m_palettes.end();
     }
@@ -409,7 +412,7 @@ void Sprite::deletePalette(frame_t frame)
     Palette* pal = *it;
 
     if (pal->frame() == frame) {
-      delete pal;                   // delete palette
+      delete pal;  // delete palette
       m_palettes.erase(it);
       break;
     }
@@ -418,7 +421,7 @@ void Sprite::deletePalette(frame_t frame)
 
 Sprite::RgbMapFor Sprite::rgbMapForSprite() const
 {
-  return backgroundLayer() ? RgbMapFor::OpaqueLayer:
+  return backgroundLayer() ? RgbMapFor::OpaqueLayer :
                              RgbMapFor::TransparentLayer;
 }
 
@@ -427,8 +430,7 @@ RgbMap* Sprite::rgbMap(const frame_t frame) const
   return rgbMap(frame, rgbMapForSprite());
 }
 
-RgbMap* Sprite::rgbMap(const frame_t frame,
-                       const RgbMapFor forLayer) const
+RgbMap* Sprite::rgbMap(const frame_t frame, const RgbMapFor forLayer) const
 {
   FitCriteria fc = FitCriteria::DEFAULT;
   RgbMapAlgorithm algo = RgbMapAlgorithm::DEFAULT;
@@ -444,13 +446,16 @@ RgbMap* Sprite::rgbMap(const frame_t frame,
                        const RgbMapAlgorithm mapAlgo,
                        const FitCriteria fitCriteria) const
 {
-  if (!m_rgbMap ||
-      m_rgbMap->rgbmapAlgorithm() != mapAlgo ||
+  if (!m_rgbMap || m_rgbMap->rgbmapAlgorithm() != mapAlgo ||
       m_rgbMap->fitCriteria() != fitCriteria) {
     switch (mapAlgo) {
-      case RgbMapAlgorithm::RGB5A3: m_rgbMap.reset(new RgbMapRGB5A3); break;
+      case RgbMapAlgorithm::RGB5A3:
+        m_rgbMap.reset(new RgbMapRGB5A3);
+        break;
       case RgbMapAlgorithm::DEFAULT:
-      case RgbMapAlgorithm::OCTREE: m_rgbMap.reset(new OctreeMap); break;
+      case RgbMapAlgorithm::OCTREE:
+        m_rgbMap.reset(new OctreeMap);
+        break;
       default:
         m_rgbMap.reset(nullptr);
         ASSERT(false);
@@ -459,7 +464,7 @@ RgbMap* Sprite::rgbMap(const frame_t frame,
     m_rgbMap->fitCriteria(fitCriteria);
   }
   int maskIndex = palette(frame)->findMaskColor();
-  maskIndex = (maskIndex == -1 ? (forLayer == RgbMapFor::OpaqueLayer ? -1: 0):
+  maskIndex = (maskIndex == -1 ? (forLayer == RgbMapFor::OpaqueLayer ? -1 : 0) :
                                  maskIndex);
   m_rgbMap->regenerateMap(palette(frame), maskIndex, fitCriteria);
   return m_rgbMap.get();
@@ -470,11 +475,11 @@ RgbMap* Sprite::rgbMap(const frame_t frame,
 
 void Sprite::addFrame(frame_t newFrame)
 {
-  setTotalFrames(m_frames+1);
+  setTotalFrames(m_frames + 1);
 
   frame_t to = std::max(1, newFrame);
-  for (frame_t i=m_frames-1; i>=to; --i)
-    setFrameDuration(i, frameDuration(i-1));
+  for (frame_t i = m_frames - 1; i >= to; --i)
+    setFrameDuration(i, frameDuration(i - 1));
 
   root()->displaceFrames(newFrame, +1);
 }
@@ -483,9 +488,9 @@ void Sprite::removeFrame(frame_t frame)
 {
   root()->displaceFrames(frame, -1);
 
-  frame_t newTotal = m_frames-1;
-  for (frame_t i=frame; i<newTotal; ++i)
-    setFrameDuration(i, frameDuration(i+1));
+  frame_t newTotal = m_frames - 1;
+  for (frame_t i = frame; i < newTotal; ++i)
+    setFrameDuration(i, frameDuration(i + 1));
   setTotalFrames(newTotal);
 }
 
@@ -495,8 +500,8 @@ void Sprite::setTotalFrames(frame_t frames)
   m_frlens.resize(frames);
 
   if (frames > m_frames) {
-    for (frame_t c=m_frames; c<frames; ++c)
-      m_frlens[c] = m_frlens[m_frames-1];
+    for (frame_t c = m_frames; c < frames; ++c)
+      m_frlens[c] = m_frlens[m_frames - 1];
   }
 
   m_frames = frames;
@@ -513,9 +518,9 @@ int Sprite::frameDuration(frame_t frame) const
 int Sprite::totalAnimationDuration() const
 {
   int duration = 0;
-  for (frame_t frame=0; frame<m_frames; ++frame)
+  for (frame_t frame = 0; frame < m_frames; ++frame)
     duration += frameDuration(frame);
-  return duration; // TODO cache this value
+  return duration;  // TODO cache this value
 }
 
 void Sprite::setFrameDuration(frame_t frame, int msecs)
@@ -526,9 +531,9 @@ void Sprite::setFrameDuration(frame_t frame, int msecs)
 
 void Sprite::setFrameRangeDuration(frame_t from, frame_t to, int msecs)
 {
-  std::fill(
-    m_frlens.begin()+(std::size_t)from,
-    m_frlens.begin()+(std::size_t)to+1, std::clamp(msecs, 1, 65535));
+  std::fill(m_frlens.begin() + (std::size_t)from,
+            m_frlens.begin() + (std::size_t)to + 1,
+            std::clamp(msecs, 1, 65535));
 }
 
 void Sprite::setDurationForAllFrames(int msecs)
@@ -550,7 +555,7 @@ ImageRef Sprite::getImageRef(ObjectId imageId)
       if (!tileset)
         continue;
 
-      for (tile_index i=0; i<tileset->size(); ++i) {
+      for (tile_index i = 0; i < tileset->size(); ++i) {
         ImageRef image = tileset->get(i);
         if (image && image->id() == imageId)
           return image;
@@ -584,7 +589,7 @@ void Sprite::replaceImage(ObjectId curImageId, const ImageRef& newImage)
       if (!tileset)
         continue;
 
-      for (tile_index i=0; i<tileset->size(); ++i) {
+      for (tile_index i = 0; i < tileset->size(); ++i) {
         ImageRef image = tileset->get(i);
         if (image && image->id() == curImageId) {
           // Change only the tile image (not its user data)
@@ -623,7 +628,7 @@ void Sprite::getImages(std::vector<ImageRef>& images) const
       if (!tileset)
         continue;
 
-      for (tile_index i=0; i<tileset->size(); ++i) {
+      for (tile_index i = 0; i < tileset->size(); ++i) {
         ImageRef image = tileset->get(i);
         if (image)
           images.push_back(image);
@@ -654,8 +659,7 @@ void Sprite::remapImages(const Remap& remap)
     remap_image(image.get(), remap);
 }
 
-void Sprite::remapTilemaps(const Tileset* tileset,
-                           const Remap& remap)
+void Sprite::remapTilemaps(const Tileset* tileset, const Remap& remap)
 {
   for (Cel* cel : uniqueCels()) {
     if (cel->layer()->isTilemap() &&
@@ -676,7 +680,7 @@ void Sprite::pickCels(const gfx::PointF& pos,
   // Iterate cels in reversed order (from the front-most to the
   // bottom-most) so we pick first visible cel in the given position.
   const auto& planItems = plan.items();
-  for (auto it=planItems.rbegin(), end=planItems.rend(); it!=end; ++it) {
+  for (auto it = planItems.rbegin(), end = planItems.rend(); it != end; ++it) {
     const Cel* cel = it->cel;
     if (!cel)
       continue;
@@ -703,8 +707,8 @@ void Sprite::pickCels(const gfx::PointF& pos,
     }
     else {
       gfx::Point ipos(
-        int((pos.x-celBounds.x)*image->width()/celBounds.w),
-        int((pos.y-celBounds.y)*image->height()/celBounds.h));
+        int((pos.x - celBounds.x) * image->width() / celBounds.w),
+        int((pos.y - celBounds.y) * image->height() / celBounds.h));
       if (!image->bounds().contains(ipos))
         continue;
 
@@ -816,4 +820,4 @@ Tilesets* Sprite::tilesets() const
   return m_tilesets;
 }
 
-} // namespace doc
+}  // namespace doc

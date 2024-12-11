@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/editor/pivot_helpers.h"
@@ -25,7 +25,8 @@ void set_pivot_from_preferences(Transformation& t)
   gfx::PointT<double> se(corners[Transformation::Corners::RIGHT_BOTTOM]);
   gfx::PointT<double> pivotPos((nw + se) / 2);
 
-  app::gen::PivotPosition pivot = Preferences::instance().selection.pivotPosition();
+  app::gen::PivotPosition pivot =
+    Preferences::instance().selection.pivotPosition();
   switch (pivot) {
     case app::gen::PivotPosition::NORTHWEST:
       pivotPos = nw;
@@ -56,4 +57,4 @@ void set_pivot_from_preferences(Transformation& t)
   t.displacePivotTo(gfx::PointF(pivotPos));
 }
 
-} // namespace app
+}  // namespace app

@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #ifndef ENABLE_SCRIPTING
@@ -69,15 +69,13 @@ void RunScriptCommand::onExecute(Context* context)
   if (context->isUIAvailable()) {
     int ret = OptionalAlert::show(
       Preferences::instance().scripts.showRunScriptAlert,
-      1, // Yes is the default option when the alert dialog is disabled
+      1,  // Yes is the default option when the alert dialog is disabled
       Strings::alerts_run_script(m_filename));
     if (ret != 1)
       return;
   }
 
-  App::instance()
-    ->scriptEngine()
-    ->evalUserFile(m_filename, m_params);
+  App::instance()->scriptEngine()->evalUserFile(m_filename, m_params);
 
   if (context->isUIAvailable())
     ui::Manager::getDefault()->invalidate();
@@ -88,9 +86,8 @@ std::string RunScriptCommand::onGetFriendlyName() const
   if (m_filename.empty())
     return Strings::commands_RunScript();
 
-  return fmt::format("{0}: {1}",
-                     Strings::commands_RunScript(),
-                     base::get_file_name(m_filename));
+  return fmt::format(
+    "{0}: {1}", Strings::commands_RunScript(), base::get_file_name(m_filename));
 }
 
 Command* CommandFactory::createRunScriptCommand()
@@ -98,4 +95,4 @@ Command* CommandFactory::createRunScriptCommand()
   return new RunScriptCommand;
 }
 
-} // namespace app
+}  // namespace app

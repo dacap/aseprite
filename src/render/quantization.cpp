@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "render/quantization.h"
@@ -35,19 +35,18 @@ namespace render {
 using namespace doc;
 using namespace gfx;
 
-Palette* create_palette_from_sprite(
-  const Sprite* sprite,
-  const frame_t fromFrame,
-  const frame_t toFrame,
-  const bool withAlpha,
-  Palette* palette,
-  TaskDelegate* delegate,
-  const bool newBlend,
-  RgbMapAlgorithm mapAlgo,
-  const bool calculateWithTransparent)
+Palette* create_palette_from_sprite(const Sprite* sprite,
+                                    const frame_t fromFrame,
+                                    const frame_t toFrame,
+                                    const bool withAlpha,
+                                    Palette* palette,
+                                    TaskDelegate* delegate,
+                                    const bool newBlend,
+                                    RgbMapAlgorithm mapAlgo,
+                                    const bool calculateWithTransparent)
 {
-   if (mapAlgo == doc::RgbMapAlgorithm::DEFAULT)
-     mapAlgo = doc::RgbMapAlgorithm::OCTREE;
+  if (mapAlgo == doc::RgbMapAlgorithm::DEFAULT)
+    mapAlgo = doc::RgbMapAlgorithm::OCTREE;
 
   PaletteOptimizer optimizer;
   OctreeMap octreemap;
@@ -61,27 +60,29 @@ Palette* create_palette_from_sprite(
     maskIndex = sprite->transparentColor();
   else {
     ASSERT(sprite->transparentColor() == 0);
-    maskIndex = 0; // For RGB/Grayscale images we use index 0 as the transparent index by default
+    maskIndex =
+      0;  // For RGB/Grayscale images we use index 0 as the transparent index by default
   }
 
   // TODO check if how this is used in OctreeMap, if as a RGBA value
   //      or as an index (here we are using it as an index).
-  const color_t maskColor = (sprite->backgroundLayer()
-                             && sprite->allLayersCount() == 1) ? DOC_OCTREE_IS_OPAQUE:
-                                                                 sprite->transparentColor();
+  const color_t maskColor =
+    (sprite->backgroundLayer() && sprite->allLayersCount() == 1) ?
+      DOC_OCTREE_IS_OPAQUE :
+      sprite->transparentColor();
 
   if (!palette)
     palette = new Palette(fromFrame, 256);
 
   // Add a flat image with the current sprite's frame rendered
-  ImageRef flat_image(Image::create(IMAGE_RGB,
-      sprite->width(), sprite->height()));
+  ImageRef flat_image(
+    Image::create(IMAGE_RGB, sprite->width(), sprite->height()));
 
   render::Render render;
   render.setNewBlend(newBlend);
 
   // Feed the optimizer with all rendered frames
-  for (frame_t frame=fromFrame; frame<=toFrame; ++frame) {
+  for (frame_t frame = fromFrame; frame <= toFrame; ++frame) {
     render.renderSprite(flat_image.get(), sprite, frame);
 
     switch (mapAlgo) {
@@ -100,13 +101,12 @@ Palette* create_palette_from_sprite(
       if (!delegate->continueTask())
         return nullptr;
 
-      delegate->notifyTaskProgress(
-        double(frame-fromFrame+1) / double(toFrame-fromFrame+1));
+      delegate->notifyTaskProgress(double(frame - fromFrame + 1) /
+                                   double(toFrame - fromFrame + 1));
     }
   }
 
   switch (mapAlgo) {
-
     case RgbMapAlgorithm::RGB5A3: {
       // Generate an optimized palette
       optimizer.calculate(palette, maskIndex);
@@ -120,15 +120,15 @@ Palette* create_palette_from_sprite(
         // We can use an 8-bit deep octree map, instead of 7-bit of the
         // first attempt.
         octreemap = OctreeMap();
-        for (frame_t frame=fromFrame; frame<=toFrame; ++frame) {
+        for (frame_t frame = fromFrame; frame <= toFrame; ++frame) {
           render.renderSprite(flat_image.get(), sprite, frame);
-          octreemap.feedWithImage(flat_image.get(), withAlpha, maskColor , 8);
+          octreemap.feedWithImage(flat_image.get(), withAlpha, maskColor, 8);
           if (delegate) {
             if (!delegate->continueTask())
               return nullptr;
 
-            delegate->notifyTaskProgress(
-              double(frame-fromFrame+1) / double(toFrame-fromFrame+1));
+            delegate->notifyTaskProgress(double(frame - fromFrame + 1) /
+                                         double(toFrame - fromFrame + 1));
           }
         }
         octreemap.makePalette(palette, palette->size(), 8);
@@ -139,17 +139,16 @@ Palette* create_palette_from_sprite(
   return palette;
 }
 
-Image* convert_pixel_format(
-  const Image* image,
-  Image* new_image,
-  const PixelFormat pixelFormat,
-  const Dithering& dithering,
-  const RgbMap* rgbmap,
-  const Palette* palette,
-  const bool is_background,
-  const color_t new_mask_color,
-  rgba_to_graya_func toGray,
-  TaskDelegate* delegate)
+Image* convert_pixel_format(const Image* image,
+                            Image* new_image,
+                            const PixelFormat pixelFormat,
+                            const Dithering& dithering,
+                            const RgbMap* rgbmap,
+                            const Palette* palette,
+                            const bool is_background,
+                            const color_t new_mask_color,
+                            rgba_to_graya_func toGray,
+                            TaskDelegate* delegate)
 {
   if (!new_image)
     new_image = Image::create(pixelFormat, image->width(), image->height());
@@ -159,25 +158,24 @@ Image* convert_pixel_format(
   new_image->setMaskColor(new_mask_color0);
 
   // RGB -> Indexed with ordered dithering
-  if (image->pixelFormat() == IMAGE_RGB &&
-      pixelFormat == IMAGE_INDEXED &&
+  if (image->pixelFormat() == IMAGE_RGB && pixelFormat == IMAGE_INDEXED &&
       dithering.algorithm() != DitheringAlgorithm::None) {
     std::unique_ptr<DitheringAlgorithmBase> dither;
     switch (dithering.algorithm()) {
       case DitheringAlgorithm::Ordered:
-        dither.reset(new OrderedDither2(is_background ? -1: new_mask_color));
+        dither.reset(new OrderedDither2(is_background ? -1 : new_mask_color));
         break;
       case DitheringAlgorithm::Old:
-        dither.reset(new OrderedDither(is_background ? -1: new_mask_color));
+        dither.reset(new OrderedDither(is_background ? -1 : new_mask_color));
         break;
       case DitheringAlgorithm::ErrorDiffusion:
-        dither.reset(new ErrorDiffusionDither(is_background ? -1: new_mask_color));
+        dither.reset(
+          new ErrorDiffusionDither(is_background ? -1 : new_mask_color));
         break;
     }
     if (dither)
       dither_rgb_image_to_indexed(
-        *dither, dithering,
-        image, new_image, rgbmap, palette, delegate);
+        *dither, dithering, image, new_image, rgbmap, palette, delegate);
     return new_image;
   }
 
@@ -193,13 +191,11 @@ Image* convert_pixel_format(
   int r, g, b, a;
 
   switch (image->pixelFormat()) {
-
     case IMAGE_RGB: {
       const LockImageBits<RgbTraits> srcBits(image);
       auto src_it = srcBits.begin(), src_end = srcBits.end();
 
       switch (new_image->pixelFormat()) {
-
         // RGB -> RGB
         case IMAGE_RGB:
           new_image->copy(image, gfx::Clip(image->bounds()));
@@ -257,7 +253,6 @@ Image* convert_pixel_format(
       auto src_it = srcBits.begin(), src_end = srcBits.end();
 
       switch (new_image->pixelFormat()) {
-
         // Grayscale -> RGB
         case IMAGE_RGB: {
           LockImageBits<RgbTraits> dstBits(new_image, Image::WriteLock);
@@ -314,7 +309,6 @@ Image* convert_pixel_format(
       auto src_it = srcBits.begin(), src_end = srcBits.end();
 
       switch (new_image->pixelFormat()) {
-
         // Indexed -> RGB
         case IMAGE_RGB: {
           LockImageBits<RgbTraits> dstBits(new_image, Image::WriteLock);
@@ -392,7 +386,6 @@ Image* convert_pixel_format(
           ASSERT(dst_it == dst_end);
           break;
         }
-
       }
       break;
     }
@@ -405,8 +398,7 @@ Image* convert_pixel_format(
 // Creation of optimized palette for RGB images
 // by David Capello
 
-void PaletteOptimizer::feedWithImage(const Image* image,
-                                     const bool withAlpha)
+void PaletteOptimizer::feedWithImage(const Image* image, const bool withAlpha)
 {
   feedWithImage(image, image->bounds(), withAlpha);
 }
@@ -422,49 +414,44 @@ void PaletteOptimizer::feedWithImage(const Image* image,
 
   ASSERT(image);
   switch (image->pixelFormat()) {
+    case IMAGE_RGB: {
+      const LockImageBits<RgbTraits> bits(image, bounds);
+      auto it = bits.begin(), end = bits.end();
 
-    case IMAGE_RGB:
-      {
-        const LockImageBits<RgbTraits> bits(image, bounds);
-        auto it = bits.begin(), end = bits.end();
+      for (; it != end; ++it) {
+        color = *it;
+        if (rgba_geta(color) > 0) {
+          if (!withAlpha)
+            color |= rgba(0, 0, 0, 255);
 
-        for (; it != end; ++it) {
-          color = *it;
-          if (rgba_geta(color) > 0) {
-            if (!withAlpha)
-              color |= rgba(0, 0, 0, 255);
-
-            m_histogram.addSamples(color, 1);
-          }
+          m_histogram.addSamples(color, 1);
         }
       }
-      break;
+    } break;
 
-    case IMAGE_GRAYSCALE:
-      {
-        const LockImageBits<GrayscaleTraits> bits(image, bounds);
-        auto it = bits.begin(), end = bits.end();
+    case IMAGE_GRAYSCALE: {
+      const LockImageBits<GrayscaleTraits> bits(image, bounds);
+      auto it = bits.begin(), end = bits.end();
 
-        for (; it != end; ++it) {
-          color = *it;
+      for (; it != end; ++it) {
+        color = *it;
 
-          if (graya_geta(color) > 0) {
-            if (!withAlpha)
-              color = graya(graya_getv(color), 255);
+        if (graya_geta(color) > 0) {
+          if (!withAlpha)
+            color = graya(graya_getv(color), 255);
 
-            m_histogram.addSamples(rgba(graya_getv(color),
-                                        graya_getv(color),
-                                        graya_getv(color),
-                                        graya_geta(color)), 1);
-          }
+          m_histogram.addSamples(rgba(graya_getv(color),
+                                      graya_getv(color),
+                                      graya_getv(color),
+                                      graya_geta(color)),
+                                 1);
         }
       }
-      break;
+    } break;
 
     case IMAGE_INDEXED:
       ASSERT(false);
       break;
-
   }
 }
 
@@ -479,7 +466,7 @@ void PaletteOptimizer::calculate(Palette* palette, int maskIndex)
 
   if ((palette->size() > 1) &&
       (maskIndex >= 0 && maskIndex < palette->size())) {
-    palette->resize(palette->size()-1);
+    palette->resize(palette->size() - 1);
     addMask = true;
   }
   else
@@ -492,20 +479,20 @@ void PaletteOptimizer::calculate(Palette* palette, int maskIndex)
   int usedColors = m_histogram.createOptimizedPalette(palette);
 
   if (addMask) {
-    palette->resize(usedColors+1);
+    palette->resize(usedColors + 1);
 
     Remap remap(palette->size());
-    for (int i=0; i<usedColors; ++i)
-      remap.map(i, i + (i >= maskIndex ? 1: 0));
+    for (int i = 0; i < usedColors; ++i)
+      remap.map(i, i + (i >= maskIndex ? 1 : 0));
 
     palette->applyRemap(remap);
 
     if (maskIndex < palette->size())
-      palette->setEntry(maskIndex, rgba(0, 0, 0, (m_withAlpha ? 0: 255)));
+      palette->setEntry(maskIndex, rgba(0, 0, 0, (m_withAlpha ? 0 : 255)));
   }
   else {
     palette->resize(std::max(1, usedColors));
   }
 }
 
-} // namespace render
+}  // namespace render

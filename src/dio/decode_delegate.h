@@ -26,7 +26,7 @@ public:
 
   // Sets an error when an incompatibility issue is
   // detected.
-  virtual void incompatibilityError(const std::string &msg) { }
+  virtual void incompatibilityError(const std::string& msg) { }
 
   // Used to report progress of the whole operation
   virtual void progress(double fromZeroToOne) { }
@@ -39,12 +39,11 @@ public:
   virtual bool decodeOneFrame() { return false; }
 
   // Default color for slices without user data
-  virtual doc::color_t defaultSliceColor() {
-    return doc::rgba(0, 0, 255, 255);
-  }
+  virtual doc::color_t defaultSliceColor() { return doc::rgba(0, 0, 255, 255); }
 
   // Called when the sprite is decoded successfully
-  virtual void onSprite(doc::Sprite* sprite) {
+  virtual void onSprite(doc::Sprite* sprite)
+  {
     // Discard the sprite, you should overwrite this behavior, use the
     // sprite and then discard it when you don't need it anymore.
     delete sprite;
@@ -53,11 +52,9 @@ public:
   // Returns true if we want to cache the read compressed data of
   // tilesets exactly as they are in the disk (so we can save it
   // without re-compressing).
-  virtual bool cacheCompressedTilesets() const {
-    return false;
-  }
+  virtual bool cacheCompressedTilesets() const { return false; }
 };
 
-} // namespace dio
+}  // namespace dio
 
 #endif

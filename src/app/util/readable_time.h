@@ -14,6 +14,6 @@ namespace app {
 
 std::string human_readable_time(const int t);
 
-} // namespace app
+}  // namespace app
 
 #endif

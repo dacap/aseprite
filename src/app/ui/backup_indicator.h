@@ -12,22 +12,22 @@
 
 namespace app {
 
-  class BackupIndicator {
-  public:
-    BackupIndicator();
-    ~BackupIndicator();
+class BackupIndicator {
+public:
+  BackupIndicator();
+  ~BackupIndicator();
 
-    void start();
-    void stop();
+  void start();
+  void stop();
 
-  private:
-    void onTick();
+private:
+  void onTick();
 
-    ui::Timer m_timer;
-    bool m_small;
-    bool m_running;
-  };
+  ui::Timer m_timer;
+  bool m_small;
+  bool m_running;
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

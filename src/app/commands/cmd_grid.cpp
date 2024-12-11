@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -37,16 +37,19 @@ using namespace gfx;
 class SnapToGridCommand : public Command {
 public:
   SnapToGridCommand()
-    : Command(CommandId::SnapToGrid(), CmdUIOnlyFlag) {
+    : Command(CommandId::SnapToGrid(), CmdUIOnlyFlag)
+  {
   }
 
 protected:
-  bool onChecked(Context* ctx) override {
+  bool onChecked(Context* ctx) override
+  {
     auto& docPref = Preferences::instance().document(ctx->activeDocument());
     return docPref.grid.snap();
   }
 
-  void onExecute(Context* ctx) override {
+  void onExecute(Context* ctx) override
+  {
     auto& docPref = Preferences::instance().document(ctx->activeDocument());
     bool newValue = !docPref.grid.snap();
     docPref.grid.snap(newValue);
@@ -58,16 +61,19 @@ protected:
 class SelectionAsGridCommand : public Command {
 public:
   SelectionAsGridCommand()
-    : Command(CommandId::SelectionAsGrid(), CmdUIOnlyFlag) {
+    : Command(CommandId::SelectionAsGrid(), CmdUIOnlyFlag)
+  {
   }
 
 protected:
-  bool onEnabled(Context* ctx) override {
+  bool onEnabled(Context* ctx) override
+  {
     return ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable |
                            ContextFlags::HasVisibleMask);
   }
 
-  void onExecute(Context* ctx) override {
+  void onExecute(Context* ctx) override
+  {
     ContextWriter writer(ctx);
     Doc* doc = writer.document();
     const Mask* mask = doc->mask();
@@ -79,7 +85,7 @@ protected:
 
     auto& docPref = Preferences::instance().document(doc);
     docPref.grid.bounds(newGrid);
-    if (!docPref.show.grid())   // Make grid visible
+    if (!docPref.show.grid())  // Make grid visible
       docPref.show.grid(true);
   }
 };
@@ -114,12 +120,12 @@ void GridSettingsCommand::onExecute(Context* context)
   window.gridY()->setTextf("%d", bounds.y);
   window.gridW()->setTextf("%d", bounds.w);
   window.gridH()->setTextf("%d", bounds.h);
-  window.gridW()->Leave.connect([&window]{
+  window.gridW()->Leave.connect([&window] {
     // Prevent entering a width lesser than 1
     if (window.gridW()->textInt() <= 0)
       window.gridW()->setText("1");
   });
-  window.gridH()->Leave.connect([&window]{
+  window.gridH()->Leave.connect([&window] {
     // Prevent entering a height lesser than 1
     if (window.gridH()->textInt() <= 0)
       window.gridH()->setText("1");
@@ -140,7 +146,7 @@ void GridSettingsCommand::onExecute(Context* context)
     tx.commit();
 
     auto& docPref = Preferences::instance().document(site.document());
-    if (!docPref.show.grid()) // Make grid visible
+    if (!docPref.show.grid())  // Make grid visible
       docPref.show.grid(true);
   }
 }
@@ -160,4 +166,4 @@ Command* CommandFactory::createSelectionAsGridCommand()
   return new SelectionAsGridCommand;
 }
 
-} // namespace app
+}  // namespace app

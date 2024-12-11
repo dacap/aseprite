@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/transaction.h"
@@ -32,11 +32,10 @@ CannotModifyWhenReadOnlyException::CannotModifyWhenReadOnlyException() throw()
 {
 }
 
-Transaction::Transaction(
-  Context* ctx,
-  Doc* doc,
-  const std::string& label,
-  Modification modification)
+Transaction::Transaction(Context* ctx,
+                         Doc* doc,
+                         const std::string& label,
+                         Modification modification)
   : m_ctx(ctx)
   , m_doc(doc)
   , m_undo(nullptr)
@@ -45,14 +44,14 @@ Transaction::Transaction(
 {
   TX_TRACE("TX: Start <%s> (%s)\n",
            label.c_str(),
-           modification == ModifyDocument ? "modifies document":
+           modification == ModifyDocument ? "modifies document" :
                                             "doesn't modify document");
 
   m_doc->add_observer(this);
   m_undo = m_doc->undoHistory();
 
-  m_cmds = new CmdTransaction(label,
-                              modification == Modification::ModifyDocument);
+  m_cmds =
+    new CmdTransaction(label, modification == Modification::ModifyDocument);
 
   // Here we are executing an empty CmdTransaction, just to save the
   // SpritePosition. Sub-cmds are executed then one by one, in
@@ -185,4 +184,4 @@ void Transaction::onPaletteChanged(DocEvent& ev)
   m_changes = Changes(int(m_changes) | int(Changes::kColorChange));
 }
 
-} // namespace app
+}  // namespace app

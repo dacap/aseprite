@@ -14,8 +14,8 @@
 
 namespace doc {
 
-  typedef std::vector<ObjectId> ObjectIds;
+typedef std::vector<ObjectId> ObjectIds;
 
-} // namespace doc
+}  // namespace doc
 
 #endif  // DOC_OBJECT_IDS_H_INCLUDED

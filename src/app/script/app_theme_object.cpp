@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/color.h"
@@ -13,21 +13,26 @@
 #include "app/script/luacpp.h"
 #include "app/ui/skin/skin_theme.h"
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 namespace {
 
 class Theme {
 public:
-  Theme(int uiscale) : m_uiscale(uiscale) { }
+  Theme(int uiscale)
+    : m_uiscale(uiscale)
+  {
+  }
 
-  gfx::Border styleMetrics(const std::string& id) const {
+  gfx::Border styleMetrics(const std::string& id) const
+  {
     auto theme = skin::SkinTheme::instance();
-    if (!theme) return gfx::Border(0);
+    if (!theme)
+      return gfx::Border(0);
 
     ui::Style* style = theme->getStyleById(id);
-    if (!style) return gfx::Border(0);
+    if (!style)
+      return gfx::Border(0);
 
     ui::Widget widget(ui::kGenericWidget);
     auto border = theme->calcBorder(&widget, style);
@@ -37,7 +42,8 @@ public:
     return border;
   }
 
-  int getDimensionById(const std::string& id) const {
+  int getDimensionById(const std::string& id) const
+  {
     int value = skin::SkinTheme::instance()->getDimensionById(id);
     if (m_uiscale > 1)
       value /= m_uiscale;
@@ -51,9 +57,13 @@ private:
 struct ThemeDimension {
   const Theme theme;
 
-  ThemeDimension(const Theme& theme) : theme(theme) { }
+  ThemeDimension(const Theme& theme)
+    : theme(theme)
+  {
+  }
 
-  int getById(const std::string& id) const {
+  int getById(const std::string& id) const
+  {
     return theme.getDimensionById(id);
   }
 };
@@ -128,10 +138,8 @@ int Theme_get_color(lua_State* L)
   return 1;
 }
 
-const luaL_Reg Theme_methods[] = {
-  { "styleMetrics", Theme_styleMetrics },
-  { nullptr, nullptr }
-};
+const luaL_Reg Theme_methods[] = { { "styleMetrics", Theme_styleMetrics },
+                                   { nullptr, nullptr } };
 
 const Property Theme_properties[] = {
   { "dimension", Theme_get_dimension, nullptr },
@@ -139,17 +147,13 @@ const Property Theme_properties[] = {
   { nullptr, nullptr, nullptr }
 };
 
-const luaL_Reg ThemeDimension_methods[] = {
-  { "__index", ThemeDimension_index },
-  { nullptr, nullptr }
-};
+const luaL_Reg ThemeDimension_methods[] = { { "__index", ThemeDimension_index },
+                                            { nullptr, nullptr } };
 
-const luaL_Reg ThemeColor_methods[] = {
-  { "__index", ThemeColor_index },
-  { nullptr, nullptr }
-};
+const luaL_Reg ThemeColor_methods[] = { { "__index", ThemeColor_index },
+                                        { nullptr, nullptr } };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(Theme);
 DEF_MTNAME(ThemeDimension);
@@ -168,5 +172,4 @@ void push_app_theme(lua_State* L, int uiscale)
   push_new<Theme>(L, uiscale);
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

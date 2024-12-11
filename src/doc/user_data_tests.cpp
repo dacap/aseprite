@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include <gtest/gtest.h>
@@ -22,27 +22,26 @@ TEST(UserDataVariant, AllElementsOfSameType)
 {
   EXPECT_EQ(0, all_elements_of_same_type(UserData::Vector{}));
   EXPECT_EQ(USER_DATA_PROPERTY_TYPE_BOOL,
-            all_elements_of_same_type(UserData::Vector{false}));
+            all_elements_of_same_type(UserData::Vector{ false }));
   EXPECT_EQ(USER_DATA_PROPERTY_TYPE_INT8,
-            all_elements_of_same_type(UserData::Vector{1,-1}));
+            all_elements_of_same_type(UserData::Vector{ 1, -1 }));
   EXPECT_EQ(USER_DATA_PROPERTY_TYPE_INT8,
-            all_elements_of_same_type(UserData::Vector{0,127}));
+            all_elements_of_same_type(UserData::Vector{ 0, 127 }));
   EXPECT_EQ(USER_DATA_PROPERTY_TYPE_INT8,
-            all_elements_of_same_type(UserData::Vector{-128,127}));
+            all_elements_of_same_type(UserData::Vector{ -128, 127 }));
   EXPECT_EQ(USER_DATA_PROPERTY_TYPE_UINT8,
-            all_elements_of_same_type(UserData::Vector{0,128}));
+            all_elements_of_same_type(UserData::Vector{ 0, 128 }));
   EXPECT_EQ(USER_DATA_PROPERTY_TYPE_INT16,
-            all_elements_of_same_type(UserData::Vector{-1,128}));
+            all_elements_of_same_type(UserData::Vector{ -1, 128 }));
   EXPECT_EQ(USER_DATA_PROPERTY_TYPE_INT8,
-            all_elements_of_same_type(UserData::Vector{0,0,0}));
+            all_elements_of_same_type(UserData::Vector{ 0, 0, 0 }));
   EXPECT_EQ(USER_DATA_PROPERTY_TYPE_UINT8,
-            all_elements_of_same_type(UserData::Vector{0,0,128}));
-  EXPECT_EQ(0,
-            all_elements_of_same_type(UserData::Vector{0,0,128,false}));
+            all_elements_of_same_type(UserData::Vector{ 0, 0, 128 }));
+  EXPECT_EQ(0, all_elements_of_same_type(UserData::Vector{ 0, 0, 128, false }));
   EXPECT_EQ(USER_DATA_PROPERTY_TYPE_INT16,
-            all_elements_of_same_type(UserData::Vector{0,0,128,256}));
+            all_elements_of_same_type(UserData::Vector{ 0, 0, 128, 256 }));
   EXPECT_EQ(USER_DATA_PROPERTY_TYPE_UINT16,
-            all_elements_of_same_type(UserData::Vector{0,0,128,40000}));
+            all_elements_of_same_type(UserData::Vector{ 0, 0, 128, 40000 }));
 }
 
 TEST(CustomProperties, SimpleProperties)
@@ -89,9 +88,9 @@ TEST(CustomProperties, ComplexProperties)
   EXPECT_EQ(2, v1);
 
   // Add Point, Size, and Rect properties
-  data.properties()["point"] = gfx::Point(10,30);
-  data.properties()["size"] = gfx::Size(50,20);
-  data.properties()["rect"] = gfx::Rect(11,22,33,44);
+  data.properties()["point"] = gfx::Point(10, 30);
+  data.properties()["size"] = gfx::Size(50, 20);
+  data.properties()["rect"] = gfx::Rect(11, 22, 33, 44);
   EXPECT_EQ(4, data.properties().size());
 
   gfx::Point point = get_value<gfx::Point>(data.properties()["point"]);
@@ -105,7 +104,7 @@ TEST(CustomProperties, ComplexProperties)
   EXPECT_TRUE(rect.w == 33 && rect.h == 44);
 
   // Add Fixed property
-  data.properties()["fixed"] = Fixed{fixmath::ftofix(10.5)};
+  data.properties()["fixed"] = Fixed{ fixmath::ftofix(10.5) };
   EXPECT_EQ(5, data.properties().size());
 
   Fixed fixed = get_value<Fixed>(data.properties()["fixed"]);
@@ -160,7 +159,8 @@ TEST(ExtensionProperties, SimpleProperties)
   auto charac = get_value<uint8_t>(data.properties("someExtensionId")["char"]);
   EXPECT_EQ('A', charac);
 
-  auto number16 = get_value<int16_t>(data.properties("someExtensionId")["number16"]);
+  auto number16 =
+    get_value<int16_t>(data.properties("someExtensionId")["number16"]);
   EXPECT_EQ(-1024, number16);
 
   auto number32 = get_value<int32_t>(data.properties()["number32"]);

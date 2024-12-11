@@ -12,15 +12,15 @@
 
 namespace ui {
 
-  class RegisterMessage
-  {
-  public:
-    RegisterMessage();
-    operator MessageType() { return m_type; }
-  private:
-    MessageType m_type;
-  };
+class RegisterMessage {
+public:
+  RegisterMessage();
+  operator MessageType() { return m_type; }
 
-} // namespace ui
+private:
+  MessageType m_type;
+};
+
+}  // namespace ui
 
 #endif

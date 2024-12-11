@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -14,8 +14,7 @@
 #include "app/tools/tool.h"
 #include "app/tools/tool_box.h"
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 namespace {
 
@@ -26,16 +25,12 @@ int Tool_get_id(lua_State* L)
   return 1;
 }
 
-const luaL_Reg Tool_methods[] = {
-  { nullptr, nullptr }
-};
+const luaL_Reg Tool_methods[] = { { nullptr, nullptr } };
 
-const Property Tool_properties[] = {
-  { "id", Tool_get_id, nullptr },
-  { nullptr, nullptr, nullptr }
-};
+const Property Tool_properties[] = { { "id", Tool_get_id, nullptr },
+                                     { nullptr, nullptr, nullptr } };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 using Tool = tools::Tool;
 DEF_MTNAME(Tool);
@@ -61,5 +56,4 @@ tools::Tool* get_tool_from_arg(lua_State* L, int index)
     return nullptr;
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

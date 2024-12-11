@@ -10,11 +10,11 @@
 
 namespace doc {
 
-  enum class GradientType {
-    LINEAR,
-    HUE,
-  };
+enum class GradientType {
+  LINEAR,
+  HUE,
+};
 
-} // namespace doc
+}  // namespace doc
 
 #endif

@@ -12,17 +12,17 @@
 #include "base/exception.h"
 
 namespace tinyxml2 {
-  class XMLDocument;
+class XMLDocument;
 }
 
 namespace app {
 
-  class XmlException : public base::Exception {
-  public:
-    XmlException(const std::string& filename,
-                 const tinyxml2::XMLDocument* doc) noexcept;
-  };
+class XmlException : public base::Exception {
+public:
+  XmlException(const std::string& filename,
+               const tinyxml2::XMLDocument* doc) noexcept;
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

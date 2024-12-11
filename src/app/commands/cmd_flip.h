@@ -15,26 +15,24 @@
 
 namespace app {
 
-  class FlipCommand : public Command {
-  public:
-    FlipCommand();
+class FlipCommand : public Command {
+public:
+  FlipCommand();
 
-    doc::algorithm::FlipType getFlipType() const { return m_flipType; }
+  doc::algorithm::FlipType getFlipType() const { return m_flipType; }
 
-  protected:
-    void onLoadParams(const Params& params) override;
-    bool onEnabled(Context* context) override;
-    void onExecute(Context* context) override;
-    std::string onGetFriendlyName() const override;
-    bool isListed(const Params& params) const override {
-      return !params.empty();
-    }
+protected:
+  void onLoadParams(const Params& params) override;
+  bool onEnabled(Context* context) override;
+  void onExecute(Context* context) override;
+  std::string onGetFriendlyName() const override;
+  bool isListed(const Params& params) const override { return !params.empty(); }
 
-  private:
-    bool m_flipMask;
-    doc::algorithm::FlipType m_flipType;
-  };
+private:
+  bool m_flipMask;
+  doc::algorithm::FlipType m_flipType;
+};
 
-} // namespace app
+}  // namespace app
 
-#endif // APP_COMMANDS_CMD_FLIP_H_INCLUDED
+#endif  // APP_COMMANDS_CMD_FLIP_H_INCLUDED

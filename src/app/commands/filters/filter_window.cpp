@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/commands/filters/filter_window.h"
@@ -23,7 +23,8 @@ namespace app {
 using namespace filters;
 using namespace ui;
 
-FilterWindow::FilterWindow(const char* title, const char* cfgSection,
+FilterWindow::FilterWindow(const char* title,
+                           const char* cfgSection,
                            FilterManagerImpl* filterMgr,
                            WithChannels withChannels,
                            WithTiled withTiled,
@@ -37,7 +38,8 @@ FilterWindow::FilterWindow(const char* title, const char* cfgSection,
   , m_okButton(Strings::filters_ok())
   , m_cancelButton(Strings::filters_cancel())
   , m_preview(filterMgr)
-  , m_targetButton(filterMgr->pixelFormat(), (withChannels == WithChannelsSelector))
+  , m_targetButton(filterMgr->pixelFormat(),
+                   (withChannels == WithChannelsSelector))
   , m_showPreview(Strings::filters_preview())
   , m_tiledCheck(withTiled == WithTiledCheckBox ?
                    new CheckBox(Strings::filters_tiled()) :
@@ -54,7 +56,8 @@ FilterWindow::FilterWindow(const char* title, const char* cfgSection,
 
   m_targetButton.setTarget(filterMgr->getTarget());
   m_targetButton.setCelsTarget(celsTarget);
-  m_targetButton.TargetChange.connect(&FilterWindow::onTargetButtonChange, this);
+  m_targetButton.TargetChange.connect(&FilterWindow::onTargetButtonChange,
+                                      this);
   m_okButton.Click.connect(&FilterWindow::onOk, this);
   m_cancelButton.Click.connect(&FilterWindow::onCancel, this);
   m_showPreview.Click.connect(&FilterWindow::onShowPreview, this);
@@ -74,7 +77,7 @@ FilterWindow::FilterWindow(const char* title, const char* cfgSection,
 
   if (m_tiledCheck) {
     m_tiledCheck->setSelected(tiledMode != TiledMode::NONE);
-    m_tiledCheck->Click.connect([this]{ onTiledChange(); });
+    m_tiledCheck->Click.connect([this] { onTiledChange(); });
 
     m_vbox.addChild(m_tiledCheck);
   }
@@ -190,9 +193,8 @@ void FilterWindow::onTiledChange()
 
   // Call derived class implementation of setupTiledMode() so the
   // filter is modified.
-  setupTiledMode(m_tiledCheck->isSelected() ?
-    TiledMode::BOTH:
-    TiledMode::NONE);
+  setupTiledMode(m_tiledCheck->isSelected() ? TiledMode::BOTH :
+                                              TiledMode::NONE);
 
   // Restart the preview.
   restartPreview();
@@ -213,4 +215,4 @@ void FilterWindow::onZoomChanged(Editor* editor)
   restartPreview();
 }
 
-} // namespace app
+}  // namespace app

@@ -12,23 +12,23 @@
 
 namespace app {
 
-  class PopupWindowPin : public ui::PopupWindow {
-  public:
-    PopupWindowPin(const std::string& text,
-                   const ClickBehavior clickBehavior,
-                   const bool canPin = false);
+class PopupWindowPin : public ui::PopupWindow {
+public:
+  PopupWindowPin(const std::string& text,
+                 const ClickBehavior clickBehavior,
+                 const bool canPin = false);
 
-    bool isPinned() const { return m_pinned; }
-    void setPinned(const bool pinned);
+  bool isPinned() const { return m_pinned; }
+  void setPinned(const bool pinned);
 
-  protected:
-    virtual bool onProcessMessage(ui::Message* msg) override;
-    virtual void onWindowMovement() override;
+protected:
+  virtual bool onProcessMessage(ui::Message* msg) override;
+  virtual void onWindowMovement() override;
 
-  private:
-    bool m_pinned;
-  };
+private:
+  bool m_pinned;
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

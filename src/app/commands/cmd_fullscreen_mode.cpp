@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/ui.h"
@@ -48,8 +48,7 @@ void FullscreenModeCommand::onExecute(Context* ctx)
   if (!window)
     return;
 
-  window->setFullscreen(
-    !window->isFullscreen());
+  window->setFullscreen(!window->isFullscreen());
 }
 
 Command* CommandFactory::createFullscreenModeCommand()
@@ -57,4 +56,4 @@ Command* CommandFactory::createFullscreenModeCommand()
   return new FullscreenModeCommand;
 }
 
-} // namespace app
+}  // namespace app

@@ -6,17 +6,17 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/set_mask.h"
 #include "app/commands/command.h"
 #include "app/context_access.h"
 #include "app/modules/gui.h"
+#include "app/pref/preferences.h"
 #include "app/tx.h"
 #include "doc/mask.h"
 #include "doc/sprite.h"
-#include "app/pref/preferences.h"
 
 namespace app {
 
@@ -67,4 +67,4 @@ Command* CommandFactory::createMaskAllCommand()
   return new MaskAllCommand;
 }
 
-} // namespace app
+}  // namespace app

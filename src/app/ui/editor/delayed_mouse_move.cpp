@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/editor/delayed_mouse_move.h"
@@ -103,4 +103,4 @@ bool DelayedMouseMove::updateSpritePos(const ui::MouseMessage* msg)
     return false;
 }
 
-} // namespace app
+}  // namespace app

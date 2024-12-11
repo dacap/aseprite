@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/cel_data_io.h"
@@ -27,8 +27,7 @@ namespace doc {
 using namespace base::serialization;
 using namespace base::serialization::little_endian;
 
-void write_celdata(std::ostream& os,
-                   const CelData* celdata)
+void write_celdata(std::ostream& os, const CelData* celdata)
 {
   write32(os, celdata->id());
   write32(os, celdata->bounds().x);
@@ -96,4 +95,4 @@ CelData* read_celdata(std::istream& is,
   return celdata.release();
 }
 
-}
+}  // namespace doc

@@ -13,10 +13,10 @@
 
 namespace ui {
 
-  class Display;
+class Display;
 
-  void move_region(Display* display, const gfx::Region& region, int dx, int dy);
+void move_region(Display* display, const gfx::Region& region, int dx, int dy);
 
-} // namespace ui
+}  // namespace ui
 
 #endif

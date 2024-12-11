@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/editor/state_with_wheel_behavior.h"
@@ -42,26 +42,29 @@ using namespace ui;
 using PreciseWheel = StateWithWheelBehavior::PreciseWheel;
 
 template<typename T>
-static inline void adjust_value(PreciseWheel preciseWheel, double dz, T& v, T min, T max)
+static inline void adjust_value(
+  PreciseWheel preciseWheel, double dz, T& v, T min, T max)
 {
   if (preciseWheel == PreciseWheel::On)
-    v = std::clamp<T>(T(v+dz), min, max);
+    v = std::clamp<T>(T(v + dz), min, max);
   else
-    v = std::clamp<T>(T(v+dz*max/T(10)), min, max);
+    v = std::clamp<T>(T(v + dz * max / T(10)), min, max);
 }
 
 template<typename T>
-static inline void adjust_hue(PreciseWheel preciseWheel, double dz, T& v, T min, T max)
+static inline void adjust_hue(
+  PreciseWheel preciseWheel, double dz, T& v, T min, T max)
 {
   if (preciseWheel == PreciseWheel::On)
-    v = std::clamp<T>(T(v+dz), min, max);
+    v = std::clamp<T>(T(v + dz), min, max);
   else
-    v = std::clamp<T>(T(v+dz*T(10)), min, max);
+    v = std::clamp<T>(T(v + dz * T(10)), min, max);
 }
 
 static inline void adjust_unit(PreciseWheel preciseWheel, double dz, double& v)
 {
-  v = std::clamp<double>(v+(preciseWheel == PreciseWheel::On ? dz/100.0: dz/25.0), 0.0, 1.0);
+  v = std::clamp<double>(
+    v + (preciseWheel == PreciseWheel::On ? dz / 100.0 : dz / 25.0), 0.0, 1.0);
 }
 
 StateWithWheelBehavior::StateWithWheelBehavior()
@@ -78,24 +81,29 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
     if (!Preferences::instance().editor.zoomWithSlide() && msg->preciseWheel())
       wheelAction = WheelAction::VScroll;
     else
-      wheelAction = KeyboardShortcuts::instance()
-        ->getWheelActionFromMouseMessage(KeyContext::MouseWheel, msg);
+      wheelAction =
+        KeyboardShortcuts::instance()->getWheelActionFromMouseMessage(
+          KeyContext::MouseWheel, msg);
   }
   // Default behavior
   // TODO replace this code using KeyboardShortcuts::getDefaultMouseWheelTable()
   else {
     // Alt+mouse wheel changes the fg/bg colors
     if (msg->altPressed()) {
-      bool tilemapMode = (editor->getSite().tilemapMode() == TilemapMode::Tiles);
+      bool tilemapMode =
+        (editor->getSite().tilemapMode() == TilemapMode::Tiles);
       if (msg->shiftPressed())
-        wheelAction = (tilemapMode ? WheelAction::BgTile : WheelAction::BgColor);
+        wheelAction =
+          (tilemapMode ? WheelAction::BgTile : WheelAction::BgColor);
       else
-        wheelAction = (tilemapMode ? WheelAction::FgTile : WheelAction::FgColor);
+        wheelAction =
+          (tilemapMode ? WheelAction::FgTile : WheelAction::FgColor);
     }
     // Normal behavior: mouse wheel zooms If the message is from a
     // precise wheel i.e. a trackpad/touch-like device, we scroll by
     // default.
-    else if (Preferences::instance().editor.zoomWithWheel() && !msg->preciseWheel()) {
+    else if (Preferences::instance().editor.zoomWithWheel() &&
+             !msg->preciseWheel()) {
       if (msg->ctrlPressed() && msg->shiftPressed())
         wheelAction = WheelAction::Frame;
       else if (msg->ctrlPressed())
@@ -106,7 +114,8 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
         wheelAction = WheelAction::Zoom;
     }
     // Zoom sliding two fingers
-    else if (Preferences::instance().editor.zoomWithSlide() && msg->preciseWheel()) {
+    else if (Preferences::instance().editor.zoomWithSlide() &&
+             msg->preciseWheel()) {
       if (msg->ctrlPressed() && msg->shiftPressed())
         wheelAction = WheelAction::Frame;
       else if (msg->ctrlPressed())
@@ -139,20 +148,19 @@ bool StateWithWheelBehavior::onMouseWheel(Editor* editor, MouseMessage* msg)
     }
   }
 
-  processWheelAction(editor,
-                     wheelAction,
-                     msg->position(),
-                     delta,
-                     dz,
-                     // The possibility for big scroll steps was lost
-                     // in history (it was possible using Shift key in
-                     // very old versions, now Shift is used for
-                     // horizontal scroll).
-                     ScrollBigSteps::Off,
-                     (msg->preciseWheel() ?
-                      PreciseWheel::On:
-                      PreciseWheel::Off),
-                     FromMouseWheel::On);
+  processWheelAction(
+    editor,
+    wheelAction,
+    msg->position(),
+    delta,
+    dz,
+    // The possibility for big scroll steps was lost
+    // in history (it was possible using Shift key in
+    // very old versions, now Shift is used for
+    // horizontal scroll).
+    ScrollBigSteps::Off,
+    (msg->preciseWheel() ? PreciseWheel::On : PreciseWheel::Off),
+    FromMouseWheel::On);
   return true;
 }
 
@@ -167,13 +175,12 @@ void StateWithWheelBehavior::processWheelAction(
   const FromMouseWheel fromMouseWheel)
 {
   switch (wheelAction) {
-
     case WheelAction::None:
       // Do nothing
       break;
 
     case WheelAction::FgColor: {
-      int lastIndex = get_current_palette()->size()-1;
+      int lastIndex = get_current_palette()->size() - 1;
       int newIndex = initialFgColor().getIndex() + int(dz);
       newIndex = std::clamp(newIndex, 0, lastIndex);
       changeFgColor(app::Color::fromIndex(newIndex));
@@ -181,7 +188,7 @@ void StateWithWheelBehavior::processWheelAction(
     }
 
     case WheelAction::BgColor: {
-      int lastIndex = get_current_palette()->size()-1;
+      int lastIndex = get_current_palette()->size() - 1;
       int newIndex = initialBgColor().getIndex() + int(dz);
       newIndex = std::clamp(newIndex, 0, lastIndex);
       ColorBar::instance()->setBgColor(app::Color::fromIndex(newIndex));
@@ -191,7 +198,7 @@ void StateWithWheelBehavior::processWheelAction(
     case WheelAction::FgTile: {
       auto tilesView = ColorBar::instance()->getTilesView();
       if (tilesView->tileset()) {
-        int lastIndex = tilesView->tileset()->size()-1;
+        int lastIndex = tilesView->tileset()->size() - 1;
         int newIndex = initialFgTileIndex() + int(dz);
         newIndex = std::clamp(newIndex, 0, lastIndex);
         ColorBar::instance()->setFgTile(newIndex);
@@ -202,7 +209,7 @@ void StateWithWheelBehavior::processWheelAction(
     case WheelAction::BgTile: {
       auto tilesView = ColorBar::instance()->getTilesView();
       if (tilesView->tileset()) {
-        int lastIndex = tilesView->tileset()->size()-1;
+        int lastIndex = tilesView->tileset()->size() - 1;
         int newIndex = initialBgTileIndex() + int(dz);
         newIndex = std::clamp(newIndex, 0, lastIndex);
         ColorBar::instance()->setBgTile(newIndex);
@@ -238,8 +245,10 @@ void StateWithWheelBehavior::processWheelAction(
 
       if (preciseWheel == PreciseWheel::On) {
         dz /= 1.5;
-        if (dz < -1.0) dz = -1.0;
-        else if (dz > 1.0) dz = 1.0;
+        if (dz < -1.0)
+          dz = -1.0;
+        else if (dz > 1.0)
+          dz = 1.0;
       }
 
       zoom = render::Zoom::fromLinearScale(zoom.linearScale() - int(dz));
@@ -271,14 +280,13 @@ void StateWithWheelBehavior::processWheelAction(
         }
       }
 
-      editor->setEditorScroll(scroll+delta);
+      editor->setEditorScroll(scroll + delta);
       break;
     }
 
     case WheelAction::BrushSize: {
       tools::Tool* tool = getActiveTool();
-      ToolPreferences::Brush& brush =
-        Preferences::instance().tool(tool).brush;
+      ToolPreferences::Brush& brush = Preferences::instance().tool(tool).brush;
 
       if (fromMouseWheel == FromMouseWheel::On) {
 #if LAF_WINDOWS || LAF_LINUX
@@ -295,23 +303,21 @@ void StateWithWheelBehavior::processWheelAction(
       }
 
       brush.size(
-        std::clamp(
-          int(initialBrushSize()+dz),
-          // If we use the "static const int" member directly here,
-          // we'll get a linker error (when compiling without
-          // optimizations) because we should need to define the
-          // address of these constants in "doc/brush.cpp"
-          int(doc::Brush::kMinBrushSize),
-          int(doc::Brush::kMaxBrushSize)));
+        std::clamp(int(initialBrushSize() + dz),
+                   // If we use the "static const int" member directly here,
+                   // we'll get a linker error (when compiling without
+                   // optimizations) because we should need to define the
+                   // address of these constants in "doc/brush.cpp"
+                   int(doc::Brush::kMinBrushSize),
+                   int(doc::Brush::kMaxBrushSize)));
       break;
     }
 
     case WheelAction::BrushAngle: {
       tools::Tool* tool = getActiveTool();
-      ToolPreferences::Brush& brush =
-        Preferences::instance().tool(tool).brush;
+      ToolPreferences::Brush& brush = Preferences::instance().tool(tool).brush;
 
-      int angle = initialBrushAngle()+dz;
+      int angle = initialBrushAngle() + dz;
       while (angle < 0)
         angle += 180;
       angle %= 181;
@@ -412,9 +418,8 @@ void StateWithWheelBehavior::processWheelAction(
           deltaInk = -1;
       }
       ink += deltaInk;
-      ink = std::clamp(ink,
-                       int(tools::InkType::FIRST),
-                       int(tools::InkType::LAST));
+      ink =
+        std::clamp(ink, int(tools::InkType::FIRST), int(tools::InkType::LAST));
 
       App::instance()->contextBar()->setInkType(tools::InkType(ink));
       break;
@@ -432,17 +437,16 @@ void StateWithWheelBehavior::processWheelAction(
 
     case WheelAction::LayerOpacity: {
       Site site = UIContext::instance()->activeSite();
-      if (site.layer() &&
-          site.layer()->isImage() &&
+      if (site.layer() && site.layer()->isImage() &&
           site.layer()->isEditable()) {
-        Command* command = Commands::instance()->byId(CommandId::LayerOpacity());
+        Command* command =
+          Commands::instance()->byId(CommandId::LayerOpacity());
         if (command) {
           int opacity = initialLayerOpacity(editor);
           adjust_value(preciseWheel, dz, opacity, 0, 255);
 
           Params params;
-          params.set("opacity",
-                     base::convert_to<std::string>(opacity).c_str());
+          params.set("opacity", base::convert_to<std::string>(opacity).c_str());
           UIContext::instance()->executeCommand(command, params);
         }
       }
@@ -451,18 +455,15 @@ void StateWithWheelBehavior::processWheelAction(
 
     case WheelAction::CelOpacity: {
       Site site = UIContext::instance()->activeSite();
-      if (site.layer() &&
-          site.layer()->isImage() &&
-          site.layer()->isEditable() &&
-          site.cel()) {
+      if (site.layer() && site.layer()->isImage() &&
+          site.layer()->isEditable() && site.cel()) {
         Command* command = Commands::instance()->byId(CommandId::CelOpacity());
         if (command) {
           int opacity = initialCelOpacity(editor);
           adjust_value(preciseWheel, dz, opacity, 0, 255);
 
           Params params;
-          params.set("opacity",
-                     base::convert_to<std::string>(opacity).c_str());
+          params.set("opacity", base::convert_to<std::string>(opacity).c_str());
           UIContext::instance()->executeCommand(command, params);
         }
       }
@@ -487,10 +488,8 @@ void StateWithWheelBehavior::processWheelAction(
       disableQuickTool();
 
       Color c = initialFgColor();
-      double
-        h = c.getHslHue(),
-        s = c.getHslSaturation(),
-        l = c.getHslLightness();
+      double h = c.getHslHue(), s = c.getHslSaturation(),
+             l = c.getHslLightness();
       switch (wheelAction) {
         case WheelAction::HslHue:
           adjust_hue(preciseWheel, dz, h, 0.0, 360.0);
@@ -515,10 +514,7 @@ void StateWithWheelBehavior::processWheelAction(
       disableQuickTool();
 
       Color c = initialFgColor();
-      double
-        h = c.getHsvHue(),
-        s = c.getHsvSaturation(),
-        v = c.getHsvValue();
+      double h = c.getHsvHue(), s = c.getHsvSaturation(), v = c.getHsvValue();
       switch (wheelAction) {
         case WheelAction::HsvHue:
           adjust_hue(preciseWheel, dz, h, 0.0, 360.0);
@@ -536,21 +532,22 @@ void StateWithWheelBehavior::processWheelAction(
                                    std::clamp(v, 0.0, 1.0)));
       break;
     }
-
   }
 }
 
-bool StateWithWheelBehavior::onTouchMagnify(Editor* editor, ui::TouchMessage* msg)
+bool StateWithWheelBehavior::onTouchMagnify(Editor* editor,
+                                            ui::TouchMessage* msg)
 {
   render::Zoom zoom = editor->zoom();
-  zoom = render::Zoom::fromScale(
-    zoom.internalScale() + zoom.internalScale() * msg->magnification());
+  zoom = render::Zoom::fromScale(zoom.internalScale() +
+                                 zoom.internalScale() * msg->magnification());
 
   setZoom(editor, zoom, msg->position());
   return true;
 }
 
-bool StateWithWheelBehavior::onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos)
+bool StateWithWheelBehavior::onSetCursor(Editor* editor,
+                                         const gfx::Point& mouseScreenPos)
 {
   tools::Ink* ink = editor->getCurrentEditorInk();
   auto theme = skin::SkinTheme::get(editor);
@@ -562,13 +559,11 @@ bool StateWithWheelBehavior::onSetCursor(Editor* editor, const gfx::Point& mouse
       return true;
     }
     else if (ink->isEyedropper()) {
-      editor->showMouseCursor(
-        kCustomCursor, theme->cursors.eyedropper());
+      editor->showMouseCursor(kCustomCursor, theme->cursors.eyedropper());
       return true;
     }
     else if (ink->isZoom()) {
-      editor->showMouseCursor(
-        kCustomCursor, theme->cursors.magnifier());
+      editor->showMouseCursor(kCustomCursor, theme->cursors.magnifier());
       return true;
     }
     else if (ink->isScrollMovement()) {
@@ -606,9 +601,9 @@ void StateWithWheelBehavior::setZoom(Editor* editor,
   bool center = Preferences::instance().editor.zoomFromCenterWithWheel();
 
   editor->setZoomAndCenterInMouse(
-    zoom, mousePos,
-    (center ? Editor::ZoomBehavior::CENTER:
-              Editor::ZoomBehavior::MOUSE));
+    zoom,
+    mousePos,
+    (center ? Editor::ZoomBehavior::CENTER : Editor::ZoomBehavior::MOUSE));
 }
 
 Color StateWithWheelBehavior::initialFgColor() const
@@ -634,8 +629,7 @@ int StateWithWheelBehavior::initialBgTileIndex() const
 int StateWithWheelBehavior::initialBrushSize()
 {
   tools::Tool* tool = getActiveTool();
-  ToolPreferences::Brush& brush =
-    Preferences::instance().tool(tool).brush;
+  ToolPreferences::Brush& brush = Preferences::instance().tool(tool).brush;
 
   return brush.size();
 }
@@ -643,8 +637,7 @@ int StateWithWheelBehavior::initialBrushSize()
 int StateWithWheelBehavior::initialBrushAngle()
 {
   tools::Tool* tool = getActiveTool();
-  ToolPreferences::Brush& brush =
-    Preferences::instance().tool(tool).brush;
+  ToolPreferences::Brush& brush = Preferences::instance().tool(tool).brush;
 
   return brush.angle();
 }
@@ -687,9 +680,7 @@ int StateWithWheelBehavior::initialInkOpacity(Editor* editor) const
 int StateWithWheelBehavior::initialCelOpacity(Editor* editor) const
 {
   doc::Layer* layer = editor->layer();
-  if (layer &&
-      layer->isImage() &&
-      layer->isEditable()) {
+  if (layer && layer->isImage() && layer->isEditable()) {
     if (Cel* cel = layer->cel(editor->frame()))
       return cel->opacity();
   }
@@ -699,9 +690,7 @@ int StateWithWheelBehavior::initialCelOpacity(Editor* editor) const
 int StateWithWheelBehavior::initialLayerOpacity(Editor* editor) const
 {
   doc::Layer* layer = editor->layer();
-  if (layer &&
-      layer->isImage() &&
-      layer->isEditable()) {
+  if (layer && layer->isImage() && layer->isEditable()) {
     return static_cast<doc::LayerImage*>(layer)->opacity();
   }
   else
@@ -724,7 +713,8 @@ tools::Tool* StateWithWheelBehavior::getActiveTool() const
   return App::instance()->activeToolManager()->activeTool();
 }
 
-const doc::LayerList& StateWithWheelBehavior::browsableLayers(Editor* editor) const
+const doc::LayerList& StateWithWheelBehavior::browsableLayers(
+  Editor* editor) const
 {
   if (m_browsableLayers.empty())
     m_browsableLayers = editor->sprite()->allBrowsableLayers();
@@ -767,4 +757,4 @@ void StateWithWheelBehavior::onToolGroupChange(Editor* editor,
   m_tool = getActiveTool();
 }
 
-} // namespace app
+}  // namespace app

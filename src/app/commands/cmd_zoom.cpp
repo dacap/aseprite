@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -53,21 +53,26 @@ ZoomCommand::ZoomCommand()
 void ZoomCommand::onLoadParams(const Params& params)
 {
   std::string action = params.get("action");
-  if (action == "in") m_action = Action::In;
-  else if (action == "out") m_action = Action::Out;
-  else if (action == "set") m_action = Action::Set;
+  if (action == "in")
+    m_action = Action::In;
+  else if (action == "out")
+    m_action = Action::Out;
+  else if (action == "set")
+    m_action = Action::Set;
 
   std::string percentage = params.get("percentage");
   if (!percentage.empty()) {
-    m_zoom = render::Zoom::fromScale(
-      std::strtod(percentage.c_str(), NULL) / 100.0);
+    m_zoom =
+      render::Zoom::fromScale(std::strtod(percentage.c_str(), NULL) / 100.0);
     m_action = Action::Set;
   }
 
   m_focus = Focus::Default;
   std::string focus = params.get("focus");
-  if (focus == "center") m_focus = Focus::Center;
-  else if (focus == "mouse") m_focus = Focus::Mouse;
+  if (focus == "center")
+    m_focus = Focus::Center;
+  else if (focus == "mouse")
+    m_focus = Focus::Mouse;
 }
 
 bool ZoomCommand::onEnabled(Context* context)
@@ -113,7 +118,7 @@ void ZoomCommand::onExecute(Context* context)
   editor->setZoomAndCenterInMouse(
     zoom,
     editor->display()->nativeWindow()->pointFromScreen(mousePos),
-    (focus == Focus::Center ? Editor::ZoomBehavior::CENTER:
+    (focus == Focus::Center ? Editor::ZoomBehavior::CENTER :
                               Editor::ZoomBehavior::MOUSE));
 }
 
@@ -129,7 +134,7 @@ std::string ZoomCommand::onGetFriendlyName() const
       text = Strings::commands_Zoom_Out();
       break;
     case Action::Set:
-      text = Strings::commands_Zoom_Set(int(100.0*m_zoom.scale()));
+      text = Strings::commands_Zoom_Set(int(100.0 * m_zoom.scale()));
       break;
   }
 
@@ -141,4 +146,4 @@ Command* CommandFactory::createZoomCommand()
   return new ZoomCommand;
 }
 
-} // namespace app
+}  // namespace app

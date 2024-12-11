@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/script/require.h"
@@ -14,8 +14,7 @@
 
 #include <cstring>
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 static void eval_code(lua_State* L, const char* code)
 {
@@ -54,7 +53,8 @@ end
 )");
 }
 
-SetPluginForRequire::SetPluginForRequire(lua_State* L, int pluginRef) : L(L)
+SetPluginForRequire::SetPluginForRequire(lua_State* L, int pluginRef)
+  : L(L)
 {
   lua_rawgeti(L, LUA_REGISTRYINDEX, pluginRef);
   lua_setglobal(L, "_PLUGIN");
@@ -81,7 +81,8 @@ _PLUGIN = nil
 )");
 }
 
-SetScriptForRequire::SetScriptForRequire(lua_State* L, const char* path) : L(L)
+SetScriptForRequire::SetScriptForRequire(lua_State* L, const char* path)
+  : L(L)
 {
   lua_pushstring(L, path);
   lua_setglobal(L, "_SCRIPT_PATH");
@@ -101,5 +102,4 @@ _SCRIPT_PATH = nil
 )");
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

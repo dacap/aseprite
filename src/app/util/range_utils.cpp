@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/util/range_utils.h"
@@ -45,10 +45,11 @@ static CelList get_cels_templ(const Sprite* sprite,
   std::set<ObjectId> visited;
 
   for (Layer* layer : range.selectedLayers()) {
-    if (!layer ||
-        !layer->isImage() ||
-        (target == Target::kUniqueCanMoveCels && !layer->isEditableHierarchy()) ||
-        (target == Target::kUniqueCanEditPixelsCels && !layer->canEditPixels())) {
+    if (!layer || !layer->isImage() ||
+        (target == Target::kUniqueCanMoveCels &&
+         !layer->isEditableHierarchy()) ||
+        (target == Target::kUniqueCanEditPixelsCels &&
+         !layer->canEditPixels())) {
       continue;
     }
 
@@ -86,9 +87,10 @@ CelList get_unique_cels_to_move_cel(const Sprite* sprite, const DocRange& range)
   return get_cels_templ(sprite, range, Target::kUniqueCanMoveCels);
 }
 
-CelList get_unique_cels_to_edit_pixels(const Sprite* sprite, const DocRange& range)
+CelList get_unique_cels_to_edit_pixels(const Sprite* sprite,
+                                       const DocRange& range)
 {
   return get_cels_templ(sprite, range, Target::kUniqueCanEditPixelsCels);
 }
 
-} // namespace app
+}  // namespace app

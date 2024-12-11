@@ -32,13 +32,14 @@ namespace {
 
 class DecodeDelegate : public dio::DecodeDelegate {
 public:
-  DecodeDelegate() : m_sprite(nullptr) { }
+  DecodeDelegate()
+    : m_sprite(nullptr)
+  {
+  }
   ~DecodeDelegate() { delete m_sprite; }
 
   bool decodeOneFrame() override { return true; }
-  void onSprite(doc::Sprite* sprite) override {
-    m_sprite = sprite;
-  }
+  void onSprite(doc::Sprite* sprite) override { m_sprite = sprite; }
 
   doc::Sprite* sprite() { return m_sprite; }
 
@@ -50,14 +51,14 @@ class StreamAdaptor : public dio::FileInterface {
 public:
   StreamAdaptor(IStream* stream)
     : m_stream(stream)
-    , m_ok(m_stream != nullptr) {
+    , m_ok(m_stream != nullptr)
+  {
   }
 
-  bool ok() const {
-    return m_ok;
-  }
+  bool ok() const { return m_ok; }
 
-  size_t tell() {
+  size_t tell()
+  {
     LARGE_INTEGER delta;
     delta.QuadPart = 0;
 
@@ -70,7 +71,8 @@ public:
     return newPos.QuadPart;
   }
 
-  void seek(size_t absPos) {
+  void seek(size_t absPos)
+  {
     LARGE_INTEGER pos;
     pos.QuadPart = absPos;
 
@@ -80,7 +82,8 @@ public:
       m_ok = false;
   }
 
-  uint8_t read8() {
+  uint8_t read8()
+  {
     if (!m_ok)
       return 0;
 
@@ -94,7 +97,8 @@ public:
     return byte;
   }
 
-  size_t readBytes(uint8_t* buf, size_t n) {
+  size_t readBytes(uint8_t* buf, size_t n)
+  {
     if (!m_ok)
       return 0;
 
@@ -105,7 +109,8 @@ public:
     return count;
   }
 
-  void write8(uint8_t value) {
+  void write8(uint8_t value)
+  {
     // Do nothing, we don't write in the file
   }
 
@@ -113,14 +118,14 @@ public:
   bool m_ok;
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 // static
 HRESULT ThumbnailHandler::CreateInstance(REFIID riid, void** ppv)
 {
   *ppv = nullptr;
 
-  ThumbnailHandler* obj = new (std::nothrow)ThumbnailHandler;
+  ThumbnailHandler* obj = new (std::nothrow) ThumbnailHandler;
   if (!obj)
     return E_OUTOFMEMORY;
 
@@ -174,7 +179,9 @@ HRESULT ThumbnailHandler::Initialize(IStream* pStream, DWORD grfMode)
 }
 
 // IThumbnailProvider
-HRESULT ThumbnailHandler::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* pdwAlpha)
+HRESULT ThumbnailHandler::GetThumbnail(UINT cx,
+                                       HBITMAP* phbmp,
+                                       WTS_ALPHATYPE* pdwAlpha)
 {
   if (cx < 1 || !phbmp || !pdwAlpha)
     return E_INVALIDARG;
@@ -196,19 +203,19 @@ HRESULT ThumbnailHandler::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
     h = spr->height();
     int wh = std::max<int>(w, h);
 
-    image.reset(doc::Image::create(doc::IMAGE_RGB,
-                                   cx * w / wh,
-                                   cx * h / wh));
+    image.reset(doc::Image::create(doc::IMAGE_RGB, cx * w / wh, cx * h / wh));
     image->clear(0);
 
-#undef TRANSPARENT              // Windows defines TRANSPARENT macro
+#undef TRANSPARENT  // Windows defines TRANSPARENT macro
     render::Render render;
     render.setBgOptions(render::BgOptions::MakeTransparent());
-    render.setProjection(render::Projection(doc::PixelRatio(1, 1),
-                                            render::Zoom(cx, wh)));
-    render.renderSprite(image.get(), spr, 0,
-                        gfx::ClipF(0, 0, 0, 0,
-                                   image->width(), image->height()));
+    render.setProjection(
+      render::Projection(doc::PixelRatio(1, 1), render::Zoom(cx, wh)));
+    render.renderSprite(
+      image.get(),
+      spr,
+      0,
+      gfx::ClipF(0, 0, 0, 0, image->width(), image->height()));
 
     w = image->width();
     h = image->height();
@@ -228,14 +235,15 @@ HRESULT ThumbnailHandler::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
   bi.bmiHeader.biCompression = BI_RGB;
 
   unsigned char* data = nullptr;
-  *phbmp = CreateDIBSection(nullptr, &bi, DIB_RGB_COLORS, (void**)&data, nullptr, 0);
+  *phbmp =
+    CreateDIBSection(nullptr, &bi, DIB_RGB_COLORS, (void**)&data, nullptr, 0);
   if (!*phbmp)
     return E_FAIL;
 
-  for (int y=0; y<h; ++y) {
+  for (int y = 0; y < h; ++y) {
     doc::RgbTraits::address_t row =
       (doc::RgbTraits::address_t)image->getPixelAddress(0, y);
-    for (int x=0; x<w; ++x, ++row) {
+    for (int x = 0; x < w; ++x, ++row) {
       doc::color_t c = *row;
       *(data++) = doc::rgba_getb(c);
       *(data++) = doc::rgba_getg(c);
@@ -248,4 +256,4 @@ HRESULT ThumbnailHandler::GetThumbnail(UINT cx, HBITMAP* phbmp, WTS_ALPHATYPE* p
   return S_OK;
 }
 
-} // namespace desktop
+}  // namespace desktop

@@ -13,16 +13,17 @@
 #include <string>
 
 namespace doc {
-  class Image;
+class Image;
 }
 
 namespace app {
 
-  doc::Image* render_text(const std::string& fontfile, int fontsize,
-                          const std::string& text,
-                          doc::color_t color,
-                          bool antialias);
+doc::Image* render_text(const std::string& fontfile,
+                        int fontsize,
+                        const std::string& text,
+                        doc::color_t color,
+                        bool antialias);
 
-} // namespace app
+}  // namespace app
 
 #endif

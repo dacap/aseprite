@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/layer.h"
@@ -51,4 +51,4 @@ bool are_layers_adjacent(const LayerList& layers)
   return false;
 }
 
-} // namespace doc
+}  // namespace doc

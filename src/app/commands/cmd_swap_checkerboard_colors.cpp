@@ -5,14 +5,14 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/context.h"
 #include "app/ui/editor/editor.h"
 #include "ui/base.h"
-#include "app/context.h"
 
 namespace app {
 
@@ -37,7 +37,8 @@ bool SwapCheckerboardColorsCommand::onEnabled(Context* context)
 
 void SwapCheckerboardColorsCommand::onExecute(Context* context)
 {
-  DocumentPreferences& docPref = Preferences::instance().document(context->activeDocument());
+  DocumentPreferences& docPref =
+    Preferences::instance().document(context->activeDocument());
   app::Color c1 = docPref.bg.color1();
   app::Color c2 = docPref.bg.color2();
 
@@ -49,4 +50,4 @@ Command* CommandFactory::createSwapCheckerboardColorsCommand()
   return new SwapCheckerboardColorsCommand;
 }
 
-} // namespace app
+}  // namespace app

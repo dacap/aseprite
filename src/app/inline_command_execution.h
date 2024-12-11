@@ -31,11 +31,12 @@ public:
     CommandExecutionEvent ev(this, m_noParams);
     m_context->AfterCommandExecution(ev);
   }
+
 private:
   Context* m_context;
   Params m_noParams;
 };
 
-} // namespace app
+}  // namespace app
 
 #endif

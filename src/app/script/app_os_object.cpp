@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/script/engine.h"
@@ -14,8 +14,7 @@
 #include "base/platform.h"
 #include "updater/user_agent.h"
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 namespace {
 
@@ -97,11 +96,9 @@ const Property AppOS_properties[] = {
   { nullptr, nullptr, nullptr }
 };
 
-const luaL_Reg AppOS_methods[] = {
-  { nullptr, nullptr }
-};
+const luaL_Reg AppOS_methods[] = { { nullptr, nullptr } };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(AppOS);
 
@@ -117,5 +114,4 @@ void register_app_os_object(lua_State* L)
   lua_pop(L, 1);
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

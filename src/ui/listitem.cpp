@@ -6,14 +6,14 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/listitem.h"
 
 #include "ui/message.h"
-#include "ui/size_hint_event.h"
 #include "ui/resize_event.h"
+#include "ui/size_hint_event.h"
 #include "ui/theme.h"
 #include "ui/view.h"
 
@@ -98,4 +98,4 @@ void ListItem::onSetText()
   m_textLength = -1;
 }
 
-} // namespace ui
+}  // namespace ui

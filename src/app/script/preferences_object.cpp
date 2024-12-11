@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -20,8 +20,7 @@
 
 #include <cstring>
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 namespace {
 
@@ -33,19 +32,24 @@ int Section_index(lua_State* L)
 
   const char* id = lua_tostring(L, 2);
   if (!id)
-    return luaL_error(L, "optionName in 'app.preferences.%s.optionName' must be a string",
-                      section->name());
+    return luaL_error(
+      L,
+      "optionName in 'app.preferences.%s.optionName' must be a string",
+      section->name());
 
   OptionBase* option = section->option(id);
   if (!option) {
-    Section* subSection = section->section(
-      (section->name() && *section->name() ? std::string(section->name()) + "." + id:
-                                             std::string(id)).c_str());
+    Section* subSection =
+      section->section((section->name() && *section->name() ?
+                          std::string(section->name()) + "." + id :
+                          std::string(id))
+                         .c_str());
     if (subSection) {
       push_ptr(L, subSection);
       return 1;
     }
-    return luaL_error(L, "option '%s' in section '%s' doesn't exist", id, section->name());
+    return luaL_error(
+      L, "option '%s' in section '%s' doesn't exist", id, section->name());
   }
 
   option->pushLua(L);
@@ -58,13 +62,15 @@ int Section_newindex(lua_State* L)
 
   const char* id = lua_tostring(L, 2);
   if (!id)
-    return luaL_error(L, "optionName in 'app.preferences.%s.optionName' must be a string",
-                      section->name());
+    return luaL_error(
+      L,
+      "optionName in 'app.preferences.%s.optionName' must be a string",
+      section->name());
 
   OptionBase* option = section->option(id);
   if (!option)
-    return luaL_error(L, "option '%s' in section '%s' doesn't exist",
-                      id, section->name());
+    return luaL_error(
+      L, "option '%s' in section '%s' doesn't exist", id, section->name());
 
   option->fromLua(L, 3);
   return 0;
@@ -90,9 +96,8 @@ int ToolPref_function(lua_State* L)
 int DocPref_function(lua_State* L)
 {
   auto sprite = may_get_docobj<Sprite>(L, 1);
-  DocumentPreferences& docPref =
-    Preferences::instance().document(
-      sprite ? static_cast<const Doc*>(sprite->document()): nullptr);
+  DocumentPreferences& docPref = Preferences::instance().document(
+    sprite ? static_cast<const Doc*>(sprite->document()) : nullptr);
   push_ptr(L, (Section*)&docPref);
   return 1;
 }
@@ -120,18 +125,14 @@ int AppPreferences_index(lua_State* L)
   return 1;
 }
 
-const luaL_Reg Section_methods[] = {
-  { "__index", Section_index },
-  { "__newindex", Section_newindex },
-  { nullptr, nullptr }
-};
+const luaL_Reg Section_methods[] = { { "__index", Section_index },
+                                     { "__newindex", Section_newindex },
+                                     { nullptr, nullptr } };
 
-const luaL_Reg AppPreferences_methods[] = {
-  { "__index", AppPreferences_index },
-  { nullptr, nullptr }
-};
+const luaL_Reg AppPreferences_methods[] = { { "__index", AppPreferences_index },
+                                            { nullptr, nullptr } };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(Section);
 DEF_MTNAME(AppPreferences);
@@ -148,5 +149,4 @@ void register_app_preferences_object(lua_State* L)
   lua_pop(L, 1);
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

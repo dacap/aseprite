@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -56,7 +56,7 @@ void MaskContentCommand::onExecute(Context* context)
     ContextWriter writer(context);
     document = writer.document();
 
-    Cel* cel = writer.cel(); // Get current cel (can be NULL)
+    Cel* cel = writer.cel();  // Get current cel (can be NULL)
     if (!cel)
       return;
 
@@ -88,8 +88,8 @@ void MaskContentCommand::onExecute(Context* context)
   }
 
   // Select marquee tool
-  if (tools::Tool* tool = App::instance()->toolBox()
-      ->getToolById(tools::WellKnownTools::RectangularMarquee)) {
+  if (tools::Tool* tool = App::instance()->toolBox()->getToolById(
+        tools::WellKnownTools::RectangularMarquee)) {
     ToolBar::instance()->selectTool(tool);
   }
 
@@ -101,4 +101,4 @@ Command* CommandFactory::createMaskContentCommand()
   return new MaskContentCommand;
 }
 
-} // namespace app
+}  // namespace app

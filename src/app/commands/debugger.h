@@ -28,6 +28,6 @@ protected:
   std::unique_ptr<Debugger> m_debugger;
 };
 
-} // namespace app
+}  // namespace app
 
 #endif

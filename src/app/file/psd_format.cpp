@@ -107,7 +107,8 @@ public:
     , m_activeFrameIndex(0)
     , m_pixelFormat(PixelFormat::IMAGE_INDEXED)
     , m_layerHasTransparentChannel(false)
-  { }
+  {
+  }
 
   Sprite* getSprite() { return assembleDocument(); }
 

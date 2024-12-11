@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/set_slice_key.h"
@@ -19,8 +19,7 @@
 #include "doc/slice.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 using namespace doc;
 
@@ -132,10 +131,7 @@ int Slice_set_pivot(lua_State* L)
   return 0;
 }
 
-const luaL_Reg Slice_methods[] = {
-  { "__eq", Slice_eq },
-  { nullptr, nullptr }
-};
+const luaL_Reg Slice_methods[] = { { "__eq", Slice_eq }, { nullptr, nullptr } };
 
 const Property Slice_properties[] = {
   { "sprite", Slice_get_sprite, nullptr },
@@ -145,11 +141,13 @@ const Property Slice_properties[] = {
   { "pivot", Slice_get_pivot, Slice_set_pivot },
   { "color", UserData_get_color<Slice>, UserData_set_color<Slice> },
   { "data", UserData_get_text<Slice>, UserData_set_text<Slice> },
-  { "properties", UserData_get_properties<Slice>, UserData_set_properties<Slice> },
+  { "properties",
+    UserData_get_properties<Slice>,
+    UserData_set_properties<Slice> },
   { nullptr, nullptr, nullptr }
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(Slice);
 
@@ -160,5 +158,4 @@ void register_slice_class(lua_State* L)
   REG_CLASS_PROPERTIES(L, Slice);
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

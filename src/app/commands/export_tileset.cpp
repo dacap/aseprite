@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/commands/cmd_export_sprite_sheet.h"
@@ -20,6 +20,7 @@ namespace app {
 class ExportTilesetCommand : public ExportSpriteSheetCommand {
 public:
   ExportTilesetCommand();
+
 protected:
   void onResetValues() override;
   bool onEnabled(Context* context) override;
@@ -62,4 +63,4 @@ Command* CommandFactory::createExportTilesetCommand()
   return new ExportTilesetCommand;
 }
 
-} // namespace app
+}  // namespace app

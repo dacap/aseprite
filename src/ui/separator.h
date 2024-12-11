@@ -12,14 +12,14 @@
 
 namespace ui {
 
-  class Separator : public Widget {
-  public:
-    Separator(const std::string& text, int align);
+class Separator : public Widget {
+public:
+  Separator(const std::string& text, int align);
 
-  protected:
-    void onSizeHint(SizeHintEvent& ev) override;
-  };
+protected:
+  void onSizeHint(SizeHintEvent& ev) override;
+};
 
-} // namespace ui
+}  // namespace ui
 
 #endif

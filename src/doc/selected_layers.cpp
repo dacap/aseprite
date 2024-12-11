@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/selected_layers.h"
@@ -69,8 +69,7 @@ LayerList SelectedLayers::toAllLayersList() const
   ASSERT(*begin());
   ASSERT((*begin())->sprite());
 
-  for (Layer* layer = (*begin())->sprite()->firstLayer();
-       layer != nullptr;
+  for (Layer* layer = (*begin())->sprite()->firstLayer(); layer != nullptr;
        layer = layer->getNextInWholeHierarchy()) {
     if (contains(layer))
       output.push_back(layer);
@@ -110,7 +109,8 @@ LayerList SelectedLayers::toAllTilemaps() const
     if (layer->isGroup()) {
       auto group = static_cast<LayerGroup*>(layer);
       group->allTilemaps(output);
-    } else if (layer->isTilemap())
+    }
+    else if (layer->isTilemap())
       output.push_back(layer);
   }
 
@@ -169,11 +169,11 @@ retry:;
     Layer* layer = it;
 
     if (layerDelta > 0) {
-      for (layer_t i=0; layer && i<layerDelta; ++i)
+      for (layer_t i = 0; layer && i < layerDelta; ++i)
         layer = layer->getNextBrowsable();
     }
     else if (layerDelta < 0) {
-      for (layer_t i=0; layer && i>layerDelta; --i) {
+      for (layer_t i = 0; layer && i > layerDelta; --i) {
         layer = layer->getPreviousBrowsable();
       }
     }
@@ -227,8 +227,7 @@ void SelectedLayers::propagateSelection()
 
   for (Layer* layer : *this) {
     Layer* parent = layer->parent();
-    while (parent != layer->sprite()->root() &&
-           !contains(parent)) {
+    while (parent != layer->sprite()->root() && !contains(parent)) {
       newSel.insert(parent);
       parent = parent->parent();
     }
@@ -251,7 +250,7 @@ bool SelectedLayers::read(std::istream& is)
   clear();
 
   int nlayers = read32(is);
-  for (int i=0; i<nlayers && is; ++i) {
+  for (int i = 0; i < nlayers && is; ++i) {
     ObjectId id = read32(is);
     Layer* layer = doc::get<Layer>(id);
 
@@ -268,4 +267,4 @@ bool SelectedLayers::read(std::istream& is)
   return is.good();
 }
 
-} // namespace doc
+}  // namespace doc

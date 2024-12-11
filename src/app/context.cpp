@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/context.h"
@@ -25,9 +25,9 @@
 #include "ui/system.h"
 
 #ifdef _DEBUG
-#include "doc/layer_tilemap.h"
-#include "doc/tileset.h"
-#include "doc/tilesets.h"
+  #include "doc/layer_tilemap.h"
+  #include "doc/tileset.h"
+  #include "doc/tilesets.h"
 #endif
 
 #include <algorithm>
@@ -135,7 +135,8 @@ void Context::notifyActiveSiteChanged()
   notify_observers<const Site&>(&ContextObserver::onActiveSiteChange, site);
 }
 
-void Context::executeCommandFromMenuOrShortcut(Command* command, const Params& params)
+void Context::executeCommandFromMenuOrShortcut(Command* command,
+                                               const Params& params)
 {
   ui::assert_ui_thread();
 
@@ -143,9 +144,11 @@ void Context::executeCommandFromMenuOrShortcut(Command* command, const Params& p
   // command (e.g. if we press Cmd-S quickly the program can enter two
   // times in the File > Save command and hang).
   static Command* executingCommand = nullptr;
-  if (executingCommand) {         // Ignore command execution
-    LOG(VERBOSE, "CTXT: Ignoring command %s because we are inside %s\n",
-        command->id().c_str(), executingCommand->id().c_str());
+  if (executingCommand) {  // Ignore command execution
+    LOG(VERBOSE,
+        "CTXT: Ignoring command %s because we are inside %s\n",
+        command->id().c_str(),
+        executingCommand->id().c_str());
     return;
   }
   base::ScopedValue commandGuard(executingCommand, command);
@@ -177,11 +180,15 @@ void Context::executeCommand(Command* command, const Params& params)
     BeforeCommandExecution(ev);
 
     if (ev.isCanceled()) {
-      LOG(VERBOSE, "CTXT: Command %s was canceled/simulated.\n", command->id().c_str());
+      LOG(VERBOSE,
+          "CTXT: Command %s was canceled/simulated.\n",
+          command->id().c_str());
     }
     else if (command->isEnabled(this)) {
       command->execute(this);
-      LOG(VERBOSE, "CTXT: Command %s executed successfully\n", command->id().c_str());
+      LOG(VERBOSE,
+          "CTXT: Command %s executed successfully\n",
+          command->id().c_str());
     }
     else {
       LOG(VERBOSE, "CTXT: Command %s is disabled\n", command->id().c_str());
@@ -193,12 +200,11 @@ void Context::executeCommand(Command* command, const Params& params)
     if (isUIAvailable())
       app_rebuild_documents_tabs();
 
-#ifdef _DEBUG // Special checks for debugging purposes
+#ifdef _DEBUG  // Special checks for debugging purposes
     {
       Site site = activeSite();
       // Check that all tileset hash tables are valid
-      if (site.sprite() &&
-          site.sprite()->hasTilesets()) {
+      if (site.sprite() && site.sprite()->hasTilesets()) {
         for (Tileset* tileset : *site.sprite()->tilesets()) {
           if (tileset)
             tileset->assertValidHashTable();
@@ -210,22 +216,28 @@ void Context::executeCommand(Command* command, const Params& params)
   catch (base::Exception& e) {
     m_result = CommandResult(CommandResult::kError);
 
-    LOG(ERROR, "CTXT: Exception caught executing %s command\n%s\n",
-        command->id().c_str(), e.what());
+    LOG(ERROR,
+        "CTXT: Exception caught executing %s command\n%s\n",
+        command->id().c_str(),
+        e.what());
     Console::showException(e);
   }
   catch (std::exception& e) {
     m_result = CommandResult(CommandResult::kError);
 
-    LOG(ERROR, "CTXT: std::exception caught executing %s command\n%s\n",
-        command->id().c_str(), e.what());
-    console.printf("An error ocurred executing the command.\n\nDetails:\n%s", e.what());
+    LOG(ERROR,
+        "CTXT: std::exception caught executing %s command\n%s\n",
+        command->id().c_str(),
+        e.what());
+    console.printf("An error ocurred executing the command.\n\nDetails:\n%s",
+                   e.what());
   }
 #ifdef NDEBUG
   catch (...) {
     m_result = CommandResult(CommandResult::kError);
 
-    LOG(ERROR, "CTXT: Unknown exception executing %s command\n",
+    LOG(ERROR,
+        "CTXT: Unknown exception executing %s command\n",
         command->id().c_str());
 
     console.printf("An unknown error ocurred executing the command.\n"
@@ -279,7 +291,8 @@ void Context::onSetActiveDocument(Doc* doc, bool notify)
 
 void Context::onSetActiveLayer(doc::Layer* layer)
 {
-  Doc* newDoc = (layer ? static_cast<Doc*>(layer->sprite()->document()): nullptr);
+  Doc* newDoc =
+    (layer ? static_cast<Doc*>(layer->sprite()->document()) : nullptr);
   if (!newDoc)
     return;
 
@@ -331,4 +344,4 @@ void Context::onCloseDocument(Doc* doc)
   delete doc;
 }
 
-} // namespace app
+}  // namespace app

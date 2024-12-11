@@ -13,11 +13,11 @@
 
 namespace ui {
 
-  class Label : public Widget {
-  public:
-    Label(const std::string& text);
-  };
+class Label : public Widget {
+public:
+  Label(const std::string& text);
+};
 
-} // namespace ui
+}  // namespace ui
 
 #endif

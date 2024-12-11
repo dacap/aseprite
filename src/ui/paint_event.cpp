@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/paint_event.h"
@@ -33,4 +33,4 @@ Graphics* PaintEvent::graphics()
   return m_graphics;
 }
 
-} // namespace ui
+}  // namespace ui

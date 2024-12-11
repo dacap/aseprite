@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/selection_mode_field.h"
@@ -40,16 +40,21 @@ void SelectionModeField::setupTooltips(TooltipManager* tooltipManager)
     at(0), Strings::selection_mode_replace(), BOTTOM);
 
   tooltipManager->addTooltipFor(
-    at(1), key_tooltip(Strings::selection_mode_add().c_str(),
-                       KeyAction::AddSelection), BOTTOM);
+    at(1),
+    key_tooltip(Strings::selection_mode_add().c_str(), KeyAction::AddSelection),
+    BOTTOM);
 
   tooltipManager->addTooltipFor(
-    at(2), key_tooltip(Strings::selection_mode_subtract().c_str(),
-                       KeyAction::SubtractSelection), BOTTOM);
+    at(2),
+    key_tooltip(Strings::selection_mode_subtract().c_str(),
+                KeyAction::SubtractSelection),
+    BOTTOM);
 
   tooltipManager->addTooltipFor(
-    at(3), key_tooltip(Strings::selection_mode_intersect().c_str(),
-                       KeyAction::IntersectSelection), BOTTOM);
+    at(3),
+    key_tooltip(Strings::selection_mode_intersect().c_str(),
+                KeyAction::IntersectSelection),
+    BOTTOM);
 }
 
 gen::SelectionMode SelectionModeField::selectionMode()
@@ -69,4 +74,4 @@ void SelectionModeField::onItemChange(Item* item)
   onSelectionModeChange(selectionMode());
 }
 
-} // namespace app
+}  // namespace app

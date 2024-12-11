@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/set_layer_blend_mode.h"
@@ -27,8 +27,7 @@
 #include "doc/tileset.h"
 #include "doc/tilesets.h"
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 using namespace doc;
 
@@ -142,9 +141,9 @@ int Layer_get_blendMode(lua_State* L)
 {
   auto layer = get_docobj<Layer>(L, 1);
   if (layer->isImage()) {
-    lua_pushinteger(
-      L, int(base::convert_to<app::script::BlendMode>(
-               static_cast<LayerImage*>(layer)->blendMode())));
+    lua_pushinteger(L,
+                    int(base::convert_to<app::script::BlendMode>(
+                      static_cast<LayerImage*>(layer)->blendMode())));
     return 1;
   }
   else
@@ -301,8 +300,9 @@ int Layer_set_stackIndex(lua_State* L)
     ++newStackIndex;
   }
 
-  if (newStackIndex-1 < int(parent->layers().size())) {
-    beforeThis = parent->layers()[std::clamp(newStackIndex-1, 0, (int)parent->layers().size())];
+  if (newStackIndex - 1 < int(parent->layers().size())) {
+    beforeThis = parent->layers()[std::clamp(
+      newStackIndex - 1, 0, (int)parent->layers().size())];
   }
   else {
     beforeThis = nullptr;
@@ -384,8 +384,7 @@ int Layer_set_parent(lua_State* L)
   if (parent) {
     Doc* doc = static_cast<Doc*>(layer->sprite()->document());
     Tx tx(doc);
-    DocApi(doc, tx).restackLayerAfter(
-      layer, parent, parent->lastLayer());
+    DocApi(doc, tx).restackLayerAfter(layer, parent, parent->lastLayer());
     tx.commit();
   }
   return 0;
@@ -412,11 +411,9 @@ int Layer_set_tileset(lua_State* L)
   return 0;
 }
 
-const luaL_Reg Layer_methods[] = {
-  { "__eq", Layer_eq },
-  { "cel", Layer_cel },
-  { nullptr, nullptr }
-};
+const luaL_Reg Layer_methods[] = { { "__eq", Layer_eq },
+                                   { "cel", Layer_cel },
+                                   { nullptr, nullptr } };
 
 const Property Layer_properties[] = {
   { "id", Layer_get_id, nullptr },
@@ -443,12 +440,14 @@ const Property Layer_properties[] = {
   { "cels", Layer_get_cels, nullptr },
   { "color", UserData_get_color<Layer>, UserData_set_color<Layer> },
   { "data", UserData_get_text<Layer>, UserData_set_text<Layer> },
-  { "properties", UserData_get_properties<Layer>, UserData_set_properties<Layer> },
+  { "properties",
+    UserData_get_properties<Layer>,
+    UserData_set_properties<Layer> },
   { "tileset", Layer_get_tileset, Layer_set_tileset },
   { nullptr, nullptr, nullptr }
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(Layer);
 
@@ -459,5 +458,4 @@ void register_layer_class(lua_State* L)
   REG_CLASS_PROPERTIES(L, Layer);
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

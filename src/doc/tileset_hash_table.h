@@ -18,12 +18,11 @@
 
 namespace doc {
 
-  // A hash table used to match Image pixels data <-> tileset index
-  typedef std::unordered_map<ImageRef,
-                             tile_index,
-                             details::image_hash,
-                             details::image_eq> TilesetHashTable;
+// A hash table used to match Image pixels data <-> tileset index
+typedef std::
+  unordered_map<ImageRef, tile_index, details::image_hash, details::image_eq>
+    TilesetHashTable;
 
-} // namespace doc
+}  // namespace doc
 
 #endif

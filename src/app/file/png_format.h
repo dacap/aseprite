@@ -10,15 +10,15 @@
 
 namespace app {
 
-  // This can be used to save opaque png files with one pixel with
-  // alpha=254, which is needed by Twitter to publish png images and
-  // avoid automatic conversion to jpg files.
-  class PngEncoderOneAlphaPixel {
-  public:
-    PngEncoderOneAlphaPixel(bool state);
-    ~PngEncoderOneAlphaPixel();
-  };
+// This can be used to save opaque png files with one pixel with
+// alpha=254, which is needed by Twitter to publish png images and
+// avoid automatic conversion to jpg files.
+class PngEncoderOneAlphaPixel {
+public:
+  PngEncoderOneAlphaPixel(bool state);
+  ~PngEncoderOneAlphaPixel();
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

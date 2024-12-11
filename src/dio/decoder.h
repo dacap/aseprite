@@ -13,7 +13,7 @@
 #include <cstring>
 
 namespace doc {
-  class Document;
+class Document;
 }
 
 namespace dio {
@@ -43,6 +43,6 @@ private:
   FileInterface* m_f;
 };
 
-} // namespace dio
+}  // namespace dio
 
 #endif

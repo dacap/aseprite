@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/commands/command.h"
@@ -33,9 +33,7 @@ OpenWithAppCommand::OpenWithAppCommand()
 bool OpenWithAppCommand::onEnabled(Context* context)
 {
   const ContextReader reader(context);
-  return
-    reader.document() &&
-    reader.document()->isAssociatedToFile();
+  return reader.document() && reader.document()->isAssociatedToFile();
 }
 
 void OpenWithAppCommand::onExecute(Context* context)
@@ -48,4 +46,4 @@ Command* CommandFactory::createOpenWithAppCommand()
   return new OpenWithAppCommand;
 }
 
-} // namespace app
+}  // namespace app

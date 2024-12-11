@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -26,13 +26,17 @@ public:
   }
 
 protected:
-  bool onChecked(Context* context) override {
-    DocumentPreferences& docPref = Preferences::instance().document(context->activeDocument());
+  bool onChecked(Context* context) override
+  {
+    DocumentPreferences& docPref =
+      Preferences::instance().document(context->activeDocument());
     return docPref.onionskin.active();
   }
 
-  void onExecute(Context* context) override {
-    DocumentPreferences& docPref = Preferences::instance().document(context->activeDocument());
+  void onExecute(Context* context) override
+  {
+    DocumentPreferences& docPref =
+      Preferences::instance().document(context->activeDocument());
     docPref.onionskin.active(!docPref.onionskin.active());
   }
 };
@@ -42,4 +46,4 @@ Command* CommandFactory::createShowOnionSkinCommand()
   return new ShowOnionSkinCommand;
 }
 
-} // namespace app
+}  // namespace app

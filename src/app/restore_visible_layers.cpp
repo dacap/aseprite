@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/restore_visible_layers.h"
@@ -32,14 +32,16 @@ void RestoreVisibleLayers::showLayer(Layer* layer)
   showSelectedLayers(layer->sprite(), selLayers);
 }
 
-void RestoreVisibleLayers::showSelectedLayers(Sprite* sprite, const SelectedLayers& inSelLayers)
+void RestoreVisibleLayers::showSelectedLayers(Sprite* sprite,
+                                              const SelectedLayers& inSelLayers)
 {
   SelectedLayers selLayers = inSelLayers;
   selLayers.propagateSelection();
   setLayerVisiblity(sprite->root(), selLayers);
 }
 
-void RestoreVisibleLayers::setLayerVisiblity(LayerGroup* group, const SelectedLayers& selLayers)
+void RestoreVisibleLayers::setLayerVisiblity(LayerGroup* group,
+                                             const SelectedLayers& selLayers)
 {
   for (Layer* layer : group->layers()) {
     bool selected = (selLayers.contains(layer));
@@ -52,4 +54,4 @@ void RestoreVisibleLayers::setLayerVisiblity(LayerGroup* group, const SelectedLa
   }
 }
 
-} // namespace app
+}  // namespace app

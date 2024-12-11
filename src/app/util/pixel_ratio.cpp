@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/util/pixel_ratio.h"
@@ -41,4 +41,4 @@ std::string convert_to(const doc::PixelRatio& from)
           convert_to<std::string>(from.h));
 }
 
-} // namespace base
+}  // namespace base

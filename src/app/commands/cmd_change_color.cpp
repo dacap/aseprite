@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include <string>
@@ -21,8 +21,7 @@
 
 namespace app {
 
-class ChangeColorCommand : public Command
-{
+class ChangeColorCommand : public Command {
   enum Change {
     None,
     IncrementIndex,
@@ -56,19 +55,23 @@ ChangeColorCommand::ChangeColorCommand()
 void ChangeColorCommand::onLoadParams(const Params& params)
 {
   std::string target = params.get("target");
-  if (target == "foreground") m_background = false;
-  else if (target == "background") m_background = true;
+  if (target == "foreground")
+    m_background = false;
+  else if (target == "background")
+    m_background = true;
 
   std::string change = params.get("change");
-  if (change == "increment-index") m_change = IncrementIndex;
-  else if (change == "decrement-index") m_change = DecrementIndex;
+  if (change == "increment-index")
+    m_change = IncrementIndex;
+  else if (change == "decrement-index")
+    m_change = DecrementIndex;
 }
 
 void ChangeColorCommand::onExecute(Context* context)
 {
   ColorBar* colorbar = ColorBar::instance();
-  app::Color color = m_background ? colorbar->getBgColor():
-                                    colorbar->getFgColor();
+  app::Color color =
+    m_background ? colorbar->getBgColor() : colorbar->getFgColor();
 
   switch (m_change) {
     case None:
@@ -87,7 +90,8 @@ void ChangeColorCommand::onExecute(Context* context)
       const int palSize = get_current_palette()->size();
       if (palSize >= 1) {
         // Floor modulo.
-        color = app::Color::fromIndex(((color.getIndex() - 1) % palSize + palSize) % palSize);
+        color = app::Color::fromIndex(
+          ((color.getIndex() - 1) % palSize + palSize) % palSize);
       }
       break;
     }
@@ -128,4 +132,4 @@ Command* CommandFactory::createChangeColorCommand()
   return new ChangeColorCommand;
 }
 
-} // namespace app
+}  // namespace app

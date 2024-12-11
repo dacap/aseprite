@@ -15,19 +15,17 @@
 
 namespace doc {
 
-  class Slice;
-  class SliceKey;
+class Slice;
+class SliceKey;
 
-  void write_slice(std::ostream& os,
-                   const Slice* slice);
-  Slice* read_slice(std::istream& is,
-                    bool setId = true,
-                    SerialFormat serial = SerialFormat::LastVer);
+void write_slice(std::ostream& os, const Slice* slice);
+Slice* read_slice(std::istream& is,
+                  bool setId = true,
+                  SerialFormat serial = SerialFormat::LastVer);
 
-  void write_slicekey(std::ostream& os,
-                      const SliceKey& sliceKey);
-  SliceKey read_slicekey(std::istream& is);
+void write_slicekey(std::ostream& os, const SliceKey& sliceKey);
+SliceKey read_slicekey(std::istream& is);
 
-} // namespace doc
+}  // namespace doc
 
 #endif

@@ -12,14 +12,14 @@
 
 namespace app {
 
-  class FileListView : public ui::View {
-  public:
-    FileListView() { }
+class FileListView : public ui::View {
+public:
+  FileListView() { }
 
-  private:
-    void onScrollRegion(ui::ScrollRegionEvent& ev);
-  };
+private:
+  void onScrollRegion(ui::ScrollRegionEvent& ev);
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include <gtest/gtest.h>
@@ -22,7 +22,8 @@ using namespace doc;
 
 TEST(LayerList, AreLayersAdjacent)
 {
-  std::unique_ptr<Sprite> spr(new Sprite(ImageSpec(ColorMode::RGB, 32, 32), 256));
+  std::unique_ptr<Sprite> spr(
+    new Sprite(ImageSpec(ColorMode::RGB, 32, 32), 256));
   LayerGroup* root = spr->root();
   Layer* layer1 = new LayerImage(spr.get());
   Layer* layer2 = new LayerImage(spr.get());
@@ -46,7 +47,7 @@ TEST(LayerList, AreLayersAdjacent)
   EXPECT_EQ(3, layers.size());
   EXPECT_TRUE(are_layers_adjacent(layers));
 
-  layers.erase(layers.begin()+1);
+  layers.erase(layers.begin() + 1);
   EXPECT_EQ(2, layers.size());
   EXPECT_FALSE(are_layers_adjacent(layers));
 

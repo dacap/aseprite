@@ -5,9 +5,8 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/link_label.h"
@@ -45,7 +44,6 @@ void LinkLabel::setUrl(const std::string& url)
 bool LinkLabel::onProcessMessage(Message* msg)
 {
   switch (msg->type()) {
-
     case kSetCursorMessage:
       // TODO theme stuff
       if (isEnabled() && hasMouse()) {
@@ -60,7 +58,7 @@ bool LinkLabel::onProcessMessage(Message* msg)
         if (hasCapture())
           setSelected(msg->type() == kMouseEnterMessage);
 
-        invalidate();           // TODO theme specific
+        invalidate();  // TODO theme specific
       }
       break;
 
@@ -81,7 +79,7 @@ bool LinkLabel::onProcessMessage(Message* msg)
         releaseMouse();
 
         setSelected(false);
-        invalidate();           // TODO theme specific
+        invalidate();  // TODO theme specific
 
         if (hasMouse())
           onClick();
@@ -100,4 +98,4 @@ void LinkLabel::onClick()
   Click();
 }
 
-} // namespace ui
+}  // namespace ui

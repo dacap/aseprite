@@ -9,14 +9,14 @@
 #pragma once
 
 namespace doc {
-  class Mask;
+class Mask;
 }
 
 namespace app {
 
-  doc::Mask* load_msk_file(const char* filename);
-  int save_msk_file(const doc::Mask* mask, const char* filename);
+doc::Mask* load_msk_file(const char* filename);
+int save_msk_file(const doc::Mask* mask, const char* filename);
 
-} // namespace app
+}  // namespace app
 
 #endif

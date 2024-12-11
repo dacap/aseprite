@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/editor/navigate_state.h"
@@ -69,4 +69,4 @@ void NavigateState::disableQuickTool() const
   // window is visible.
 }
 
-} // namespace app
+}  // namespace app

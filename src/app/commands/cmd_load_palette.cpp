@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/commands/cmd_set_palette.h"
@@ -65,9 +65,11 @@ void LoadPaletteCommand::onExecute(Context* context)
   else if (context->isUIAvailable()) {
     base::paths exts = get_readable_palette_extensions();
     base::paths filenames;
-    if (app::show_file_selector(
-          Strings::load_palette_title(), "", exts,
-          FileSelectorType::Open, filenames)) {
+    if (app::show_file_selector(Strings::load_palette_title(),
+                                "",
+                                exts,
+                                FileSelectorType::Open,
+                                filenames)) {
       filename = filenames.front();
     }
   }
@@ -102,4 +104,4 @@ Command* CommandFactory::createLoadPaletteCommand()
   return new LoadPaletteCommand;
 }
 
-} // namespace app
+}  // namespace app

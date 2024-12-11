@@ -10,20 +10,21 @@
 
 #ifdef ENABLE_UPDATER
 
-#include <string>
+  #include <string>
 
 namespace app {
 
-  class CheckUpdateDelegate {
-  public:
-    virtual ~CheckUpdateDelegate() { }
-    virtual void onCheckingUpdates() = 0;
-    virtual void onUpToDate() = 0;
-    virtual void onNewUpdate(const std::string& url, const std::string& version) = 0;
-  };
+class CheckUpdateDelegate {
+public:
+  virtual ~CheckUpdateDelegate() { }
+  virtual void onCheckingUpdates() = 0;
+  virtual void onUpToDate() = 0;
+  virtual void onNewUpdate(const std::string& url,
+                           const std::string& version) = 0;
+};
 
-} // namespace app
+}  // namespace app
 
-#endif // ENABLE_UPDATER
+#endif  // ENABLE_UPDATER
 
-#endif // APP_CHECK_UPDATE_DELEGATE_H_INCLUDED
+#endif  // APP_CHECK_UPDATE_DELEGATE_H_INCLUDED

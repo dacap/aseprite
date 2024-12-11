@@ -14,7 +14,7 @@
 #include "gfx/point.h"
 
 namespace doc {
-  class Image;
+class Image;
 }
 
 namespace render {
@@ -26,33 +26,30 @@ enum class GradientType {
   Radial,
 };
 
-void render_rgba_gradient(
-  doc::Image* img,
-  const gfx::Point imgPos,
-  const gfx::Point p0,
-  const gfx::Point p1,
-  doc::color_t c0,
-  doc::color_t c1,
-  const render::DitheringMatrix& matrix,
-  const GradientType type);
+void render_rgba_gradient(doc::Image* img,
+                          const gfx::Point imgPos,
+                          const gfx::Point p0,
+                          const gfx::Point p1,
+                          doc::color_t c0,
+                          doc::color_t c1,
+                          const render::DitheringMatrix& matrix,
+                          const GradientType type);
 
-void render_rgba_linear_gradient(
-  doc::Image* img,
-  const gfx::Point imgPos,
-  const gfx::Point p0,
-  const gfx::Point p1,
-  doc::color_t c0,
-  doc::color_t c1,
-  const render::DitheringMatrix& matrix);
+void render_rgba_linear_gradient(doc::Image* img,
+                                 const gfx::Point imgPos,
+                                 const gfx::Point p0,
+                                 const gfx::Point p1,
+                                 doc::color_t c0,
+                                 doc::color_t c1,
+                                 const render::DitheringMatrix& matrix);
 
-void render_rgba_radial_gradient(
-  doc::Image* img,
-  const gfx::Point imgPos,
-  const gfx::Point p0,
-  const gfx::Point p1,
-  doc::color_t c0,
-  doc::color_t c1,
-  const render::DitheringMatrix& matrix);
+void render_rgba_radial_gradient(doc::Image* img,
+                                 const gfx::Point imgPos,
+                                 const gfx::Point p0,
+                                 const gfx::Point p1,
+                                 doc::color_t c0,
+                                 doc::color_t c1,
+                                 const render::DitheringMatrix& matrix);
 
 void convert_bitmap_brush_to_dithering_brush(
   doc::Brush* brush,
@@ -62,6 +59,6 @@ void convert_bitmap_brush_to_dithering_brush(
   const doc::color_t c0,
   const doc::color_t c1);
 
-} // namespace render
+}  // namespace render
 
 #endif

@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/xml_exception.h"
@@ -22,15 +22,16 @@ XmlException::XmlException(const std::string& filename,
                            const XMLDocument* doc) noexcept
 {
   try {
-    setMessage(
-      fmt::format("Error in XML file '{}' (line {})\nError {}: {}",
-                  filename, doc->ErrorLineNum(),
-                  int(doc->ErrorID()),
-                  doc->ErrorStr()).c_str());
+    setMessage(fmt::format("Error in XML file '{}' (line {})\nError {}: {}",
+                           filename,
+                           doc->ErrorLineNum(),
+                           int(doc->ErrorID()),
+                           doc->ErrorStr())
+                 .c_str());
   }
   catch (...) {
     // No throw
   }
 }
 
-} // namespace app
+}  // namespace app

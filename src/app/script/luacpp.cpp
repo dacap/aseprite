@@ -6,15 +6,14 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/script/luacpp.h"
 
 #include <cstdio>
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 static const char mt_index_code[] =
   "__generic_mt_index = function(t, k) "
@@ -38,7 +37,8 @@ static const char mt_index_code[] =
 
 void run_mt_index_code(lua_State* L)
 {
-  if (luaL_loadbuffer(L, mt_index_code, sizeof(mt_index_code)-1, "internal") ||
+  if (luaL_loadbuffer(
+        L, mt_index_code, sizeof(mt_index_code) - 1, "internal") ||
       lua_pcall(L, 0, 0, 0)) {
     // Error case
     const char* s = lua_tostring(L, -1);
@@ -59,9 +59,11 @@ void create_mt_getters_setters(lua_State* L,
 
   bool withGetters = false;
   bool withSetters = false;
-  for (auto p=properties; p->name; ++p) {
-    if (p->getter) withGetters = true;
-    if (p->setter) withSetters = true;
+  for (auto p = properties; p->name; ++p) {
+    if (p->getter)
+      withGetters = true;
+    if (p->setter)
+      withSetters = true;
   }
   ASSERT(withGetters || withSetters);
 
@@ -70,7 +72,7 @@ void create_mt_getters_setters(lua_State* L,
     lua_newtable(L);
     lua_pushvalue(L, -1);
     lua_setfield(L, -3, "__getters");
-    for (auto p=properties; p->name; ++p) {
+    for (auto p = properties; p->name; ++p) {
       if (p->getter) {
         lua_pushcclosure(L, p->getter, 0);
         lua_setfield(L, -2, p->name);
@@ -82,7 +84,7 @@ void create_mt_getters_setters(lua_State* L,
     lua_newtable(L);
     lua_pushvalue(L, -1);
     lua_setfield(L, -3, "__setters");
-    for (auto p=properties; p->name; ++p) {
+    for (auto p = properties; p->name; ++p) {
       if (p->setter) {
         lua_pushcclosure(L, p->setter, 0);
         lua_setfield(L, -2, p->name);
@@ -105,5 +107,4 @@ bool lua_is_key_true(lua_State* L, int tableIndex, const char* keyName)
   return result;
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/set_tag_anidir.h"
@@ -100,8 +100,7 @@ void FrameTagPropertiesCommand::onExecute(Context* context)
 
   doc::frame_t from, to;
   window.rangeValue(from, to);
-  if (tag->fromFrame() != from ||
-      tag->toFrame() != to) {
+  if (tag->fromFrame() != from || tag->toFrame() != to) {
     tx(new cmd::SetTagRange(tag, from, to));
   }
 
@@ -122,12 +121,12 @@ void FrameTagPropertiesCommand::onExecute(Context* context)
     //      in Cel properties and Layer properties dialog, so there is
     //      some general refactoring needed.
     auto app = App::instance();
-    if (app && app->timeline() &&
-        tag->userData().color() != userData.color()) {
+    if (app && app->timeline() && tag->userData().color() != userData.color()) {
       App::instance()->timeline()->invalidate();
     }
 
-    tx(new cmd::SetUserData(tag, userData, static_cast<Doc*>(sprite->document())));
+    tx(new cmd::SetUserData(
+      tag, userData, static_cast<Doc*>(sprite->document())));
   }
 
   tx.commit();
@@ -138,4 +137,4 @@ Command* CommandFactory::createFrameTagPropertiesCommand()
   return new FrameTagPropertiesCommand;
 }
 
-} // namespace app
+}  // namespace app

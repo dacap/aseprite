@@ -22,4 +22,4 @@ std::string Property::getName() const
   return m_name;
 }
 
-} // namespace ui
+}  // namespace ui

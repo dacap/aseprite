@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/manager.h"
@@ -59,8 +59,7 @@ void move_region(Display* display, const Region& region, int dx, int dy)
     std::copy(region.begin(), region.end(), rcs.begin());
 
     std::sort(
-      rcs.begin(), rcs.end(),
-      [dx, dy](const gfx::Rect& a, const gfx::Rect& b){
+      rcs.begin(), rcs.end(), [dx, dy](const gfx::Rect& a, const gfx::Rect& b) {
         if (dy < 0) {
           if (a.y < b.y)
             return true;
@@ -98,4 +97,4 @@ void move_region(Display* display, const Region& region, int dx, int dy)
   overlays->drawOverlays();
 }
 
-} // namespace ui
+}  // namespace ui

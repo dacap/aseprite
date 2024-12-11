@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/commands/command.h"
@@ -45,9 +45,8 @@ PaletteEditorCommand::PaletteEditorCommand()
 void PaletteEditorCommand::onLoadParams(const Params& params)
 {
   m_edit =
-    (params.empty() ||
-     params.get("edit") == "switch" ||
-     params.get_as<bool>("switch")); // "switch" for backward compatibility
+    (params.empty() || params.get("edit") == "switch" ||
+     params.get_as<bool>("switch"));  // "switch" for backward compatibility
   m_popup = (!params.get("popup").empty());
   m_background = (params.get("popup") == "background");
 }
@@ -62,9 +61,7 @@ void PaletteEditorCommand::onExecute(Context* context)
   auto colorBar = ColorBar::instance();
   bool editMode = colorBar->inEditMode();
   ColorButton* button =
-    (m_background ?
-     colorBar->bgColorButton():
-     colorBar->fgColorButton());
+    (m_background ? colorBar->bgColorButton() : colorBar->fgColorButton());
 
   // Switch edit mode
   if (m_edit && !m_popup) {
@@ -119,4 +116,4 @@ Command* CommandFactory::createPaletteEditorCommand()
   return new PaletteEditorCommand;
 }
 
-} // namespace app
+}  // namespace app

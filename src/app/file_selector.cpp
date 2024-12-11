@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/file_selector.h"
@@ -21,20 +21,18 @@
 
 namespace app {
 
-bool show_file_selector(
-  const std::string& title,
-  const std::string& initialPath,
-  const base::paths& extensions,
-  FileSelectorType type,
-  base::paths& output)
+bool show_file_selector(const std::string& title,
+                        const std::string& initialPath,
+                        const base::paths& extensions,
+                        FileSelectorType type,
+                        base::paths& output)
 {
   const std::string defExtension =
     Preferences::instance().saveFile.defaultExtension();
 
   if (Preferences::instance().experimental.useNativeFileDialog() &&
       os::instance()->nativeDialogs()) {
-    os::FileDialogRef dlg =
-      os::instance()->nativeDialogs()->makeFileDialog();
+    os::FileDialogRef dlg = os::instance()->nativeDialogs()->makeFileDialog();
 
     if (dlg) {
       dlg->setTitle(title);
@@ -46,9 +44,9 @@ bool show_file_selector(
         dlg->setDefaultExtension(defExtension);
       }
 
-#if LAF_LINUX // As the X11 version doesn't store the default path to
-              // start navigating, we use our own
-              // get_initial_path_to_select_filename()
+#if LAF_LINUX  // As the X11 version doesn't store the default path to         \
+               // start navigating, we use our own                             \
+               // get_initial_path_to_select_filename()
       dlg->setFileName(get_initial_path_to_select_filename(initialPath));
 #else  // !LAF_LINUX
       dlg->setFileName(initialPath);
@@ -79,7 +77,7 @@ bool show_file_selector(
           else
             output.push_back(dlg->fileName());
 
-#if LAF_LINUX // Save the path in the configuration file
+#if LAF_LINUX  // Save the path in the configuration file
           if (!output.empty()) {
             set_current_dir_for_file_selector(base::get_file_path(output[0]));
           }
@@ -106,7 +104,8 @@ bool show_file_selector(
   return fileSelector.show(title, initialPath, extensions, output);
 }
 
-std::string get_initial_path_to_select_filename(const std::string& initialFilename)
+std::string get_initial_path_to_select_filename(
+  const std::string& initialFilename)
 {
   std::string path = base::get_file_path(initialFilename);
   // If initialFilename doesn't contain a path/directory.
@@ -138,4 +137,4 @@ void set_current_dir_for_file_selector(const std::string& dirPath)
   Preferences::instance().fileSelector.currentFolder(dirPath);
 }
 
-} // namespace app
+}  // namespace app

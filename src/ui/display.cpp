@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/display.h"
@@ -26,7 +26,7 @@ Display::Display(Display* parentDisplay,
   , m_nativeWindow(nativeWindow)
   , m_containedWidget(containedWidget)
 {
-#if 0 // When compiling tests all these values can be nullptr
+#if 0  // When compiling tests all these values can be nullptr
   ASSERT(m_nativeWindow);
   ASSERT(m_containedWidget);
   ASSERT(m_containedWidget->type() == kManagerWidget ||
@@ -118,29 +118,27 @@ void Display::handleWindowZOrder(Window* window)
   else {
     int pos = (int)m_windows.size();
 
-    for (auto it=m_windows.rbegin(),
-           end=m_windows.rend();
-         it != end; ++it) {
+    for (auto it = m_windows.rbegin(), end = m_windows.rend(); it != end;
+         ++it) {
       if (static_cast<Window*>(*it)->isOnTop())
         break;
 
       --pos;
     }
 
-    m_windows.insert(m_windows.begin()+pos, window);
+    m_windows.insert(m_windows.begin() + pos, window);
   }
 }
 
 gfx::Size Display::workareaSizeUIScale()
 {
   if (get_multiple_displays()) {
-    return
-      nativeWindow()->screen()->workarea().size() /
-      nativeWindow()->scale();
+    return nativeWindow()->screen()->workarea().size() /
+           nativeWindow()->scale();
   }
   else {
     return size();
   }
 }
 
-} // namespace ui
+}  // namespace ui

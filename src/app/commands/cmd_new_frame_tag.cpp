@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -54,8 +54,7 @@ void NewFrameTagCommand::onExecute(Context* context)
 
   auto range = App::instance()->timeline()->range();
   if (range.enabled() &&
-      (range.type() == DocRange::kFrames ||
-       range.type() == DocRange::kCels)) {
+      (range.type() == DocRange::kFrames || range.type() == DocRange::kCels)) {
     from = range.selectedFrames().firstFrame();
     to = range.selectedFrames().lastFrame();
   }
@@ -88,4 +87,4 @@ Command* CommandFactory::createNewFrameTagCommand()
   return new NewFrameTagCommand;
 }
 
-} // namespace app
+}  // namespace app

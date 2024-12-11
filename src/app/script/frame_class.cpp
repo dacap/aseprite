@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/set_frame_duration.h"
@@ -17,8 +17,7 @@
 #include "doc/frame.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 using namespace doc;
 
@@ -28,13 +27,17 @@ struct FrameObj {
   ObjectId spriteId;
   frame_t frame;
   FrameObj(Sprite* sprite, frame_t frame)
-    : spriteId(sprite ? sprite->id(): 0),
-      frame(frame) {
+    : spriteId(sprite ? sprite->id() : 0)
+    , frame(frame)
+  {
   }
   FrameObj(const FrameObj&) = delete;
   FrameObj& operator=(const FrameObj&) = delete;
 
-  Sprite* sprite(lua_State* L) { return check_docobj(L, doc::get<Sprite>(spriteId)); }
+  Sprite* sprite(lua_State* L)
+  {
+    return check_docobj(L, doc::get<Sprite>(spriteId));
+  }
 };
 
 int Frame_gc(lua_State* L)
@@ -47,9 +50,7 @@ int Frame_eq(lua_State* L)
 {
   const auto a = get_obj<FrameObj>(L, 1);
   const auto b = get_obj<FrameObj>(L, 2);
-  lua_pushboolean(L,
-                  (a->spriteId == b->spriteId &&
-                   a->frame == b->frame));
+  lua_pushboolean(L, (a->spriteId == b->spriteId && a->frame == b->frame));
   return 1;
 }
 
@@ -63,7 +64,7 @@ int Frame_get_sprite(lua_State* L)
 int Frame_get_frameNumber(lua_State* L)
 {
   auto obj = get_obj<FrameObj>(L, 1);
-  lua_pushinteger(L, obj->frame+1);
+  lua_pushinteger(L, obj->frame + 1);
   return 1;
 }
 
@@ -79,7 +80,7 @@ int Frame_get_previous(lua_State* L)
 {
   auto obj = get_obj<FrameObj>(L, 1);
   auto sprite = obj->sprite(L);
-  auto frame = obj->frame-1;
+  auto frame = obj->frame - 1;
   if (frame >= 0 && frame < sprite->totalFrames())
     push_sprite_frame(L, sprite, frame);
   else
@@ -91,7 +92,7 @@ int Frame_get_next(lua_State* L)
 {
   auto obj = get_obj<FrameObj>(L, 1);
   auto sprite = obj->sprite(L);
-  auto frame = obj->frame+1;
+  auto frame = obj->frame + 1;
   if (frame >= 0 && frame < sprite->totalFrames())
     push_sprite_frame(L, sprite, frame);
   else
@@ -110,11 +111,9 @@ int Frame_set_duration(lua_State* L)
   return 1;
 }
 
-const luaL_Reg Frame_methods[] = {
-  { "__gc", Frame_gc },
-  { "__eq", Frame_eq },
-  { nullptr, nullptr }
-};
+const luaL_Reg Frame_methods[] = { { "__gc", Frame_gc },
+                                   { "__eq", Frame_eq },
+                                   { nullptr, nullptr } };
 
 const Property Frame_properties[] = {
   { "sprite", Frame_get_sprite, nullptr },
@@ -125,7 +124,7 @@ const Property Frame_properties[] = {
   { nullptr, nullptr, nullptr }
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(FrameObj);
 
@@ -149,8 +148,7 @@ doc::frame_t get_frame_number_from_arg(lua_State* L, int index)
   else if (lua_isnil(L, index) || lua_isnone(L, index))
     return 0;
   else
-    return lua_tointeger(L, index)-1;
+    return lua_tointeger(L, index) - 1;
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

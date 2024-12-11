@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -13,17 +13,16 @@
 #include "app/script/engine.h"
 #include "app/script/luacpp.h"
 #include "app/script/security.h"
-#include "ui/timer.h"
 #include "ui/manager.h"
 #include "ui/system.h"
+#include "ui/timer.h"
 
 #include <ixwebsocket/IXNetSystem.h>
 #include <ixwebsocket/IXWebSocket.h>
-#include <sstream>
 #include <set>
+#include <sstream>
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 namespace {
 
@@ -54,8 +53,12 @@ int WebSocket_new(lua_State* L)
   if (lua_istable(L, 1)) {
     lua_getfield(L, 1, "url");
     if (const char* s = lua_tostring(L, -1)) {
-      if (!ask_access(L, s, FileAccessMode::OpenSocket, ResourceType::WebSocket))
-        return luaL_error(L, "the script doesn't have access to create a WebSocket for '%s'", s);
+      if (!ask_access(
+            L, s, FileAccessMode::OpenSocket, ResourceType::WebSocket))
+        return luaL_error(
+          L,
+          "the script doesn't have access to create a WebSocket for '%s'",
+          s);
 
       ws->setUrl(s);
     }
@@ -218,22 +221,18 @@ int WebSocket_get_url(lua_State* L)
   return 1;
 }
 
-const luaL_Reg WebSocket_methods[] = {
-  { "__gc", WebSocket_gc },
-  { "close", WebSocket_close },
-  { "connect", WebSocket_connect },
-  { "sendText", WebSocket_sendText },
-  { "sendBinary", WebSocket_sendBinary },
-  { "sendPing", WebSocket_sendPing },
-  { nullptr, nullptr }
-};
+const luaL_Reg WebSocket_methods[] = { { "__gc", WebSocket_gc },
+                                       { "close", WebSocket_close },
+                                       { "connect", WebSocket_connect },
+                                       { "sendText", WebSocket_sendText },
+                                       { "sendBinary", WebSocket_sendBinary },
+                                       { "sendPing", WebSocket_sendPing },
+                                       { nullptr, nullptr } };
 
-const Property WebSocket_properties[] = {
-  { "url", WebSocket_get_url, nullptr },
-  { nullptr, nullptr, nullptr }
-};
+const Property WebSocket_properties[] = { { "url", WebSocket_get_url, nullptr },
+                                          { nullptr, nullptr, nullptr } };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 using WebSocket = ix::WebSocket;
 DEF_MTNAME(WebSocket);
@@ -259,5 +258,4 @@ void register_websocket_class(lua_State* L)
   lua_pop(L, 1);
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

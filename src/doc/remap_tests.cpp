@@ -6,14 +6,14 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include <gtest/gtest.h>
 
-#include "doc/remap.h"
 #include "doc/palette.h"
 #include "doc/palette_picks.h"
+#include "doc/remap.h"
 
 using namespace doc;
 
@@ -21,7 +21,7 @@ static PalettePicks make(int n, const std::vector<int>& v)
 {
   PalettePicks picks(n);
   std::fill(picks.begin(), picks.end(), false);
-  for (int i=0; i<int(v.size()); ++i)
+  for (int i = 0; i < int(v.size()); ++i)
     picks[v[i]] = true;
   return picks;
 }
@@ -29,7 +29,7 @@ static PalettePicks make(int n, const std::vector<int>& v)
 static void expect_map(const Remap& map, const std::vector<int>& expected)
 {
   EXPECT_EQ(map.size(), expected.size());
-  for (int i=0; i<int(map.size()); ++i) {
+  for (int i = 0; i < int(map.size()); ++i) {
     EXPECT_EQ(expected[i], map[i]) << " When i=" << i;
   }
 }
@@ -39,11 +39,13 @@ TEST(Remap, ToMovePicks)
   auto entries = make(20, { 6, 7, 14 });
   Remap map = create_remap_to_move_picks(entries, 1);
   //                0  1  2  3  4  5  6  7  8   9  10  11  12  13 14  15  16  17  18  19
-  expect_map(map, { 0, 4, 5, 6, 7, 8, 1, 2, 9, 10, 11, 12, 13, 14, 3, 15, 16, 17, 18, 19 });
+  expect_map(map, { 0,  4,  5,  6,  7, 8,  1,  2,  9,  10,
+                    11, 12, 13, 14, 3, 15, 16, 17, 18, 19 });
 
   map = create_remap_to_move_picks(entries, 18);
   //                0  1  2  3  4  5   6   7  8  9 10 11  12  13  14  15  16  17  18  19
-  expect_map(map, { 0, 1, 2, 3, 4, 5, 15, 16, 6, 7, 8, 9, 10, 11, 17, 12, 13, 14, 18, 19 });
+  expect_map(map, { 0, 1, 2,  3,  4,  5,  15, 16, 6,  7,
+                    8, 9, 10, 11, 17, 12, 13, 14, 18, 19 });
 
   PalettePicks all(map.size());
   all.all();

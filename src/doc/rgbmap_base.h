@@ -16,14 +16,14 @@ namespace doc {
 
 class RgbMapBase : public RgbMap {
 public:
-  int findBestfit(int r, int g, int b, int a,
-                  int mask_index) const;
+  int findBestfit(int r, int g, int b, int a, int mask_index) const;
 
   // RgbMap impl
   int modifications() const override { return m_modifications; }
   int maskIndex() const override { return m_maskIndex; }
   FitCriteria fitCriteria() const override { return m_fitCriteria; }
-  void fitCriteria(const FitCriteria fitCriteria) override {
+  void fitCriteria(const FitCriteria fitCriteria) override
+  {
     m_fitCriteria = fitCriteria;
   }
 
@@ -37,6 +37,6 @@ protected:
   int m_maskIndex = 0;
 };
 
-} // namespace doc
+}  // namespace doc
 
 #endif

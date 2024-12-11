@@ -38,6 +38,6 @@ private:
   base::ComPtr<IStream> m_stream;
 };
 
-} // namespace desktop
+}  // namespace desktop
 
 #endif

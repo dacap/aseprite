@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "dio/aseprite_common.h"
@@ -69,4 +69,4 @@ std::string AsepriteExternalFiles::tileManagementPlugin() const
     return std::string();
 }
 
-} // namespace dio
+}  // namespace dio

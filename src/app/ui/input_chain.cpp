@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/input_chain.h"
@@ -17,8 +17,7 @@
 
 namespace app {
 
-void InputChain::prioritize(InputChainElement* element,
-                            const ui::Message* msg)
+void InputChain::prioritize(InputChainElement* element, const ui::Message* msg)
 {
   const bool alreadyInFront =
     (!m_elements.empty() && m_elements.front() == element);
@@ -88,8 +87,7 @@ void InputChain::copy(Context* ctx)
   }
 }
 
-void InputChain::paste(Context* ctx,
-                       const gfx::Point* position)
+void InputChain::paste(Context* ctx, const gfx::Point* position)
 {
   for (auto e : m_elements) {
     if (e->onCanPaste(ctx) && e->onPaste(ctx, position))
@@ -111,4 +109,4 @@ void InputChain::cancel(Context* ctx)
     e->onCancel(ctx);
 }
 
-} // namespace app
+}  // namespace app

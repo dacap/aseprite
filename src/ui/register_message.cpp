@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/register_message.h"
@@ -19,4 +19,4 @@ RegisterMessage::RegisterMessage()
   m_type = (MessageType)registered_messages++;
 }
 
-} // namespace ui
+}  // namespace ui

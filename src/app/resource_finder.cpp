@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/resource_finder.h"
@@ -20,8 +20,8 @@
 #include <cstdlib>
 
 #ifdef _WIN32
-  #include <windows.h>
   #include <shlobj.h>
+  #include <windows.h>
 #endif
 
 namespace app {
@@ -90,13 +90,14 @@ void ResourceFinder::includeDataDir(const char* filename)
 #ifdef _WIN32
 
   std::snprintf(buf, sizeof(buf), "data/%s", filename);
-  includeHomeDir(buf); // %AppData%/Aseprite/data/filename
-  includeBinDir(buf);  // $BINDIR/data/filename
+  includeHomeDir(buf);  // %AppData%/Aseprite/data/filename
+  includeBinDir(buf);   // $BINDIR/data/filename
 
 #elif __APPLE__
 
   std::snprintf(buf, sizeof(buf), "data/%s", filename);
-  includeUserDir(buf); // $HOME/Library/Application Support/Aseprite/data/filename
+  includeUserDir(
+    buf);  // $HOME/Library/Application Support/Aseprite/data/filename
   includeBinDir(buf);  // $BINDIR/data/filename (outside the bundle)
 
   std::snprintf(buf, sizeof(buf), "../Resources/data/%s", filename);
@@ -166,7 +167,7 @@ void ResourceFinder::includeHomeConfigDir(const char* filename)
   }
 }
 
-#endif // !defined(_WIN32) && !defined(__APPLE__)
+#endif  // !defined(_WIN32) && !defined(__APPLE__)
 
 void ResourceFinder::includeUserDir(const char* filename)
 {
@@ -195,10 +196,10 @@ void ResourceFinder::includeUserDir(const char* filename)
   #ifdef __APPLE__
 
     // $HOME/Library/Application Support/Aseprite/filename
-    addPath(
-      base::join_path(
-        base::join_path(base::get_lib_app_support_path(), get_app_name()),
-        filename).c_str());
+    addPath(base::join_path(
+              base::join_path(base::get_lib_app_support_path(), get_app_name()),
+              filename)
+              .c_str());
 
   #else  // !__APPLE__
 
@@ -216,8 +217,8 @@ void ResourceFinder::includeDesktopDir(const char* filename)
 #ifdef _WIN32
 
   std::vector<wchar_t> buf(MAX_PATH);
-  HRESULT hr = SHGetFolderPath(NULL, CSIDL_DESKTOPDIRECTORY, NULL,
-                               SHGFP_TYPE_DEFAULT, &buf[0]);
+  HRESULT hr = SHGetFolderPath(
+    NULL, CSIDL_DESKTOPDIRECTORY, NULL, SHGFP_TYPE_DEFAULT, &buf[0]);
   if (hr == S_OK) {
     addPath(base::join_path(base::to_utf8(&buf[0]), filename));
   }
@@ -267,4 +268,4 @@ std::string ResourceFinder::getFirstOrCreateDefault()
   return fn;
 }
 
-} // namespace app
+}  // namespace app

@@ -5,13 +5,12 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/remove_palette.h"
 
-namespace app {
-namespace cmd {
+namespace app { namespace cmd {
 
 using namespace doc;
 
@@ -30,5 +29,4 @@ void RemovePalette::onUndo()
   AddPalette::onRedo();
 }
 
-} // namespace cmd
-} // namespace app
+}}  // namespace app::cmd

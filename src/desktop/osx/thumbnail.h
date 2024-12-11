@@ -12,10 +12,8 @@
 
 namespace desktop {
 
-CGImageRef get_thumbnail(CFURLRef url,
-                         CFDictionaryRef options,
-                         CGSize maxSize);
+CGImageRef get_thumbnail(CFURLRef url, CFDictionaryRef options, CGSize maxSize);
 
-} // namespace desktop
+}  // namespace desktop
 
 #endif

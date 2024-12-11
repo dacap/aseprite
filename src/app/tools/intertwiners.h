@@ -8,37 +8,39 @@
 #include "base/pi.h"
 #include "doc/layer_tilemap.h"
 
-namespace app {
-namespace tools {
+namespace app { namespace tools {
 
 struct LineData2 {
   Intertwine::LineData head;
   Stroke& output;
-  LineData2(ToolLoop* loop, const Stroke::Pt& a, const Stroke::Pt& b,
+  LineData2(ToolLoop* loop,
+            const Stroke::Pt& a,
+            const Stroke::Pt& b,
             Stroke& output)
     : head(loop, a, b)
-    , output(output) {
+    , output(output)
+  {
   }
 };
 
 static void addPointsWithoutDuplicatingLastOne(int x, int y, LineData2* data)
 {
   data->head.doStep(x, y);
-  if (data->output.empty() ||
-      data->output.lastPoint() != data->head.pt) {
+  if (data->output.empty() || data->output.lastPoint() != data->head.pt) {
     data->output.addPoint(data->head.pt);
   }
 }
 
 class IntertwineNone : public Intertwine {
 public:
-
-  void joinStroke(ToolLoop* loop, const Stroke& stroke) override {
-    for (int c=0; c<stroke.size(); ++c)
+  void joinStroke(ToolLoop* loop, const Stroke& stroke) override
+  {
+    for (int c = 0; c < stroke.size(); ++c)
       doPointshapeStrokePt(stroke[c], loop);
   }
 
-  void fillStroke(ToolLoop* loop, const Stroke& stroke) override {
+  void fillStroke(ToolLoop* loop, const Stroke& stroke) override
+  {
     joinStroke(loop, stroke);
   }
 };
@@ -49,7 +51,8 @@ public:
   // point might be useful for the ink (e.g. the gradient ink)
   bool snapByAngle() override { return true; }
 
-  void joinStroke(ToolLoop* loop, const Stroke& stroke) override {
+  void joinStroke(ToolLoop* loop, const Stroke& stroke) override
+  {
     if (stroke.empty())
       return;
 
@@ -73,7 +76,8 @@ public:
     doPointshapePoint(mid.x, mid.y, loop);
   }
 
-  void fillStroke(ToolLoop* loop, const Stroke& stroke) override {
+  void fillStroke(ToolLoop* loop, const Stroke& stroke) override
+  {
     joinStroke(loop, stroke);
   }
 };
@@ -95,12 +99,14 @@ class IntertwineAsLines : public Intertwine {
 public:
   bool snapByAngle() override { return true; }
 
-  void prepareIntertwine(ToolLoop* loop) override {
+  void prepareIntertwine(ToolLoop* loop) override
+  {
     m_retainedTracePolicyLast = false;
     m_firstStroke = true;
   }
 
-  void joinStroke(ToolLoop* loop, const Stroke& stroke) override {
+  void joinStroke(ToolLoop* loop, const Stroke& stroke) override
+  {
     // Required for LineFreehand controller in the first stage, when
     // we are drawing the line and the trace policy is "Last". Each
     // new joinStroke() is like a fresh start.  Without this fix, the
@@ -116,11 +122,13 @@ public:
     }
     else {
       Stroke pts;
-      for (int c=0; c+1<stroke.size(); ++c) {
-        auto lineAlgo = getLineAlgo(loop, stroke[c], stroke[c+1]);
-        LineData2 lineData(loop, stroke[c], stroke[c+1], pts);
-        lineAlgo(stroke[c].x, stroke[c].y,
-                 stroke[c+1].x, stroke[c+1].y,
+      for (int c = 0; c + 1 < stroke.size(); ++c) {
+        auto lineAlgo = getLineAlgo(loop, stroke[c], stroke[c + 1]);
+        LineData2 lineData(loop, stroke[c], stroke[c + 1], pts);
+        lineAlgo(stroke[c].x,
+                 stroke[c].y,
+                 stroke[c + 1].x,
+                 stroke[c + 1].y,
                  (void*)&lineData,
                  (AlgoPixel)&addPointsWithoutDuplicatingLastOne);
       }
@@ -130,11 +138,12 @@ public:
       // when we use Shift+click in the Pencil tool to continue the
       // old stroke).
       // TODO useful only in the case when brush size = 1px
-      const int start =
-        (loop->getController()->isFreehand() &&
-         (m_retainedTracePolicyLast || !m_firstStroke) ? 1: 0);
+      const int start = (loop->getController()->isFreehand() &&
+                             (m_retainedTracePolicyLast || !m_firstStroke) ?
+                           1 :
+                           0);
 
-      for (int c=start; c<pts.size(); ++c)
+      for (int c = start; c < pts.size(); ++c)
         doPointshapeStrokePt(pts[c], loop);
 
       // Closed shape (polygon outline)
@@ -144,13 +153,14 @@ public:
       // contour tool, with brush type = kImageBrush with alpha content and
       // with not Pixel Perfect pencil mode.
       if (loop->getFilled() && !loop->getController()->isFreehand()) {
-        doPointshapeLine(stroke[stroke.size()-1], stroke[0], loop);
+        doPointshapeLine(stroke[stroke.size() - 1], stroke[0], loop);
       }
     }
     m_firstStroke = false;
   }
 
-  void fillStroke(ToolLoop* loop, const Stroke& stroke) override {
+  void fillStroke(ToolLoop* loop, const Stroke& stroke) override
+  {
 #if 0
     // We prefer to use doc::algorithm::polygon() directly instead of
     // joinStroke() for the simplest cases (i.e. stroke.size() < 3 is
@@ -172,16 +182,14 @@ public:
     // Fill content
     auto v = stroke.toXYInts();
     doc::algorithm::polygon(
-      v.size()/2, &v[0],
-      loop, (AlgoHLine)doPointshapeHline);
+      v.size() / 2, &v[0], loop, (AlgoHLine)doPointshapeHline);
   }
-
 };
 
 class IntertwineAsRectangles : public Intertwine {
 public:
-
-  void joinStroke(ToolLoop* loop, const Stroke& stroke) override {
+  void joinStroke(ToolLoop* loop, const Stroke& stroke) override
+  {
     if (stroke.size() == 0)
       return;
 
@@ -189,23 +197,25 @@ public:
       doPointshapePoint(stroke[0].x, stroke[0].y, loop);
     }
     else if (stroke.size() >= 2) {
-      for (int c=0; c+1<stroke.size(); ++c) {
+      for (int c = 0; c + 1 < stroke.size(); ++c) {
         // TODO fix this with strokes and dynamics
         int x1 = stroke[c].x;
         int y1 = stroke[c].y;
-        int x2 = stroke[c+1].x;
-        int y2 = stroke[c+1].y;
+        int x2 = stroke[c + 1].x;
+        int y2 = stroke[c + 1].y;
         int y;
 
-        if (x1 > x2) std::swap(x1, x2);
-        if (y1 > y2) std::swap(y1, y2);
+        if (x1 > x2)
+          std::swap(x1, x2);
+        if (y1 > y2)
+          std::swap(y1, y2);
 
         const double angle = loop->getController()->getShapeAngle();
         if (ABS(angle) < 0.001) {
           doPointshapeLineWithoutDynamics(x1, y1, x2, y1, loop);
           doPointshapeLineWithoutDynamics(x1, y2, x2, y2, loop);
 
-          for (y=y1; y<=y2; y++) {
+          for (y = y1; y <= y2; y++) {
             doPointshapePoint(x1, y, loop);
             doPointshapePoint(x2, y, loop);
           }
@@ -213,58 +223,61 @@ public:
         else {
           Stroke p = rotateRectangle(x1, y1, x2, y2, angle);
           int n = p.size();
-          for (int i=0; i+1<n; ++i) {
-            doPointshapeLine(p[i], p[i+1], loop);
+          for (int i = 0; i + 1 < n; ++i) {
+            doPointshapeLine(p[i], p[i + 1], loop);
           }
-          doPointshapeLine(p[n-1], p[0], loop);
+          doPointshapeLine(p[n - 1], p[0], loop);
         }
       }
     }
   }
 
-  void fillStroke(ToolLoop* loop, const Stroke& stroke) override {
+  void fillStroke(ToolLoop* loop, const Stroke& stroke) override
+  {
     if (stroke.size() < 2) {
       joinStroke(loop, stroke);
       return;
     }
 
-    for (int c=0; c+1<stroke.size(); ++c) {
+    for (int c = 0; c + 1 < stroke.size(); ++c) {
       int x1 = stroke[c].x;
       int y1 = stroke[c].y;
-      int x2 = stroke[c+1].x;
-      int y2 = stroke[c+1].y;
+      int x2 = stroke[c + 1].x;
+      int y2 = stroke[c + 1].y;
       int y;
 
-      if (x1 > x2) std::swap(x1, x2);
-      if (y1 > y2) std::swap(y1, y2);
+      if (x1 > x2)
+        std::swap(x1, x2);
+      if (y1 > y2)
+        std::swap(y1, y2);
 
       const double angle = loop->getController()->getShapeAngle();
       if (ABS(angle) < 0.001) {
-        for (y=y1; y<=y2; y++)
+        for (y = y1; y <= y2; y++)
           doPointshapeLineWithoutDynamics(x1, y, x2, y, loop);
       }
       else {
         Stroke p = rotateRectangle(x1, y1, x2, y2, angle);
         auto v = p.toXYInts();
         doc::algorithm::polygon(
-          v.size()/2, &v[0],
-          loop, (AlgoHLine)doPointshapeHline);
+          v.size() / 2, &v[0], loop, (AlgoHLine)doPointshapeHline);
       }
     }
   }
 
-  gfx::Rect getStrokeBounds(ToolLoop* loop, const Stroke& stroke) override {
+  gfx::Rect getStrokeBounds(ToolLoop* loop, const Stroke& stroke) override
+  {
     gfx::Rect bounds = stroke.bounds();
     const double angle = loop->getController()->getShapeAngle();
 
     if (ABS(angle) > 0.001) {
       bounds = gfx::Rect();
       if (stroke.size() >= 2) {
-        for (int c=0; c+1<stroke.size(); ++c) {
+        for (int c = 0; c + 1 < stroke.size(); ++c) {
           int x1 = stroke[c].x;
           int y1 = stroke[c].y;
-          int x2 = stroke[c+1].x;
-          int y2 = stroke[c+1].y;
+          int x2 = stroke[c + 1].x;
+          int y2 = stroke[c + 1].y;
           bounds |= rotateRectangle(x1, y1, x2, y2, angle).bounds();
         }
       }
@@ -274,28 +287,28 @@ public:
   }
 
 private:
-  static Stroke rotateRectangle(int x1, int y1, int x2, int y2, double angle) {
-    int cx = (x1+x2)/2;
-    int cy = (y1+y2)/2;
-    int a = (x2-x1)/2;
-    int b = (y2-y1)/2;
+  static Stroke rotateRectangle(int x1, int y1, int x2, int y2, double angle)
+  {
+    int cx = (x1 + x2) / 2;
+    int cy = (y1 + y2) / 2;
+    int a = (x2 - x1) / 2;
+    int b = (y2 - y1) / 2;
     double s = -std::sin(angle);
     double c = std::cos(angle);
 
     Stroke stroke;
-    stroke.addPoint(Point(cx-a*c-b*s, cy+a*s-b*c));
-    stroke.addPoint(Point(cx+a*c-b*s, cy-a*s-b*c));
-    stroke.addPoint(Point(cx+a*c+b*s, cy-a*s+b*c));
-    stroke.addPoint(Point(cx-a*c+b*s, cy+a*s+b*c));
+    stroke.addPoint(Point(cx - a * c - b * s, cy + a * s - b * c));
+    stroke.addPoint(Point(cx + a * c - b * s, cy - a * s - b * c));
+    stroke.addPoint(Point(cx + a * c + b * s, cy - a * s + b * c));
+    stroke.addPoint(Point(cx - a * c + b * s, cy + a * s + b * c));
     return stroke;
   }
-
 };
 
 class IntertwineAsEllipses : public Intertwine {
 public:
-
-  void joinStroke(ToolLoop* loop, const Stroke& stroke) override {
+  void joinStroke(ToolLoop* loop, const Stroke& stroke) override
+  {
     if (stroke.size() == 0)
       return;
 
@@ -303,79 +316,91 @@ public:
       doPointshapePoint(stroke[0].x, stroke[0].y, loop);
     }
     else if (stroke.size() >= 2) {
-      for (int c=0; c+1<stroke.size(); ++c) {
+      for (int c = 0; c + 1 < stroke.size(); ++c) {
         int x1 = stroke[c].x;
         int y1 = stroke[c].y;
-        int x2 = stroke[c+1].x;
-        int y2 = stroke[c+1].y;
+        int x2 = stroke[c + 1].x;
+        int y2 = stroke[c + 1].y;
 
-        if (x1 > x2) std::swap(x1, x2);
-        if (y1 > y2) std::swap(y1, y2);
+        if (x1 > x2)
+          std::swap(x1, x2);
+        if (y1 > y2)
+          std::swap(y1, y2);
 
         const double angle = loop->getController()->getShapeAngle();
         if (ABS(angle) < 0.001) {
-          algo_ellipse(x1, y1, x2, y2, 0, 0, loop, (AlgoPixel)doPointshapePoint);
+          algo_ellipse(
+            x1, y1, x2, y2, 0, 0, loop, (AlgoPixel)doPointshapePoint);
         }
         else {
-          draw_rotated_ellipse((x1+x2)/2, (y1+y2)/2,
-                               ABS(x2-x1)/2,
-                               ABS(y2-y1)/2,
+          draw_rotated_ellipse((x1 + x2) / 2,
+                               (y1 + y2) / 2,
+                               ABS(x2 - x1) / 2,
+                               ABS(y2 - y1) / 2,
                                angle,
-                               loop, (AlgoPixel)doPointshapePoint);
+                               loop,
+                               (AlgoPixel)doPointshapePoint);
         }
       }
     }
   }
 
-  void fillStroke(ToolLoop* loop, const Stroke& stroke) override {
+  void fillStroke(ToolLoop* loop, const Stroke& stroke) override
+  {
     if (stroke.size() < 2) {
       joinStroke(loop, stroke);
       return;
     }
 
-    for (int c=0; c+1<stroke.size(); ++c) {
+    for (int c = 0; c + 1 < stroke.size(); ++c) {
       int x1 = stroke[c].x;
       int y1 = stroke[c].y;
-      int x2 = stroke[c+1].x;
-      int y2 = stroke[c+1].y;
+      int x2 = stroke[c + 1].x;
+      int y2 = stroke[c + 1].y;
 
-      if (x1 > x2) std::swap(x1, x2);
-      if (y1 > y2) std::swap(y1, y2);
+      if (x1 > x2)
+        std::swap(x1, x2);
+      if (y1 > y2)
+        std::swap(y1, y2);
 
       const double angle = loop->getController()->getShapeAngle();
       if (ABS(angle) < 0.001) {
-        algo_ellipsefill(x1, y1, x2, y2, 0, 0, loop, (AlgoHLine)doPointshapeHline);
+        algo_ellipsefill(
+          x1, y1, x2, y2, 0, 0, loop, (AlgoHLine)doPointshapeHline);
       }
       else {
-        fill_rotated_ellipse((x1+x2)/2, (y1+y2)/2,
-                             ABS(x2-x1)/2,
-                             ABS(y2-y1)/2,
+        fill_rotated_ellipse((x1 + x2) / 2,
+                             (y1 + y2) / 2,
+                             ABS(x2 - x1) / 2,
+                             ABS(y2 - y1) / 2,
                              angle,
-                             loop, (AlgoHLine)doPointshapeHline);
+                             loop,
+                             (AlgoHLine)doPointshapeHline);
       }
     }
   }
 
-  gfx::Rect getStrokeBounds(ToolLoop* loop, const Stroke& stroke) override {
+  gfx::Rect getStrokeBounds(ToolLoop* loop, const Stroke& stroke) override
+  {
     gfx::Rect bounds = stroke.bounds();
     const double angle = loop->getController()->getShapeAngle();
 
     if (ABS(angle) > 0.001) {
       Point center = bounds.center();
-      int a = bounds.w/2.0 + 0.5;
-      int b = bounds.h/2.0 + 0.5;
-      double xd = a*a;
-      double yd = b*b;
+      int a = bounds.w / 2.0 + 0.5;
+      int b = bounds.h / 2.0 + 0.5;
+      double xd = a * a;
+      double yd = b * b;
       double s = std::sin(angle);
-      double zd = (xd-yd)*s;
+      double zd = (xd - yd) * s;
 
-      a = std::sqrt(xd-zd*s) + 0.5;
-      b = std::sqrt(yd+zd*s) + 0.5;
+      a = std::sqrt(xd - zd * s) + 0.5;
+      b = std::sqrt(yd + zd * s) + 0.5;
 
-      bounds.x = center.x-a-1;
-      bounds.y = center.y-b-1;
-      bounds.w = 2*a+3;
-      bounds.h = 2*b+3;
+      bounds.x = center.x - a - 1;
+      bounds.y = center.y - b - 1;
+      bounds.w = 2 * a + 3;
+      bounds.h = 2 * b + 3;
     }
     else {
       ++bounds.w;
@@ -384,41 +409,51 @@ public:
 
     return bounds;
   }
-
 };
 
 class IntertwineAsBezier : public Intertwine {
 public:
-
-  void joinStroke(ToolLoop* loop, const Stroke& stroke) override {
+  void joinStroke(ToolLoop* loop, const Stroke& stroke) override
+  {
     if (stroke.size() == 0)
       return;
 
-    for (int c=0; c<stroke.size(); c += 4) {
-      if (stroke.size()-c == 1) {
+    for (int c = 0; c < stroke.size(); c += 4) {
+      if (stroke.size() - c == 1) {
         doPointshapeStrokePt(stroke[c], loop);
       }
-      else if (stroke.size()-c == 2) {
-        doPointshapeLine(stroke[c], stroke[c+1], loop);
+      else if (stroke.size() - c == 2) {
+        doPointshapeLine(stroke[c], stroke[c + 1], loop);
       }
-      else if (stroke.size()-c == 3) {
-        algo_spline(stroke[c  ].x, stroke[c  ].y,
-                    stroke[c+1].x, stroke[c+1].y,
-                    stroke[c+1].x, stroke[c+1].y,
-                    stroke[c+2].x, stroke[c+2].y, loop,
+      else if (stroke.size() - c == 3) {
+        algo_spline(stroke[c].x,
+                    stroke[c].y,
+                    stroke[c + 1].x,
+                    stroke[c + 1].y,
+                    stroke[c + 1].x,
+                    stroke[c + 1].y,
+                    stroke[c + 2].x,
+                    stroke[c + 2].y,
+                    loop,
                     (AlgoLine)doPointshapeLineWithoutDynamics);
       }
       else {
-        algo_spline(stroke[c  ].x, stroke[c  ].y,
-                    stroke[c+1].x, stroke[c+1].y,
-                    stroke[c+2].x, stroke[c+2].y,
-                    stroke[c+3].x, stroke[c+3].y, loop,
+        algo_spline(stroke[c].x,
+                    stroke[c].y,
+                    stroke[c + 1].x,
+                    stroke[c + 1].y,
+                    stroke[c + 2].x,
+                    stroke[c + 2].y,
+                    stroke[c + 3].x,
+                    stroke[c + 3].y,
+                    loop,
                     (AlgoLine)doPointshapeLineWithoutDynamics);
       }
     }
   }
 
-  void fillStroke(ToolLoop* loop, const Stroke& stroke) override {
+  void fillStroke(ToolLoop* loop, const Stroke& stroke) override
+  {
     joinStroke(loop, stroke);
   }
 };
@@ -462,16 +497,17 @@ public:
   // angle when "pixel perfect" is selected.
   bool snapByAngle() override { return true; }
 
-  void prepareIntertwine(ToolLoop* loop) override {
+  void prepareIntertwine(ToolLoop* loop) override
+  {
     m_pts.reset();
     m_retainedTracePolicyLast = false;
     m_grid = m_dstGrid = m_celGrid = loop->getGrid();
     m_restoredRegion.clear();
 
-    if (loop->getLayer()->isTilemap() &&
-        !loop->isTilemapMode() &&
+    if (loop->getLayer()->isTilemap() && !loop->isTilemapMode() &&
         loop->isManualTilesetMode()) {
-      const Tileset* srcTileset = static_cast<LayerTilemap*>(loop->getLayer())->tileset();
+      const Tileset* srcTileset =
+        static_cast<LayerTilemap*>(loop->getLayer())->tileset();
       m_tempTileset.reset(Tileset::MakeCopyCopyingImages(srcTileset));
 
       // Grid to convert to dstImage coordinates
@@ -485,7 +521,8 @@ public:
     }
   }
 
-  void joinStroke(ToolLoop* loop, const Stroke& stroke) override {
+  void joinStroke(ToolLoop* loop, const Stroke& stroke) override
+  {
     // Required for LineFreehand controller in the first stage, when
     // we are drawing the line and the trace policy is "Last". Each
     // new joinStroke() is like a fresh start.  Without this fix, the
@@ -514,18 +551,18 @@ public:
         return;
 
       nextPt = m_pts.size();
-      thirdFromLastPt = (m_pts.size() > 2 ? m_pts.size() - 3 : m_pts.size() - 1);
+      thirdFromLastPt =
+        (m_pts.size() > 2 ? m_pts.size() - 3 : m_pts.size() - 1);
 
-      for (int c=0; c+1<stroke.size(); ++c) {
-        auto lineAlgo = getLineAlgo(loop, stroke[c], stroke[c+1]);
-        LineData2 lineData(loop, stroke[c], stroke[c+1], m_pts);
-        lineAlgo(
-          stroke[c].x,
-          stroke[c].y,
-          stroke[c+1].x,
-          stroke[c+1].y,
-          (void*)&lineData,
-          (AlgoPixel)&addPointsWithoutDuplicatingLastOne);
+      for (int c = 0; c + 1 < stroke.size(); ++c) {
+        auto lineAlgo = getLineAlgo(loop, stroke[c], stroke[c + 1]);
+        LineData2 lineData(loop, stroke[c], stroke[c + 1], m_pts);
+        lineAlgo(stroke[c].x,
+                 stroke[c].y,
+                 stroke[c + 1].x,
+                 stroke[c + 1].y,
+                 (void*)&lineData,
+                 (AlgoPixel)&addPointsWithoutDuplicatingLastOne);
       }
     }
 
@@ -536,23 +573,23 @@ public:
          (loop->getBrush()->angle() == 0.0f ||
           loop->getBrush()->angle() == 90.0f ||
           loop->getBrush()->angle() == 180.0f))) {
-      for (int c=thirdFromLastPt; c<m_pts.size(); ++c) {
+      for (int c = thirdFromLastPt; c < m_pts.size(); ++c) {
         // We ignore a pixel that is between other two pixels in the
         // corner of a L-like shape.
-        if (c > 0 && c+1 < m_pts.size()
-            && (m_pts[c-1].x == m_pts[c].x || m_pts[c-1].y == m_pts[c].y)
-            && (m_pts[c+1].x == m_pts[c].x || m_pts[c+1].y == m_pts[c].y)
-            && m_pts[c-1].x != m_pts[c+1].x
-            && m_pts[c-1].y != m_pts[c+1].y) {
+        if (c > 0 && c + 1 < m_pts.size() &&
+            (m_pts[c - 1].x == m_pts[c].x || m_pts[c - 1].y == m_pts[c].y) &&
+            (m_pts[c + 1].x == m_pts[c].x || m_pts[c + 1].y == m_pts[c].y) &&
+            m_pts[c - 1].x != m_pts[c + 1].x &&
+            m_pts[c - 1].y != m_pts[c + 1].y) {
           restoreLastPts(loop, c, m_pts[c]);
-          if (c == nextPt-1)
+          if (c == nextPt - 1)
             nextPt--;
           m_pts.erase(c);
         }
       }
     }
 
-    for (int c=nextPt; c<m_pts.size(); ++c) {
+    for (int c = nextPt; c < m_pts.size(); ++c) {
       // We must ignore to print the first point of the line after
       // a joinStroke pass with a retained "Last" trace policy
       // (i.e. the user confirms draw a line while he is holding
@@ -573,23 +610,25 @@ public:
     }
   }
 
-  void fillStroke(ToolLoop* loop, const Stroke& stroke) override {
+  void fillStroke(ToolLoop* loop, const Stroke& stroke) override
+  {
     if (stroke.empty())
       return;
 
     // Fill content
     auto v = m_pts.toXYInts();
     doc::algorithm::polygon(
-      v.size()/2, &v[0],
-      loop, (AlgoHLine)doPointshapeHline);
+      v.size() / 2, &v[0], loop, (AlgoHLine)doPointshapeHline);
   }
 
-  gfx::Region forceTilemapRegionToValidate() override {
+  gfx::Region forceTilemapRegionToValidate() override
+  {
     return m_restoredRegion;
   }
 
 protected:
-  void doTransformPoint(const Stroke::Pt& pt, ToolLoop* loop) override {
+  void doTransformPoint(const Stroke::Pt& pt, ToolLoop* loop) override
+  {
     if (m_saveStrokeArea)
       savePointshapeStrokePtArea(loop, pt);
 
@@ -600,13 +639,9 @@ protected:
   }
 
 private:
-  void clearPointshapeStrokePtAreas() {
-    m_savedAreas.clear();
-  }
+  void clearPointshapeStrokePtAreas() { m_savedAreas.clear(); }
 
-  void setLastPtIndex(const int pti) {
-    m_lastPti = pti;
-  }
+  void setLastPtIndex(const int pti) { m_lastPti = pti; }
 
   // Saves the destination image's area that will be updated by the point
   // passed. The idea is to have the state of the image (only the
@@ -615,7 +650,8 @@ private:
   // pixel-perfect algorithm, we can use this image to restore the image to the
   // state previous to the deletion. This method is used by
   // IntertwineAsPixelPerfect.joinStroke() method.
-  void savePointshapeStrokePtArea(ToolLoop* loop, const tools::Stroke::Pt& pt) {
+  void savePointshapeStrokePtArea(ToolLoop* loop, const tools::Stroke::Pt& pt)
+  {
     gfx::Rect r;
     loop->getPointShape()->getModifiedArea(loop, pt.x, pt.y, r);
 
@@ -630,19 +666,23 @@ private:
       a.offset(-loop->getCelOrigin());
 
       if (m_tempTileset) {
-        forEachTilePos(
-          loop, m_dstGrid.tilesInCanvasRegion(gfx::Region(a)),
-          [loop](const doc::ImageRef existentTileImage,
-                 const gfx::Point tilePos) {
-            loop->getDstImage()->copy(
-              existentTileImage.get(),
-              gfx::Clip(tilePos.x, tilePos.y, 0, 0,
-                        existentTileImage->width(),
-                        existentTileImage->height()));
-          });
+        forEachTilePos(loop,
+                       m_dstGrid.tilesInCanvasRegion(gfx::Region(a)),
+                       [loop](const doc::ImageRef existentTileImage,
+                              const gfx::Point tilePos) {
+                         loop->getDstImage()->copy(
+                           existentTileImage.get(),
+                           gfx::Clip(tilePos.x,
+                                     tilePos.y,
+                                     0,
+                                     0,
+                                     existentTileImage->width(),
+                                     existentTileImage->height()));
+                       });
       }
 
-      ImageRef i(crop_image(loop->getDstImage(), a, loop->getDstImage()->maskColor()));
+      ImageRef i(
+        crop_image(loop->getDstImage(), a, loop->getDstImage()->maskColor()));
       m_savedAreas.push_back(SavedArea{ i, pt, a });
     }
   }
@@ -652,30 +692,31 @@ private:
   // images in m_savedAreas are from previous states of the destination
   // image. This method is used by IntertwineAsPixelPerfect.joinStroke()
   // method.
-  void restoreLastPts(ToolLoop* loop, const int pti, const tools::Stroke::Pt& pt) {
+  void restoreLastPts(ToolLoop* loop,
+                      const int pti,
+                      const tools::Stroke::Pt& pt)
+  {
     if (m_savedAreas.empty() || pti != m_lastPti || m_savedAreas[0].pos != pt)
       return;
 
     m_restoredRegion.clear();
 
     tools::Stroke::Pt pos;
-    for (int i=0; i<m_savedAreas.size(); ++i) {
+    for (int i = 0; i < m_savedAreas.size(); ++i) {
       loop->getDstImage()->copy(
         m_savedAreas[i].img.get(),
-        gfx::Clip(m_savedAreas[i].r.origin(),
-                  m_savedAreas[i].img->bounds()));
+        gfx::Clip(m_savedAreas[i].r.origin(), m_savedAreas[i].img->bounds()));
 
       if (m_tempTileset) {
         auto r = m_savedAreas[i].r;
         forEachTilePos(
-          loop, m_dstGrid.tilesInCanvasRegion(gfx::Region(r)),
+          loop,
+          m_dstGrid.tilesInCanvasRegion(gfx::Region(r)),
           [this, i, r](const doc::ImageRef existentTileImage,
                        const gfx::Point tilePos) {
             existentTileImage->copy(
               m_savedAreas[i].img.get(),
-              gfx::Clip(r.x - tilePos.x,
-                        r.y - tilePos.y,
-                        0, 0, r.w, r.h));
+              gfx::Clip(r.x - tilePos.x, r.y - tilePos.y, 0, 0, r.w, r.h));
           });
       }
 
@@ -685,7 +726,8 @@ private:
     m_restoredRegion.offset(loop->getCelOrigin());
   }
 
-  void updateTempTileset(ToolLoop* loop, const tools::Stroke::Pt& pt) {
+  void updateTempTileset(ToolLoop* loop, const tools::Stroke::Pt& pt)
+  {
     ASSERT(m_tempTileset);
 
     gfx::Rect r;
@@ -693,37 +735,41 @@ private:
 
     r.offset(-loop->getCelOrigin());
     auto tilesPts = m_dstGrid.tilesInCanvasRegion(gfx::Region(r));
-    forEachTilePos(
-      loop, tilesPts,
-      [loop, r](const doc::ImageRef existentTileImage,
-                const gfx::Point tilePos) {
-        existentTileImage->copy(
-          loop->getDstImage(),
-          gfx::Clip(r.x - tilePos.x,
-                    r.y - tilePos.y, r));
-      });
+    forEachTilePos(loop,
+                   tilesPts,
+                   [loop, r](const doc::ImageRef existentTileImage,
+                             const gfx::Point tilePos) {
+                     existentTileImage->copy(
+                       loop->getDstImage(),
+                       gfx::Clip(r.x - tilePos.x, r.y - tilePos.y, r));
+                   });
 
     if (tilesPts.size() > 1) {
-      forEachTilePos(
-        loop, tilesPts,
-        [loop](const doc::ImageRef existentTileImage,
-               const gfx::Point tilePos) {
-          loop->getDstImage()->copy(
-            existentTileImage.get(),
-            gfx::Clip(tilePos.x, tilePos.y, 0, 0,
-                      existentTileImage->width(),
-                      existentTileImage->height()));
-        });
+      forEachTilePos(loop,
+                     tilesPts,
+                     [loop](const doc::ImageRef existentTileImage,
+                            const gfx::Point tilePos) {
+                       loop->getDstImage()->copy(
+                         existentTileImage.get(),
+                         gfx::Clip(tilePos.x,
+                                   tilePos.y,
+                                   0,
+                                   0,
+                                   existentTileImage->width(),
+                                   existentTileImage->height()));
+                     });
     }
   }
 
   // Loops over the points in tilesPts, and for each one calls the provided
   // processTempTileImage callback passing to it the corresponding temp tile
   // image and canvas position.
-  void forEachTilePos(ToolLoop* loop,
-                      const std::vector<gfx::Point>& tilesPts,
-                      const std::function<void(const doc::ImageRef existentTileImage,
-                                               const gfx::Point tilePos)>& processTempTileImage) {
+  void forEachTilePos(
+    ToolLoop* loop,
+    const std::vector<gfx::Point>& tilesPts,
+    const std::function<void(const doc::ImageRef existentTileImage,
+                             const gfx::Point tilePos)>& processTempTileImage)
+  {
     ASSERT(loop->getCel());
     if (!loop->getCel())
       return;
@@ -741,8 +787,8 @@ private:
       if (!tilemapImage->bounds().contains(tilePtInTilemap))
         continue;
 
-      const doc::tile_t t = tilemapImage->getPixel(tilePtInTilemap.x,
-                                                   tilePtInTilemap.y);
+      const doc::tile_t t =
+        tilemapImage->getPixel(tilePtInTilemap.x, tilePtInTilemap.y);
       if (t == doc::notile)
         continue;
 
@@ -755,8 +801,6 @@ private:
       processTempTileImage(existentTileImage, tilePosInDstImage);
     }
   }
-
 };
 
-} // namespace tools
-} // namespace app
+}}  // namespace app::tools

@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/doc_diff.h"
@@ -29,24 +29,24 @@ namespace doc {
 
 static std::ostream& operator<<(std::ostream& os, const UserData& userData)
 {
-  return os << "("
-            << userData.text() << ", "
-            << userData.color() << ")";
+  return os << "(" << userData.text() << ", " << userData.color() << ")";
 }
 
-}
+}  // namespace doc
 #endif
 
 namespace app {
 
 #ifdef _DEBUG
-  #define TRACEDIFF(a, b) if (a != b) { TRACEARGS(#a " != " #b, a, b); }
+  #define TRACEDIFF(a, b)                                                      \
+    if (a != b) {                                                              \
+      TRACEARGS(#a " != " #b, a, b);                                           \
+    }
 #else
   #define TRACEDIFF(a, b)
 #endif
 
-DocDiff compare_docs(const Doc* a,
-                     const Doc* b)
+DocDiff compare_docs(const Doc* a, const Doc* b)
 {
   DocDiff diff;
 
@@ -72,7 +72,7 @@ DocDiff compare_docs(const Doc* a,
     TRACEDIFF(a->sprite()->totalFrames(), b->sprite()->totalFrames());
   }
   else {
-    for (frame_t f=0; f<a->sprite()->totalFrames(); ++f) {
+    for (frame_t f = 0; f < a->sprite()->totalFrames(); ++f) {
       if (a->sprite()->frameDuration(f) != b->sprite()->frameDuration(f)) {
         diff.anything = diff.frameDuration = true;
 
@@ -95,12 +95,10 @@ DocDiff compare_docs(const Doc* a,
       const Tag* aTag = *aIt;
       const Tag* bTag = *bIt;
       if (aTag->fromFrame() != bTag->fromFrame() ||
-          aTag->toFrame()   != bTag->toFrame()   ||
-          aTag->name()      != bTag->name()      ||
-          aTag->color()     != bTag->color()     ||
-          aTag->aniDir()    != bTag->aniDir() ||
-          aTag->repeat()    != bTag->repeat() ||
-          aTag->userData()  != bTag->userData()) {
+          aTag->toFrame() != bTag->toFrame() || aTag->name() != bTag->name() ||
+          aTag->color() != bTag->color() || aTag->aniDir() != bTag->aniDir() ||
+          aTag->repeat() != bTag->repeat() ||
+          aTag->userData() != bTag->userData()) {
         diff.anything = diff.tags = true;
 
         TRACEDIFF(aTag->fromFrame(), bTag->fromFrame());
@@ -133,13 +131,15 @@ DocDiff compare_docs(const Doc* a,
   }
 
   // Compare tilesets
-  const tile_index aTilesetSize = (a->sprite()->hasTilesets() ? a->sprite()->tilesets()->size(): 0);
-  const tile_index bTilesetSize = (b->sprite()->hasTilesets() ? b->sprite()->tilesets()->size(): 0);
+  const tile_index aTilesetSize =
+    (a->sprite()->hasTilesets() ? a->sprite()->tilesets()->size() : 0);
+  const tile_index bTilesetSize =
+    (b->sprite()->hasTilesets() ? b->sprite()->tilesets()->size() : 0);
   if (aTilesetSize != bTilesetSize) {
     diff.anything = diff.tilesets = true;
   }
   else {
-    for (int i=0; i<aTilesetSize; ++i) {
+    for (int i = 0; i < aTilesetSize; ++i) {
       Tileset* aTileset = a->sprite()->tilesets()->get(i);
       Tileset* bTileset = b->sprite()->tilesets()->get(i);
 
@@ -162,7 +162,7 @@ DocDiff compare_docs(const Doc* a,
         break;
       }
       else {
-        for (tile_index ti=0; ti<aTileset->size(); ++ti) {
+        for (tile_index ti = 0; ti < aTileset->size(); ++ti) {
           if (!is_same_image(aTileset->get(ti).get(),
                              bTileset->get(ti).get())) {
             diff.anything = diff.tilesets = true;
@@ -188,26 +188,26 @@ DocDiff compare_docs(const Doc* a,
       const Layer* aLay = *aIt;
       const Layer* bLay = *bIt;
 
-      if (aLay->type() != bLay->type() ||
-          aLay->name() != bLay->name() ||
+      if (aLay->type() != bLay->type() || aLay->name() != bLay->name() ||
           aLay->userData() != bLay->userData() ||
           ((int(aLay->flags()) & int(LayerFlags::StructuralFlagsMask)) !=
            (int(bLay->flags()) & int(LayerFlags::StructuralFlagsMask))) ||
           (aLay->isImage() && bLay->isImage() &&
-           (((const LayerImage*)aLay)->opacity() != ((const LayerImage*)bLay)->opacity())) ||
+           (((const LayerImage*)aLay)->opacity() !=
+            ((const LayerImage*)bLay)->opacity())) ||
           (aLay->isTilemap() && bLay->isTilemap() &&
-           (((const LayerTilemap*)aLay)->tilesetIndex() != ((const LayerTilemap*)bLay)->tilesetIndex()))) {
+           (((const LayerTilemap*)aLay)->tilesetIndex() !=
+            ((const LayerTilemap*)bLay)->tilesetIndex()))) {
         diff.anything = diff.layers = true;
         break;
       }
 
       if (!diff.totalFrames) {
-        for (frame_t f=0; f<a->sprite()->totalFrames(); ++f) {
+        for (frame_t f = 0; f < a->sprite()->totalFrames(); ++f) {
           const Cel* aCel = aLay->cel(f);
           const Cel* bCel = bLay->cel(f);
 
-          if ((!aCel && bCel) ||
-              (aCel && !bCel)) {
+          if ((!aCel && bCel) || (aCel && !bCel)) {
             diff.anything = diff.cels = true;
           }
           else if (aCel && bCel) {
@@ -249,4 +249,4 @@ DocDiff compare_docs(const Doc* a,
   return diff;
 }
 
-} // namespace app
+}  // namespace app

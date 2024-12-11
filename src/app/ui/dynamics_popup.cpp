@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/dynamics_popup.h"
@@ -50,12 +50,13 @@ enum {
   GRADIENT_WITH_VELOCITY,
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 // Special slider to set the min/max threshold values of a sensor
-class DynamicsPopup::ThresholdSlider : public Widget  {
+class DynamicsPopup::ThresholdSlider : public Widget {
 public:
-  ThresholdSlider() {
+  ThresholdSlider()
+  {
     setExpansive(true);
     initTheme();
   }
@@ -64,30 +65,31 @@ public:
   float maxThreshold() const { return m_maxThreshold; }
   void minThreshold(float min) { m_minThreshold = min; }
   void maxThreshold(float max) { m_maxThreshold = max; }
-  void setSensorValue(float v) {
+  void setSensorValue(float v)
+  {
     m_sensorValue = v;
     invalidate();
   }
 
 private:
-  void onInitTheme(InitThemeEvent& ev) override {
+  void onInitTheme(InitThemeEvent& ev) override
+  {
     Widget::onInitTheme(ev);
     auto theme = SkinTheme::get(this);
-    setBorder(
-      gfx::Border(
-        theme->parts.miniSliderEmpty()->bitmapW()->width(),
-        theme->parts.miniSliderEmpty()->bitmapN()->height(),
-        theme->parts.miniSliderEmpty()->bitmapE()->width(),
-        theme->parts.miniSliderEmpty()->bitmapS()->height()));
+    setBorder(gfx::Border(theme->parts.miniSliderEmpty()->bitmapW()->width(),
+                          theme->parts.miniSliderEmpty()->bitmapN()->height(),
+                          theme->parts.miniSliderEmpty()->bitmapE()->width(),
+                          theme->parts.miniSliderEmpty()->bitmapS()->height()));
   }
 
-  void onSizeHint(SizeHintEvent& ev) override {
-    ev.setSizeHint(
-      border().width(),
-      textHeight()+2*guiscale() + border().height());
+  void onSizeHint(SizeHintEvent& ev) override
+  {
+    ev.setSizeHint(border().width(),
+                   textHeight() + 2 * guiscale() + border().height());
   }
 
-  void onPaint(PaintEvent& ev) override {
+  void onPaint(PaintEvent& ev) override
+  {
     Graphics* g = ev.graphics();
     auto theme = SkinTheme::get(this);
     gfx::Rect rc = clientBounds();
@@ -100,7 +102,7 @@ private:
     // Draw customized background
     const skin::SkinPartPtr& nw = theme->parts.miniSliderEmpty();
     os::Surface* thumb =
-      (hasFocus() ? theme->parts.miniSliderThumbFocused()->bitmap(0):
+      (hasFocus() ? theme->parts.miniSliderThumbFocused()->bitmap(0) :
                     theme->parts.miniSliderThumb()->bitmap(0));
 
     // Draw background
@@ -111,44 +113,44 @@ private:
     rc.shrink(gfx::Border(0, thumb->height(), 0, 0));
 
     // Draw borders
-    if (rc.h > 4*guiscale()) {
+    if (rc.h > 4 * guiscale()) {
       rc.shrink(gfx::Border(3, 0, 3, 1) * guiscale());
       theme->drawRect(g, rc, nw.get());
     }
 
     const int minX = this->minX();
     const int maxX = this->maxX();
-    const int sensorW = float(rc.w)*m_sensorValue;
+    const int sensorW = float(rc.w) * m_sensorValue;
 
     // Draw background
     if (m_minThreshold > 0.0f) {
-      theme->drawRect(
-        g, gfx::Rect(rc.x, rc.y, minX-rc.x, rc.h),
-        theme->parts.miniSliderFull().get());
+      theme->drawRect(g,
+                      gfx::Rect(rc.x, rc.y, minX - rc.x, rc.h),
+                      theme->parts.miniSliderFull().get());
     }
     if (m_maxThreshold < 1.0f) {
-      theme->drawRect(
-        g, gfx::Rect(maxX, rc.y, rc.x2()-maxX, rc.h),
-        theme->parts.miniSliderFull().get());
+      theme->drawRect(g,
+                      gfx::Rect(maxX, rc.y, rc.x2() - maxX, rc.h),
+                      theme->parts.miniSliderFull().get());
     }
 
     g->fillRect(theme->colors.sliderEmptyText(),
-                gfx::Rect(rc.x, rc.y+rc.h/2-rc.h/8, sensorW, rc.h/4));
+                gfx::Rect(rc.x, rc.y + rc.h / 2 - rc.h / 8, sensorW, rc.h / 4));
 
-    g->drawRgbaSurface(thumb, minX-thumb->width()/2, thumb_y);
-    g->drawRgbaSurface(thumb, maxX-thumb->width()/2, thumb_y);
+    g->drawRgbaSurface(thumb, minX - thumb->width() / 2, thumb_y);
+    g->drawRgbaSurface(thumb, maxX - thumb->width() / 2, thumb_y);
   }
 
-  bool onProcessMessage(Message* msg) override {
+  bool onProcessMessage(Message* msg) override
+  {
     switch (msg->type()) {
-
       case kMouseDownMessage: {
         auto mouseMsg = static_cast<MouseMessage*>(msg);
-        const int u = mouseMsg->position().x - (origin().x+border().left()+3*guiscale());
+        const int u = mouseMsg->position().x -
+                      (origin().x + border().left() + 3 * guiscale());
         const int minX = this->minX();
         const int maxX = this->maxX();
-        if (ABS(u-minX) <
-            ABS(u-maxX))
+        if (ABS(u - minX) < ABS(u - maxX))
           capture = Capture::Min;
         else
           capture = Capture::Max;
@@ -191,18 +193,20 @@ private:
     return Widget::onProcessMessage(msg);
   }
 
-  int minX() const {
+  int minX() const
+  {
     gfx::Rect rc = clientBounds();
     rc.shrink(border());
     rc.shrink(gfx::Border(3, 0, 3, 1) * guiscale());
-    return rc.x + float(rc.w)*m_minThreshold;
+    return rc.x + float(rc.w) * m_minThreshold;
   }
 
-  int maxX() const {
+  int maxX() const
+  {
     gfx::Rect rc = clientBounds();
     rc.shrink(border());
     rc.shrink(gfx::Border(3, 0, 3, 1) * guiscale());
-    return rc.x + float(rc.w)*m_maxThreshold;
+    return rc.x + float(rc.w) * m_maxThreshold;
   }
 
   enum Capture { Min, Max };
@@ -223,78 +227,64 @@ DynamicsPopup::DynamicsPopup(Delegate* delegate)
   , m_ditheringSel(new DitheringSelector(DitheringSelector::SelectMatrix))
   , m_fromTo(tools::ColorFromTo::BgToFg)
 {
-  m_dynamics->stabilizer()->Click.connect(
-    [this](){
-      if (m_dynamics->stabilizer()->isSelected()) {
-        if (m_stabilizerFactorBackup == 0) {
-          // TODO default value when we enable stabilizer when it's
-          // zero
-          m_dynamics->stabilizerFactor()->setValue(16);
-          m_stabilizerFactorBackup = 16;
-        }
-        else {
-          m_dynamics->stabilizerFactor()->setValue(
-            m_stabilizerFactorBackup);
-        }
+  m_dynamics->stabilizer()->Click.connect([this]() {
+    if (m_dynamics->stabilizer()->isSelected()) {
+      if (m_stabilizerFactorBackup == 0) {
+        // TODO default value when we enable stabilizer when it's
+        // zero
+        m_dynamics->stabilizerFactor()->setValue(16);
+        m_stabilizerFactorBackup = 16;
       }
       else {
-        m_stabilizerFactorBackup =
-          m_dynamics->stabilizerFactor()->getValue();
-        m_dynamics->stabilizerFactor()->setValue(0);
+        m_dynamics->stabilizerFactor()->setValue(m_stabilizerFactorBackup);
       }
-
-    });
-  m_dynamics->stabilizerFactor()->Change.connect(
-    [this](){
-      m_stabilizerFactorBackup =
-        m_dynamics->stabilizerFactor()->getValue();
-      m_dynamics->stabilizer()->setSelected(
-        m_stabilizerFactorBackup > 0);
-    });
+    }
+    else {
+      m_stabilizerFactorBackup = m_dynamics->stabilizerFactor()->getValue();
+      m_dynamics->stabilizerFactor()->setValue(0);
+    }
+  });
+  m_dynamics->stabilizerFactor()->Change.connect([this]() {
+    m_stabilizerFactorBackup = m_dynamics->stabilizerFactor()->getValue();
+    m_dynamics->stabilizer()->setSelected(m_stabilizerFactorBackup > 0);
+  });
 
   m_dynamics->values()->ItemChange.connect(
-    [this](ButtonSet::Item* item){
-      onValuesChange(item);
-    });
+    [this](ButtonSet::Item* item) { onValuesChange(item); });
   m_dynamics->maxSize()->Change.connect(
-    [this]{
-      m_delegate->setMaxSize(m_dynamics->maxSize()->getValue());
-    });
+    [this] { m_delegate->setMaxSize(m_dynamics->maxSize()->getValue()); });
   m_dynamics->maxAngle()->Change.connect(
-    [this]{
-      m_delegate->setMaxAngle(m_dynamics->maxAngle()->getValue());
-    });
-  m_dynamics->gradientFromTo()->Click.connect(
-    [this]{
-      if (m_fromTo == tools::ColorFromTo::BgToFg)
-        m_fromTo = tools::ColorFromTo::FgToBg;
-      else
-        m_fromTo = tools::ColorFromTo::BgToFg;
-      updateFromToText();
-    });
-  m_ditheringSel->OpenListBox.connect(
-    [this]{
-      if (auto comboboxWindow = m_ditheringSel->getWindowWidget()) {
-        m_hotRegion |= gfx::Region(comboboxWindow->boundsOnScreen());
-        setHotRegion(m_hotRegion);
-      }
-    });
+    [this] { m_delegate->setMaxAngle(m_dynamics->maxAngle()->getValue()); });
+  m_dynamics->gradientFromTo()->Click.connect([this] {
+    if (m_fromTo == tools::ColorFromTo::BgToFg)
+      m_fromTo = tools::ColorFromTo::FgToBg;
+    else
+      m_fromTo = tools::ColorFromTo::BgToFg;
+    updateFromToText();
+  });
+  m_ditheringSel->OpenListBox.connect([this] {
+    if (auto comboboxWindow = m_ditheringSel->getWindowWidget()) {
+      m_hotRegion |= gfx::Region(comboboxWindow->boundsOnScreen());
+      setHotRegion(m_hotRegion);
+    }
+  });
   m_dynamics->sameInAllTools()->setSelected(
     Preferences::instance().shared.shareDynamics());
-  m_dynamics->sameInAllTools()->Click.connect(
-    [this]{
-      // if sameInAllTools is true here, this means:
-      // "Transition false to true of 'Same in all tools' and the
-      //  current parameters in the DynamicsPopup windows are the
-      //  old one, i.e non-shared parameters."
-      bool sameInAllTools = m_dynamics->sameInAllTools()->isSelected();
-      // Save the old dynamics options:
-      saveDynamicsPref(!sameInAllTools);
-      Preferences::instance().shared.shareDynamics(sameInAllTools);
-    });
+  m_dynamics->sameInAllTools()->Click.connect([this] {
+    // if sameInAllTools is true here, this means:
+    // "Transition false to true of 'Same in all tools' and the
+    //  current parameters in the DynamicsPopup windows are the
+    //  old one, i.e non-shared parameters."
+    bool sameInAllTools = m_dynamics->sameInAllTools()->isSelected();
+    // Save the old dynamics options:
+    saveDynamicsPref(!sameInAllTools);
+    Preferences::instance().shared.shareDynamics(sameInAllTools);
+  });
   m_dynamics->gradientPlaceholder()->addChild(m_ditheringSel);
-  m_dynamics->pressurePlaceholder()->addChild(m_pressureThreshold = new ThresholdSlider);
-  m_dynamics->velocityPlaceholder()->addChild(m_velocityThreshold = new ThresholdSlider);
+  m_dynamics->pressurePlaceholder()->addChild(m_pressureThreshold =
+                                                new ThresholdSlider);
+  m_dynamics->velocityPlaceholder()->addChild(m_velocityThreshold =
+                                                new ThresholdSlider);
   addChild(m_dynamics);
 }
 
@@ -308,8 +298,7 @@ void DynamicsPopup::setOptionsGridVisibility(bool state)
 std::string DynamicsPopup::ditheringMatrixName() const
 {
   if (m_ditheringSel)
-    return m_ditheringSel->getItemText(
-      m_ditheringSel->getSelectedItemIndex());
+    return m_ditheringSel->getItemText(m_ditheringSel->getSelectedItemIndex());
   return std::string();
 }
 
@@ -373,8 +362,8 @@ void DynamicsPopup::saveDynamicsPref(bool sameInAllTools)
   dynaPref->gradient(dyna.gradient);
 
   if (m_ditheringSel)
-    dynaPref->matrixName(m_ditheringSel->getItemText(
-      m_ditheringSel->getSelectedItemIndex()));
+    dynaPref->matrixName(
+      m_ditheringSel->getItemText(m_ditheringSel->getSelectedItemIndex()));
 }
 
 tools::DynamicsOptions DynamicsPopup::getDynamics() const
@@ -384,17 +373,15 @@ tools::DynamicsOptions DynamicsPopup::getDynamics() const
   opts.stabilizer = m_dynamics->stabilizer()->isSelected();
   opts.stabilizerFactor = m_stabilizerFactorBackup;
 
-  opts.size =
-    (isCheck(SIZE_WITH_PRESSURE) ? tools::DynamicSensor::Pressure:
-     isCheck(SIZE_WITH_VELOCITY) ? tools::DynamicSensor::Velocity:
-                                   tools::DynamicSensor::Static);
-  opts.angle =
-    (isCheck(ANGLE_WITH_PRESSURE) ? tools::DynamicSensor::Pressure:
-     isCheck(ANGLE_WITH_VELOCITY) ? tools::DynamicSensor::Velocity:
-                                    tools::DynamicSensor::Static);
+  opts.size = (isCheck(SIZE_WITH_PRESSURE) ? tools::DynamicSensor::Pressure :
+               isCheck(SIZE_WITH_VELOCITY) ? tools::DynamicSensor::Velocity :
+                                             tools::DynamicSensor::Static);
+  opts.angle = (isCheck(ANGLE_WITH_PRESSURE) ? tools::DynamicSensor::Pressure :
+                isCheck(ANGLE_WITH_VELOCITY) ? tools::DynamicSensor::Velocity :
+                                               tools::DynamicSensor::Static);
   opts.gradient =
-    (isCheck(GRADIENT_WITH_PRESSURE) ? tools::DynamicSensor::Pressure:
-     isCheck(GRADIENT_WITH_VELOCITY) ? tools::DynamicSensor::Velocity:
+    (isCheck(GRADIENT_WITH_PRESSURE) ? tools::DynamicSensor::Pressure :
+     isCheck(GRADIENT_WITH_VELOCITY) ? tools::DynamicSensor::Velocity :
                                        tools::DynamicSensor::Static);
   opts.minSize = m_dynamics->minSize()->getValue();
   opts.minAngle = m_dynamics->minAngle()->getValue();
@@ -412,17 +399,15 @@ tools::DynamicsOptions DynamicsPopup::getDynamics() const
 void DynamicsPopup::setCheck(int i, bool state)
 {
   auto theme = SkinTheme::get(this);
-  m_dynamics->values()
-    ->getItem(i)
-    ->setIcon(state ? theme->parts.dropPixelsOk(): nullptr);
+  m_dynamics->values()->getItem(i)->setIcon(
+    state ? theme->parts.dropPixelsOk() : nullptr);
 }
 
 bool DynamicsPopup::isCheck(int i) const
 {
   auto theme = SkinTheme::get(this);
-  return (m_dynamics->values()
-          ->getItem(i)
-          ->icon() == theme->parts.dropPixelsOk());
+  return (m_dynamics->values()->getItem(i)->icon() ==
+          theme->parts.dropPixelsOk());
 }
 
 // Update Pressure/Velocity/Gradient popup's variables visibility
@@ -431,18 +416,18 @@ bool DynamicsPopup::isCheck(int i) const
 // displayed (on ContextBar::DynamicsField::switchPopup()).
 void DynamicsPopup::refreshVisibility()
 {
-  const bool hasPressure = (isCheck(SIZE_WITH_PRESSURE) ||
-                            isCheck(ANGLE_WITH_PRESSURE) ||
-                            isCheck(GRADIENT_WITH_PRESSURE));
-  const bool hasVelocity = (isCheck(SIZE_WITH_VELOCITY) ||
-                            isCheck(ANGLE_WITH_VELOCITY) ||
-                            isCheck(GRADIENT_WITH_VELOCITY));
-  const bool needsSize = (isCheck(SIZE_WITH_PRESSURE) ||
-                          isCheck(SIZE_WITH_VELOCITY));
-  const bool needsAngle = (isCheck(ANGLE_WITH_PRESSURE) ||
-                           isCheck(ANGLE_WITH_VELOCITY));
-  const bool needsGradient = (isCheck(GRADIENT_WITH_PRESSURE) ||
-                              isCheck(GRADIENT_WITH_VELOCITY));
+  const bool hasPressure =
+    (isCheck(SIZE_WITH_PRESSURE) || isCheck(ANGLE_WITH_PRESSURE) ||
+     isCheck(GRADIENT_WITH_PRESSURE));
+  const bool hasVelocity =
+    (isCheck(SIZE_WITH_VELOCITY) || isCheck(ANGLE_WITH_VELOCITY) ||
+     isCheck(GRADIENT_WITH_VELOCITY));
+  const bool needsSize =
+    (isCheck(SIZE_WITH_PRESSURE) || isCheck(SIZE_WITH_VELOCITY));
+  const bool needsAngle =
+    (isCheck(ANGLE_WITH_PRESSURE) || isCheck(ANGLE_WITH_VELOCITY));
+  const bool needsGradient =
+    (isCheck(GRADIENT_WITH_PRESSURE) || isCheck(GRADIENT_WITH_VELOCITY));
   const bool any = (needsSize || needsAngle || needsGradient);
   doc::BrushRef brush = m_delegate->getActiveBrush();
 
@@ -499,7 +484,7 @@ void DynamicsPopup::onValuesChange(ButtonSet::Item* item)
 {
   auto theme = SkinTheme::get(this);
   const skin::SkinPartPtr& ok = theme->parts.dropPixelsOk();
-  const int i = (item ? m_dynamics->values()->getItemIndex(item): -1);
+  const int i = (item ? m_dynamics->values()->getItemIndex(item) : -1);
 
   // Switch item off
   if (item && item->icon().get() == ok.get()) {
@@ -531,8 +516,9 @@ void DynamicsPopup::onValuesChange(ButtonSet::Item* item)
 void DynamicsPopup::updateFromToText()
 {
   m_dynamics->gradientFromTo()->setText(
-    m_fromTo == tools::ColorFromTo::BgToFg ? "BG > FG":
-    m_fromTo == tools::ColorFromTo::FgToBg ? "FG > BG": "-");
+    m_fromTo == tools::ColorFromTo::BgToFg ? "BG > FG" :
+    m_fromTo == tools::ColorFromTo::FgToBg ? "FG > BG" :
+                                             "-");
 }
 
 void DynamicsPopup::updateWidgetsWithBrush()
@@ -545,7 +531,6 @@ void DynamicsPopup::updateWidgetsWithBrush()
 bool DynamicsPopup::onProcessMessage(Message* msg)
 {
   switch (msg->type()) {
-
     case kOpenMessage:
       m_hotRegion = gfx::Region(boundsOnScreen());
       setHotRegion(m_hotRegion);
@@ -579,8 +564,8 @@ bool DynamicsPopup::onProcessMessage(Message* msg)
       if (m_dynamics->velocityPlaceholder()->isVisible()) {
         m_velocity.updateWithDisplayPoint(mouseMsg->position());
 
-        float v = m_velocity.velocity().magnitude()
-          / tools::VelocitySensor::kScreenPixelsForFullVelocity;
+        float v = m_velocity.velocity().magnitude() /
+                  tools::VelocitySensor::kScreenPixelsForFullVelocity;
         v = std::clamp(v, 0.0f, 1.0f);
 
         m_velocityThreshold->setSensorValue(v);
@@ -602,9 +587,8 @@ bool DynamicsPopup::onProcessMessage(Message* msg)
       }
       break;
     }
-
   }
   return PopupWindow::onProcessMessage(msg);
 }
 
-} // namespace app
+}  // namespace app

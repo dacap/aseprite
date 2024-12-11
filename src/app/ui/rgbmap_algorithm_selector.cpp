@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/rgbmap_algorithm_selector.h"
@@ -18,8 +18,8 @@ RgbMapAlgorithmSelector::RgbMapAlgorithmSelector()
 {
   // addItem() must match the RgbMapAlgorithm enum
   static_assert(int(doc::RgbMapAlgorithm::DEFAULT) == 0 &&
-                int(doc::RgbMapAlgorithm::RGB5A3) == 1 &&
-                int(doc::RgbMapAlgorithm::OCTREE) == 2,
+                  int(doc::RgbMapAlgorithm::RGB5A3) == 1 &&
+                  int(doc::RgbMapAlgorithm::OCTREE) == 2,
                 "Unexpected doc::RgbMapAlgorithm values");
 
   addItem(Strings::rgbmap_algorithm_selector_default());
@@ -39,4 +39,4 @@ void RgbMapAlgorithmSelector::algorithm(const doc::RgbMapAlgorithm mapAlgo)
   setSelectedItemIndex((int)mapAlgo);
 }
 
-} // namespace app
+}  // namespace app

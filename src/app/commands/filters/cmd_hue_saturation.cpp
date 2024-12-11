@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/color.h"
@@ -37,22 +37,23 @@ namespace app {
 using Mode = filters::HueSaturationFilter::Mode;
 
 struct HueSaturationParams : public NewParams {
-  Param<bool> ui { this, true, "ui" };
-  Param<filters::Target> channels { this, 0, "channels" };
-  Param<Mode> mode { this, Mode::HSL_MUL, "mode" };
-  Param<double> hue { this, 0.0, "hue" };
-  Param<double> saturation { this, 0.0, "saturation" };
-  Param<double> lightness { this, 0.0, { "lightness", "value" } };
-  Param<double> alpha { this, 0.0, "alpha" };
+  Param<bool> ui{ this, true, "ui" };
+  Param<filters::Target> channels{ this, 0, "channels" };
+  Param<Mode> mode{ this, Mode::HSL_MUL, "mode" };
+  Param<double> hue{ this, 0.0, "hue" };
+  Param<double> saturation{ this, 0.0, "saturation" };
+  Param<double> lightness{ this, 0.0, { "lightness", "value" } };
+  Param<double> alpha{ this, 0.0, "alpha" };
 };
 
 static const char* ConfigSection = "HueSaturation";
 
 class HueSaturationWindow : public FilterWindow {
 public:
-  HueSaturationWindow(HueSaturationFilter& filter,
-                      FilterManagerImpl& filterMgr)
-    : FilterWindow("Hue/Saturation", ConfigSection, &filterMgr,
+  HueSaturationWindow(HueSaturationFilter& filter, FilterManagerImpl& filterMgr)
+    : FilterWindow("Hue/Saturation",
+                   ConfigSection,
+                   &filterMgr,
                    WithChannelsSelector,
                    WithoutTiledCheckBox)
     , m_filter(filter)
@@ -61,51 +62,47 @@ public:
     getContainer()->addChild(&m_colorType);
     getContainer()->addChild(&m_sliders);
 
-    static_assert(int(Mode::HSV_MUL) == 0 &&
-                  int(Mode::HSL_MUL) == 1 &&
-                  int(Mode::HSV_ADD) == 2 &&
-                  int(Mode::HSL_ADD) == 3,
-                  "Adjust widget showing filters::HueSaturationFilter::Mode enum");
+    static_assert(
+      int(Mode::HSV_MUL) == 0 && int(Mode::HSL_MUL) == 1 &&
+        int(Mode::HSV_ADD) == 2 && int(Mode::HSL_ADD) == 3,
+      "Adjust widget showing filters::HueSaturationFilter::Mode enum");
     auto mode = Preferences::instance().hueSaturation.mode();
     m_colorType.addItem("HSV")->setFocusStop(false);
     m_colorType.addItem("HSL")->setFocusStop(false);
     m_colorType.addItem("HSV+")->setFocusStop(false);
     m_colorType.addItem("HSL+")->setFocusStop(false);
     m_colorType.setSelectedItem(int(mode));
-    m_colorType.ItemChange.connect([this]{ onChangeMode(); });
+    m_colorType.ItemChange.connect([this] { onChangeMode(); });
 
     m_sliders.setColorType(app::Color::HslType);
     m_sliders.setMode(ColorSliders::Mode::Relative);
-    m_sliders.ColorChange.connect([this]{ onChangeControls(); });
+    m_sliders.ColorChange.connect([this] { onChangeControls(); });
 
     initTheme();
     onChangeMode();
   }
 
-  Mode mode() const {
-    return Mode(m_colorType.selectedItem());
-  }
+  Mode mode() const { return Mode(m_colorType.selectedItem()); }
 
 private:
-
-  bool isHsl() const {
-    return (mode() == Mode::HSL_MUL ||
-            mode() == Mode::HSL_ADD);
+  bool isHsl() const
+  {
+    return (mode() == Mode::HSL_MUL || mode() == Mode::HSL_ADD);
   }
 
-  void onChangeMode() {
+  void onChangeMode()
+  {
     stopPreview();
 
     Preferences::instance().hueSaturation.mode(mode());
     m_filter.setMode(mode());
-    m_sliders.setColorType(isHsl() ?
-                           app::Color::HslType:
-                           app::Color::HsvType);
+    m_sliders.setColorType(isHsl() ? app::Color::HslType : app::Color::HsvType);
 
     onChangeControls();
   }
 
-  void onChangeControls() {
+  void onChangeControls()
+  {
     stopPreview();
 
     m_sliders.syncRelHsvHslSliders();
@@ -114,15 +111,18 @@ private:
       m_filter.setHue(
         double(m_sliders.getRelSliderValue(ColorSliders::Channel::HslHue)));
       m_filter.setSaturation(
-        m_sliders.getRelSliderValue(ColorSliders::Channel::HslSaturation) / 100.0);
+        m_sliders.getRelSliderValue(ColorSliders::Channel::HslSaturation) /
+        100.0);
       m_filter.setLightness(
-        m_sliders.getRelSliderValue(ColorSliders::Channel::HslLightness) / 100.0);
+        m_sliders.getRelSliderValue(ColorSliders::Channel::HslLightness) /
+        100.0);
     }
     else {
       m_filter.setHue(
         double(m_sliders.getRelSliderValue(ColorSliders::Channel::HsvHue)));
       m_filter.setSaturation(
-        m_sliders.getRelSliderValue(ColorSliders::Channel::HsvSaturation) / 100.0);
+        m_sliders.getRelSliderValue(ColorSliders::Channel::HsvSaturation) /
+        100.0);
       m_filter.setLightness(
         m_sliders.getRelSliderValue(ColorSliders::Channel::HsvValue) / 100.0);
     }
@@ -147,7 +147,8 @@ protected:
 };
 
 HueSaturationCommand::HueSaturationCommand()
-  : CommandWithNewParams<HueSaturationParams>(CommandId::HueSaturation(), CmdRecordableFlag)
+  : CommandWithNewParams<HueSaturationParams>(CommandId::HueSaturation(),
+                                              CmdRecordableFlag)
 {
 }
 
@@ -163,19 +164,22 @@ void HueSaturationCommand::onExecute(Context* ctx)
 
   HueSaturationFilter filter;
   FilterManagerImpl filterMgr(ctx, &filter);
-  if (params().mode.isSet()) filter.setMode(params().mode());
-  if (params().hue.isSet()) filter.setHue(params().hue());
-  if (params().saturation.isSet()) filter.setSaturation(params().saturation() / 100.0);
-  if (params().lightness.isSet()) filter.setLightness(params().lightness() / 100.0);
-  if (params().alpha.isSet()) filter.setAlpha(params().alpha() / 100.0);
+  if (params().mode.isSet())
+    filter.setMode(params().mode());
+  if (params().hue.isSet())
+    filter.setHue(params().hue());
+  if (params().saturation.isSet())
+    filter.setSaturation(params().saturation() / 100.0);
+  if (params().lightness.isSet())
+    filter.setLightness(params().lightness() / 100.0);
+  if (params().alpha.isSet())
+    filter.setAlpha(params().alpha() / 100.0);
 
-  filters::Target channels =
-    TARGET_RED_CHANNEL |
-    TARGET_GREEN_CHANNEL |
-    TARGET_BLUE_CHANNEL |
-    TARGET_GRAY_CHANNEL |
-    TARGET_ALPHA_CHANNEL;
-  if (params().channels.isSet()) channels = params().channels();
+  filters::Target channels = TARGET_RED_CHANNEL | TARGET_GREEN_CHANNEL |
+                             TARGET_BLUE_CHANNEL | TARGET_GRAY_CHANNEL |
+                             TARGET_ALPHA_CHANNEL;
+  if (params().channels.isSet())
+    channels = params().channels();
   filterMgr.setTarget(channels);
 
   if (ui) {
@@ -192,4 +196,4 @@ Command* CommandFactory::createHueSaturationCommand()
   return new HueSaturationCommand;
 }
 
-} // namespace app
+}  // namespace app

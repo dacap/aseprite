@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -52,7 +52,8 @@ class LoadFileMessage : public Message {
 public:
   LoadFileMessage(const std::string& file)
     : Message(kLoadFileMessage)
-    , m_file(file) {
+    , m_file(file)
+  {
   }
 
   const std::string& file() const { return m_file; }
@@ -61,37 +62,35 @@ private:
   std::string m_file;
 };
 
-} // annonymous namespace
+}  // namespace
 
 // TODO This is not the best implementation, but it's "good enough"
 //      for a first version.
 class BrowserView::CMarkBox : public Widget {
   class Break : public Widget {
   public:
-    Break() {
-      setMinSize(gfx::Size(0, font()->height()));
-    }
+    Break() { setMinSize(gfx::Size(0, font()->height())); }
   };
   class OpenList : public Widget { };
   class CloseList : public Widget { };
   class Item : public Label {
   public:
-    Item(const std::string& text) : Label(text) { }
+    Item(const std::string& text)
+      : Label(text)
+    {
+    }
   };
 
 public:
   obs::signal<void()> FileChange;
 
-  CMarkBox() {
-    initTheme();
-  }
+  CMarkBox() { initTheme(); }
 
-  const std::string& file() {
-    return m_file;
-  }
+  const std::string& file() { return m_file; }
 
   void loadFile(const std::string& inputFile,
-                const std::string& section = std::string()) {
+                const std::string& section = std::string())
+  {
     std::string file = inputFile;
     {
       ResourceFinder rf;
@@ -140,7 +139,8 @@ public:
     FileChange();
   }
 
-  void focusSection() {
+  void focusSection()
+  {
     View* view = View::getView(this);
     if (m_sectionWidget) {
       int y = m_sectionWidget->bounds().y - bounds().y;
@@ -151,9 +151,10 @@ public:
   }
 
 private:
-  void layoutElements(int width,
-                      std::function<void(const gfx::Rect& bounds,
-                                         Widget* child)> callback) {
+  void layoutElements(
+    int width,
+    std::function<void(const gfx::Rect& bounds, Widget* child)> callback)
+  {
     const WidgetsList& children = this->children();
     const gfx::Rect cpos = childrenBounds();
 
@@ -165,10 +166,10 @@ private:
     for (auto child : children) {
       gfx::Size sz = child->sizeHint(gfx::Size(width, 0));
 
-      bool isBreak = (dynamic_cast<Break*>(child) ? true: false);
-      bool isOpenList = (dynamic_cast<OpenList*>(child) ? true: false);
-      bool isCloseList = (dynamic_cast<CloseList*>(child) ? true: false);
-      bool isItem = (dynamic_cast<Item*>(child) ? true: false);
+      bool isBreak = (dynamic_cast<Break*>(child) ? true : false);
+      bool isOpenList = (dynamic_cast<OpenList*>(child) ? true : false);
+      bool isCloseList = (dynamic_cast<CloseList*>(child) ? true : false);
+      bool isItem = (dynamic_cast<Item*>(child) ? true : false);
 
       if (isOpenList) {
         ++itemLevel;
@@ -180,10 +181,9 @@ private:
         p.x -= sz.w;
       }
 
-      if (child->isExpansive() ||
-          p.x+sz.w > cpos.x+width ||
-          isBreak || isOpenList || isCloseList) {
-        p.x = cpos.x + itemLevel*font()->textLength(" - ");
+      if (child->isExpansive() || p.x + sz.w > cpos.x + width || isBreak ||
+          isOpenList || isCloseList) {
+        p.x = cpos.x + itemLevel * font()->textLength(" - ");
         p.y += maxH;
         maxH = 0;
         //prevChild = nullptr;
@@ -202,32 +202,32 @@ private:
     }
   }
 
-  void onSizeHint(SizeHintEvent& ev) override {
+  void onSizeHint(SizeHintEvent& ev) override
+  {
     gfx::Size sz;
 
-    layoutElements(
-      View::getView(this)->viewportBounds().w - border().width(),
-      [&](const gfx::Rect& rc, Widget* child) {
-        sz.w = std::max(sz.w, rc.x+rc.w-this->bounds().x);
-        sz.h = std::max(sz.h, rc.y+rc.h-this->bounds().y);
-      });
+    layoutElements(View::getView(this)->viewportBounds().w - border().width(),
+                   [&](const gfx::Rect& rc, Widget* child) {
+                     sz.w = std::max(sz.w, rc.x + rc.w - this->bounds().x);
+                     sz.h = std::max(sz.h, rc.y + rc.h - this->bounds().y);
+                   });
     sz.w += border().right();
     sz.h += border().bottom();
 
     ev.setSizeHint(sz);
   }
 
-  void onResize(ResizeEvent& ev) override {
+  void onResize(ResizeEvent& ev) override
+  {
     setBoundsQuietly(ev.bounds());
 
     layoutElements(
       View::getView(this)->viewportBounds().w - border().width(),
-      [](const gfx::Rect& rc, Widget* child) {
-        child->setBounds(rc);
-      });
+      [](const gfx::Rect& rc, Widget* child) { child->setBounds(rc); });
   }
 
-  void onPaint(PaintEvent& ev) override {
+  void onPaint(PaintEvent& ev) override
+  {
     Graphics* g = ev.graphics();
     gfx::Rect rc = clientBounds();
     auto theme = SkinTheme::get(this);
@@ -235,12 +235,12 @@ private:
     g->fillRect(theme->colors.textboxFace(), rc);
   }
 
-  bool onProcessMessage(Message* msg) override {
+  bool onProcessMessage(Message* msg) override
+  {
     if (msg->type() == kLoadFileMessage) {
       std::string newFile = static_cast<LoadFileMessage*>(msg)->file();
       std::string newRelativeFile =
-        base::join_path(base::get_file_path(m_file),
-                        newFile);
+        base::join_path(base::get_file_path(m_file), newFile);
       if (base::is_file(newRelativeFile)) {
         newFile = newRelativeFile;
       }
@@ -249,7 +249,6 @@ private:
     }
 
     switch (msg->type()) {
-
       case kMouseWheelMessage: {
         View* view = View::getView(this);
         if (view) {
@@ -259,7 +258,7 @@ private:
           if (mouseMsg->preciseWheel())
             scroll += mouseMsg->wheelDelta();
           else
-            scroll += mouseMsg->wheelDelta() * textHeight()*3;
+            scroll += mouseMsg->wheelDelta() * textHeight() * 3;
 
           view->setViewScroll(scroll);
         }
@@ -270,22 +269,24 @@ private:
     return Widget::onProcessMessage(msg);
   }
 
-  void onInitTheme(InitThemeEvent& ev) override {
+  void onInitTheme(InitThemeEvent& ev) override
+  {
     Widget::onInitTheme(ev);
 
     auto theme = SkinTheme::get(this);
     setBgColor(theme->colors.textboxFace());
-    setBorder(gfx::Border(4*guiscale()));
+    setBorder(gfx::Border(4 * guiscale()));
   }
 
-  void clear() {
+  void clear()
+  {
     // Delete all children
     while (auto child = lastChild())
       delete child;
   }
 
-  void processNode(cmark_node* root,
-                   const std::string& section) {
+  void processNode(cmark_node* root, const std::string& section)
+  {
     clear();
 
     m_content.clear();
@@ -300,13 +301,12 @@ private:
       cmark_node* cur = cmark_iter_get_node(iter);
 
       switch (cmark_node_get_type(cur)) {
-
         case CMARK_NODE_TEXT: {
           const char* text = cmark_node_get_literal(cur);
           if (!inImage && text) {
             if (inLink) {
               if (!m_content.empty() &&
-                  m_content[m_content.size()-1] != ' ') {
+                  m_content[m_content.size() - 1] != ' ') {
                 m_content += " ";
               }
               m_content += text;
@@ -444,7 +444,6 @@ private:
           }
           break;
         }
-
       }
     }
     cmark_iter_free(iter);
@@ -452,25 +451,26 @@ private:
     closeContent();
   }
 
-  void closeContent() {
+  void closeContent()
+  {
     if (!m_content.empty()) {
       addText(m_content);
       m_content.clear();
     }
   }
 
-  void addSeparator() {
+  void addSeparator()
+  {
     auto sep = new SeparatorInView(std::string(), HORIZONTAL);
     sep->setBorder(gfx::Border(0, font()->height(), 0, font()->height()));
     sep->setExpansive(true);
     addChild(sep);
   }
 
-  void addBreak() {
-    addChild(new Break);
-  }
+  void addBreak() { addChild(new Break); }
 
-  void addText(const std::string& content) {
+  void addText(const std::string& content)
+  {
     auto theme = SkinTheme::get(this);
 
     std::vector<std::string> words;
@@ -479,8 +479,7 @@ private:
       if (!word.empty()) {
         Label* label;
 
-        if (word.size() > 4 &&
-            std::strncmp(word.c_str(), "http", 4) == 0) {
+        if (word.size() > 4 && std::strncmp(word.c_str(), "http", 4) == 0) {
           label = new LinkLabel(word);
           label->setStyle(theme->styles.browserLink());
         }
@@ -494,42 +493,42 @@ private:
       }
   }
 
-  void addCodeInline(const std::string& content) {
+  void addCodeInline(const std::string& content)
+  {
     auto theme = SkinTheme::get(this);
     auto label = new Label(content);
     label->setBgColor(theme->colors.textboxCodeFace());
     addChild(label);
   }
 
-  void addCodeBlock(const std::string& content) {
+  void addCodeBlock(const std::string& content)
+  {
     auto textBox = new TextBox(content, LEFT);
-    textBox->InitTheme.connect(
-      [textBox]{
-        auto theme = SkinTheme::get(textBox);
-        textBox->setBgColor(theme->colors.textboxCodeFace());
-        textBox->setBorder(gfx::Border(4*guiscale()));
-      });
+    textBox->InitTheme.connect([textBox] {
+      auto theme = SkinTheme::get(textBox);
+      textBox->setBgColor(theme->colors.textboxCodeFace());
+      textBox->setBorder(gfx::Border(4 * guiscale()));
+    });
     textBox->initTheme();
     addChild(textBox);
   }
 
-  void addLink(const std::string& url, const std::string& text) {
+  void addLink(const std::string& url, const std::string& text)
+  {
     auto label = new LinkLabel(url, text);
-    label->InitTheme.connect(
-      [label]{
-        auto theme = SkinTheme::get(label);
-        label->setStyle(theme->styles.browserLink());
-      });
+    label->InitTheme.connect([label] {
+      auto theme = SkinTheme::get(label);
+      label->setStyle(theme->styles.browserLink());
+    });
     label->initTheme();
 
     if (url.find(':') == std::string::npos) {
       label->setUrl("");
-      label->Click.connect(
-        [this, url]{
-          Message* msg = new LoadFileMessage(url);
-          msg->setRecipient(this);
-          Manager::getDefault()->enqueueMessage(msg);
-        });
+      label->Click.connect([this, url] {
+        Message* msg = new LoadFileMessage(url);
+        msg->setRecipient(this);
+        Manager::getDefault()->enqueueMessage(msg);
+      });
     }
 
     // Uncomment this line to debug labels
@@ -538,7 +537,8 @@ private:
     addChild(label);
   }
 
-  void relayout() {
+  void relayout()
+  {
     layout();
     auto view = View::getView(this);
     if (view) {
@@ -560,17 +560,14 @@ BrowserView::BrowserView()
 
   m_view.attachToView(m_textBox);
   m_view.setExpansive(true);
-  m_view.InitTheme.connect(
-    [this]{
-      auto theme = SkinTheme::get(this);
-      m_view.setStyle(theme->styles.workspaceView());
-    });
+  m_view.InitTheme.connect([this] {
+    auto theme = SkinTheme::get(this);
+    m_view.setStyle(theme->styles.workspaceView());
+  });
   m_view.initTheme();
 
   m_textBox->FileChange.connect(
-    []{
-      App::instance()->workspace()->updateTabs();
-    });
+    [] { App::instance()->workspace()->updateTabs(); });
 }
 
 BrowserView::~BrowserView()
@@ -578,8 +575,7 @@ BrowserView::~BrowserView()
   delete m_textBox;
 }
 
-void BrowserView::loadFile(const std::string& file,
-                           const std::string& section)
+void BrowserView::loadFile(const std::string& file, const std::string& section)
 {
   if (section.empty())
     m_title = base::get_file_title(file);
@@ -632,4 +628,4 @@ void BrowserView::onTabPopup(Workspace* workspace)
   menu->showPopup(mousePosInDisplay(), display());
 }
 
-} // namespace app
+}  // namespace app

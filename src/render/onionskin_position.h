@@ -10,11 +10,11 @@
 
 namespace render {
 
-  enum class OnionskinPosition {
-    BEHIND,
-    INFRONT,
-  };
+enum class OnionskinPosition {
+  BEHIND,
+  INFRONT,
+};
 
-} // namespace render
+}  // namespace render
 
 #endif

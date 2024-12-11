@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/res/palettes_loader_delegate.h"
@@ -31,7 +31,8 @@ PalettesLoaderDelegate::PalettesLoaderDelegate()
   m_config.fillFromPreferences();
 }
 
-void PalettesLoaderDelegate::getResourcesPaths(std::map<std::string, std::string>& idAndPath) const
+void PalettesLoaderDelegate::getResourcesPaths(
+  std::map<std::string, std::string>& idAndPath) const
 {
   // Include extension palettes
   idAndPath = App::instance()->extensions().palettes();
@@ -39,8 +40,8 @@ void PalettesLoaderDelegate::getResourcesPaths(std::map<std::string, std::string
   // Search old palettes too
   std::string path;
   ResourceFinder rf;
-  rf.includeDataDir("palettes"); // data/palettes/ in all places
-  rf.includeUserDir("palettes"); // palettes/ in user home
+  rf.includeDataDir("palettes");  // data/palettes/ in all places
+  rf.includeUserDir("palettes");  // palettes/ in user home
   while (rf.next()) {
     if (base::is_directory(rf.filename())) {
       path = rf.filename();
@@ -48,8 +49,7 @@ void PalettesLoaderDelegate::getResourcesPaths(std::map<std::string, std::string
       for (const auto& fn : base::list_files(path, base::ItemType::Files)) {
         // Ignore the default palette that is inside the palettes/ dir
         // in the user home dir.
-        if (fn == "default.ase" ||
-            fn == "default.gpl")
+        if (fn == "default.ase" || fn == "default.gpl")
           continue;
 
         std::string fullFn = base::join_path(path, fn);
@@ -69,4 +69,4 @@ Resource* PalettesLoaderDelegate::loadResource(const std::string& id,
     return nullptr;
 }
 
-} // namespace app
+}  // namespace app

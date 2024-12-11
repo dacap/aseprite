@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -32,7 +32,8 @@ GotoNextTabCommand::GotoNextTabCommand()
 bool GotoNextTabCommand::onEnabled(Context* context)
 {
   Workspace* workspace = App::instance()->workspace();
-  if (!workspace) // Workspace (main window) can be null if we are in --batch mode
+  if (
+    !workspace)  // Workspace (main window) can be null if we are in --batch mode
     return false;
   return workspace->canSelectOtherTab();
 }
@@ -59,7 +60,8 @@ GotoPreviousTabCommand::GotoPreviousTabCommand()
 bool GotoPreviousTabCommand::onEnabled(Context* context)
 {
   Workspace* workspace = App::instance()->workspace();
-  if (!workspace) // Workspace (main window) can be null if we are in --batch mode
+  if (
+    !workspace)  // Workspace (main window) can be null if we are in --batch mode
     return false;
   return workspace->canSelectOtherTab();
 }
@@ -79,4 +81,4 @@ Command* CommandFactory::createGotoPreviousTabCommand()
   return new GotoPreviousTabCommand;
 }
 
-} // namespace app
+}  // namespace app

@@ -13,21 +13,21 @@
 
 namespace ui {
 
-  class Panel : public VBox {
-  public:
-    Panel();
+class Panel : public VBox {
+public:
+  Panel();
 
-    void showChild(Widget* widget);
-    void showAllChildren();
+  void showChild(Widget* widget);
+  void showAllChildren();
 
-  protected:
-    virtual void onResize(ResizeEvent& ev) override;
-    virtual void onSizeHint(SizeHintEvent& ev) override;
+protected:
+  virtual void onResize(ResizeEvent& ev) override;
+  virtual void onSizeHint(SizeHintEvent& ev) override;
 
-  private:
-    bool m_multiple;
-  };
+private:
+  bool m_multiple;
+};
 
-} // namespace ui
+}  // namespace ui
 
 #endif

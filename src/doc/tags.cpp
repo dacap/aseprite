@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/tags.h"
@@ -76,10 +76,9 @@ Tag* Tags::innerTag(const frame_t frame) const
 {
   const Tag* found = nullptr;
   for (const Tag* tag : *this) {
-    if (frame >= tag->fromFrame() &&
-        frame <= tag->toFrame()) {
-      if (!found ||
-          (tag->toFrame() - tag->fromFrame()) < (found->toFrame() - found->fromFrame())) {
+    if (frame >= tag->fromFrame() && frame <= tag->toFrame()) {
+      if (!found || (tag->toFrame() - tag->fromFrame()) <
+                      (found->toFrame() - found->fromFrame())) {
         found = tag;
       }
     }
@@ -91,10 +90,9 @@ Tag* Tags::outerTag(const frame_t frame) const
 {
   const Tag* found = nullptr;
   for (const Tag* tag : *this) {
-    if (frame >= tag->fromFrame() &&
-        frame <= tag->toFrame()) {
-      if (!found ||
-          (tag->toFrame() - tag->fromFrame()) > (found->toFrame() - found->fromFrame())) {
+    if (frame >= tag->fromFrame() && frame <= tag->toFrame()) {
+      if (!found || (tag->toFrame() - tag->fromFrame()) >
+                      (found->toFrame() - found->fromFrame())) {
         found = tag;
       }
     }
@@ -102,4 +100,4 @@ Tag* Tags::outerTag(const frame_t frame) const
   return const_cast<Tag*>(found);
 }
 
-} // namespace doc
+}  // namespace doc

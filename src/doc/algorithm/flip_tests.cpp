@@ -18,9 +18,13 @@ using namespace gfx;
 
 TEST(Flip, Image)
 {
-  for (auto pf : { IMAGE_RGB, IMAGE_GRAYSCALE, IMAGE_INDEXED, IMAGE_BITMAP, IMAGE_TILEMAP }) {
-    for (int h=2; h<200; h+=5) {
-      for (int w=2; w<200; w+=5) {
+  for (auto pf : { IMAGE_RGB,
+                   IMAGE_GRAYSCALE,
+                   IMAGE_INDEXED,
+                   IMAGE_BITMAP,
+                   IMAGE_TILEMAP }) {
+    for (int h = 2; h < 200; h += 5) {
+      for (int w = 2; w < 200; w += 5) {
         ImageRef a(Image::create(pf, w, h));
         doc::algorithm::random_image(a.get());
 
@@ -31,8 +35,8 @@ TEST(Flip, Image)
         ImageRef c(Image::createCopy(a.get()));
         ASSERT_TRUE(is_same_image(b.get(), c.get()));
 
-        for (auto ft : { doc::algorithm::FlipHorizontal,
-                         doc::algorithm::FlipVertical }) {
+        for (auto ft :
+             { doc::algorithm::FlipHorizontal, doc::algorithm::FlipVertical }) {
           doc::algorithm::flip_image(b.get(), b->bounds(), ft);
           doc::algorithm::flip_image_slow(c.get(), c->bounds(), ft);
 

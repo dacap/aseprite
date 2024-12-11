@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -25,44 +25,40 @@
 
 #include "png.h"
 
-#define PNG_TRACE(...) // TRACE
+#define PNG_TRACE(...)  // TRACE
 
 namespace app {
 
 using namespace base;
 
 class PngFormat : public FileFormat {
-  const char* onGetName() const override {
-    return "png";
-  }
+  const char* onGetName() const override { return "png"; }
 
-  void onGetExtensions(base::paths& exts) const override {
+  void onGetExtensions(base::paths& exts) const override
+  {
     exts.push_back("png");
   }
 
-  dio::FileFormat onGetDioFormat() const override {
+  dio::FileFormat onGetDioFormat() const override
+  {
     return dio::FileFormat::PNG_IMAGE;
   }
 
-  int onGetFlags() const override {
-    return
-      FILE_SUPPORT_LOAD |
-      FILE_SUPPORT_SAVE |
-      FILE_SUPPORT_RGB |
-      FILE_SUPPORT_RGBA |
-      FILE_SUPPORT_GRAY |
-      FILE_SUPPORT_GRAYA |
-      FILE_SUPPORT_INDEXED |
-      FILE_SUPPORT_SEQUENCES |
-      FILE_SUPPORT_PALETTE_WITH_ALPHA |
-      FILE_ENCODE_ABSTRACT_IMAGE;
+  int onGetFlags() const override
+  {
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB |
+           FILE_SUPPORT_RGBA | FILE_SUPPORT_GRAY | FILE_SUPPORT_GRAYA |
+           FILE_SUPPORT_INDEXED | FILE_SUPPORT_SEQUENCES |
+           FILE_SUPPORT_PALETTE_WITH_ALPHA | FILE_ENCODE_ABSTRACT_IMAGE;
   }
 
   bool onLoad(FileOp* fop) override;
   gfx::ColorSpaceRef loadColorSpace(png_structp png, png_infop info);
 #ifdef ENABLE_SAVE
   bool onSave(FileOp* fop) override;
-  void saveColorSpace(png_structp png, png_infop info, const gfx::ColorSpace* colorSpace);
+  void saveColorSpace(png_structp png,
+                      png_infop info,
+                      const gfx::ColorSpace* colorSpace);
 #endif
 };
 
@@ -94,21 +90,30 @@ namespace {
 class DestroyReadPng {
   png_structp png;
   png_infop info;
+
 public:
-  DestroyReadPng(png_structp png, png_infop info) : png(png), info(info) { }
-  ~DestroyReadPng() {
-    png_destroy_read_struct(&png, info ? &info: nullptr, nullptr);
+  DestroyReadPng(png_structp png, png_infop info)
+    : png(png)
+    , info(info)
+  {
+  }
+  ~DestroyReadPng()
+  {
+    png_destroy_read_struct(&png, info ? &info : nullptr, nullptr);
   }
 };
 
 class DestroyWritePng {
   png_structp png;
   png_infop info;
+
 public:
-  DestroyWritePng(png_structp png, png_infop info) : png(png), info(info) { }
-  ~DestroyWritePng() {
-    png_destroy_write_struct(&png, info ? &info: nullptr);
+  DestroyWritePng(png_structp png, png_infop info)
+    : png(png)
+    , info(info)
+  {
   }
+  ~DestroyWritePng() { png_destroy_write_struct(&png, info ? &info : nullptr); }
 };
 
 // As in png_fixed_point_to_float() in skia/src/codec/SkPngCodec.cpp
@@ -139,20 +144,18 @@ int png_user_chunk(png_structp png, png_unknown_chunkp unknown)
 
   PngOptions::Chunk chunk;
   chunk.location = unknown->location;
-  for (int i=0; i<4; ++i)
+  for (int i = 0; i < 4; ++i)
     chunk.name.push_back(unknown->name[i]);
   if (unknown->size > 0) {
     chunk.data.resize(unknown->size);
-    std::copy(unknown->data,
-              unknown->data+unknown->size,
-              chunk.data.begin());
+    std::copy(unknown->data, unknown->data + unknown->size, chunk.data.begin());
   }
   opts->addChunk(std::move(chunk));
 
   return 1;
 }
 
-} // anonymous namespace
+}  // anonymous namespace
 
 bool PngFormat::onLoad(FileOp* fop)
 {
@@ -173,9 +176,8 @@ bool PngFormat::onLoad(FileOp* fop)
    * the compiler header file version, so that we know if the application
    * was compiled with a compatible version of the library
    */
-  png_structp png =
-    png_create_read_struct(PNG_LIBPNG_VER_STRING, (png_voidp)fop,
-                           report_png_error, report_png_error);
+  png_structp png = png_create_read_struct(
+    PNG_LIBPNG_VER_STRING, (png_voidp)fop, report_png_error, report_png_error);
   if (png == nullptr) {
     fop->setError("png_create_read_struct\n");
     return false;
@@ -217,9 +219,15 @@ bool PngFormat::onLoad(FileOp* fop)
    */
   png_read_info(png, info);
 
-  png_get_IHDR(png, info, &width, &height, &bit_depth, &color_type,
-               &interlace_type, NULL, NULL);
-
+  png_get_IHDR(png,
+               info,
+               &width,
+               &height,
+               &bit_depth,
+               &color_type,
+               &interlace_type,
+               NULL,
+               NULL);
 
   /* Set up the data transformations you want.  Note that these are all
    * optional.  Only call them if you want/need them.  Many of the
@@ -252,7 +260,6 @@ bool PngFormat::onLoad(FileOp* fop)
 
   /* create the output image */
   switch (png_get_color_type(png, info)) {
-
     case PNG_COLOR_TYPE_RGB_ALPHA:
       fop->sequenceSetHasAlpha(true);
       [[fallthrough]];
@@ -278,8 +285,8 @@ bool PngFormat::onLoad(FileOp* fop)
 
   int imageWidth = png_get_image_width(png, info);
   int imageHeight = png_get_image_height(png, info);
-  ImageRef image = fop->sequenceImageToLoad(
-    pixelFormat, imageWidth, imageHeight);
+  ImageRef image =
+    fop->sequenceImageToLoad(pixelFormat, imageWidth, imageHeight);
   if (!image)
     return false;
 
@@ -291,15 +298,13 @@ bool PngFormat::onLoad(FileOp* fop)
       png_get_PLTE(png, info, &palette, &num_palette)) {
     fop->sequenceSetNColors(num_palette);
 
-    for (int c=0; c<num_palette; ++c) {
-      fop->sequenceSetColor(c,
-                            palette[c].red,
-                            palette[c].green,
-                            palette[c].blue);
+    for (int c = 0; c < num_palette; ++c) {
+      fop->sequenceSetColor(
+        c, palette[c].red, palette[c].green, palette[c].blue);
     }
 
     // Read alpha values for palette entries
-    png_bytep trans = NULL;     // Transparent palette entries
+    png_bytep trans = NULL;  // Transparent palette entries
     int num_trans = 0;
     int mask_entry = -1;
 
@@ -309,7 +314,7 @@ bool PngFormat::onLoad(FileOp* fop)
       fop->sequenceSetAlpha(i, trans[i]);
 
       if (trans[i] < 255) {
-        fop->sequenceSetHasAlpha(true); // Is a transparent sprite
+        fop->sequenceSetHasAlpha(true);  // Is a transparent sprite
         if (trans[i] == 0) {
           if (mask_entry < 0)
             mask_entry = i;
@@ -329,13 +334,13 @@ bool PngFormat::onLoad(FileOp* fop)
   for (y = 0; y < height; y++)
     rows_pointer[y] = (png_bytep)png_malloc(png, png_get_rowbytes(png, info));
 
-  for (int pass=0; pass<number_passes; ++pass) {
+  for (int pass = 0; pass < number_passes; ++pass) {
     for (y = 0; y < height; y++) {
-      png_read_rows(png, rows_pointer+y, nullptr, 1);
+      png_read_rows(png, rows_pointer + y, nullptr, 1);
 
       fop->setProgress(
-        (double)((double)pass + (double)(y+1) / (double)(height))
-        / (double)number_passes);
+        (double)((double)pass + (double)(y + 1) / (double)(height)) /
+        (double)number_passes);
 
       if (fop->isStop())
         break;
@@ -350,7 +355,7 @@ bool PngFormat::onLoad(FileOp* fop)
       uint32_t* dst_address = (uint32_t*)image->getPixelAddress(0, y);
       unsigned int x, r, g, b, a;
 
-      for (x=0; x<width; x++) {
+      for (x = 0; x < width; x++) {
         r = *(src_address++);
         g = *(src_address++);
         b = *(src_address++);
@@ -364,16 +369,14 @@ bool PngFormat::onLoad(FileOp* fop)
       uint32_t* dst_address = (uint32_t*)image->getPixelAddress(0, y);
       unsigned int x, r, g, b, a;
 
-      for (x=0; x<width; x++) {
+      for (x = 0; x < width; x++) {
         r = *(src_address++);
         g = *(src_address++);
         b = *(src_address++);
 
         // Transparent color
-        if (png_trans_color &&
-            r == png_trans_color->red &&
-            g == png_trans_color->green &&
-            b == png_trans_color->blue) {
+        if (png_trans_color && r == png_trans_color->red &&
+            g == png_trans_color->green && b == png_trans_color->blue) {
           a = 0;
           if (!fop->sequenceGetHasAlpha())
             fop->sequenceSetHasAlpha(true);
@@ -390,7 +393,7 @@ bool PngFormat::onLoad(FileOp* fop)
       uint16_t* dst_address = (uint16_t*)image->getPixelAddress(0, y);
       unsigned int x, k, a;
 
-      for (x=0; x<width; x++) {
+      for (x = 0; x < width; x++) {
         k = *(src_address++);
         a = *(src_address++);
         *(dst_address++) = graya(k, a);
@@ -402,12 +405,11 @@ bool PngFormat::onLoad(FileOp* fop)
       uint16_t* dst_address = (uint16_t*)image->getPixelAddress(0, y);
       unsigned int x, k, a;
 
-      for (x=0; x<width; x++) {
+      for (x = 0; x < width; x++) {
         k = *(src_address++);
 
         // Transparent color
-        if (png_trans_color &&
-            k == png_trans_color->gray) {
+        if (png_trans_color && k == png_trans_color->gray) {
           a = 0;
           if (!fop->sequenceGetHasAlpha())
             fop->sequenceSetHasAlpha(true);
@@ -424,7 +426,7 @@ bool PngFormat::onLoad(FileOp* fop)
       uint8_t* dst_address = (uint8_t*)image->getPixelAddress(0, y);
       unsigned int x;
 
-      for (x=0; x<width; x++)
+      for (x = 0; x < width; x++)
         *(dst_address++) = *(src_address++);
     }
     png_free(png, rows_pointer[y]);
@@ -435,11 +437,11 @@ bool PngFormat::onLoad(FileOp* fop)
   auto colorSpace = PngFormat::loadColorSpace(png, info);
   if (colorSpace)
     fop->setEmbeddedColorProfile();
-  else { // sRGB is the default PNG color space.
+  else {  // sRGB is the default PNG color space.
     colorSpace = gfx::ColorSpace::MakeSRGB();
   }
-  if (colorSpace &&
-      fop->document()->sprite()->colorSpace()->type() == gfx::ColorSpace::None) {
+  if (colorSpace && fop->document()->sprite()->colorSpace()->type() ==
+                      gfx::ColorSpace::None) {
     fop->document()->sprite()->setColorSpace(colorSpace);
     fop->document()->notifyColorSpaceChanged();
   }
@@ -458,7 +460,8 @@ bool PngFormat::onLoad(FileOp* fop)
 //
 // Code to read color spaces from png files from Skia (SkPngCodec.cpp)
 // by Google Inc.
-gfx::ColorSpaceRef PngFormat::loadColorSpace(png_structp png_ptr, png_infop info_ptr)
+gfx::ColorSpaceRef PngFormat::loadColorSpace(png_structp png_ptr,
+                                             png_infop info_ptr)
 {
   // First check for an ICC profile
   png_bytep profile;
@@ -471,9 +474,8 @@ gfx::ColorSpaceRef PngFormat::loadColorSpace(png_structp png_ptr, png_infop info
   //   (1) libpng has already decompressed the profile for us.
   //   (2) "deflate" is the only mode of decompression that libpng supports.
   int compression;
-  if (PNG_INFO_iCCP == png_get_iCCP(png_ptr, info_ptr,
-                                    &name, &compression,
-                                    &profile, &length)) {
+  if (PNG_INFO_iCCP ==
+      png_get_iCCP(png_ptr, info_ptr, &name, &compression, &profile, &length)) {
     auto colorSpace = gfx::ColorSpace::MakeICC(profile, length);
     if (name)
       colorSpace->setName(name);
@@ -489,13 +491,17 @@ gfx::ColorSpaceRef PngFormat::loadColorSpace(png_structp png_ptr, png_infop info
 
   // Next, check for chromaticities.
   png_fixed_point wx, wy, rx, ry, gx, gy, bx, by, invGamma;
-  if (png_get_cHRM_fixed(png_ptr, info_ptr,
-                         &wx, &wy, &rx, &ry, &gx, &gy, &bx, &by)) {
+  if (png_get_cHRM_fixed(
+        png_ptr, info_ptr, &wx, &wy, &rx, &ry, &gx, &gy, &bx, &by)) {
     gfx::ColorSpacePrimaries primaries;
-    primaries.wx = png_fixtof(wx); primaries.wy = png_fixtof(wy);
-    primaries.rx = png_fixtof(rx); primaries.ry = png_fixtof(ry);
-    primaries.gx = png_fixtof(gx); primaries.gy = png_fixtof(gy);
-    primaries.bx = png_fixtof(bx); primaries.by = png_fixtof(by);
+    primaries.wx = png_fixtof(wx);
+    primaries.wy = png_fixtof(wy);
+    primaries.rx = png_fixtof(rx);
+    primaries.ry = png_fixtof(ry);
+    primaries.gx = png_fixtof(gx);
+    primaries.gy = png_fixtof(gy);
+    primaries.bx = png_fixtof(bx);
+    primaries.by = png_fixtof(by);
 
     if (PNG_INFO_gAMA == png_get_gAMA_fixed(png_ptr, info_ptr, &invGamma)) {
       gfx::ColorSpaceTransferFn fn;
@@ -530,12 +536,12 @@ bool PngFormat::onSave(FileOp* fop)
   png_bytep row_pointer;
   int color_type = 0;
 
-  FileHandle handle(open_file_with_exception_sync_on_close(fop->filename(), "wb"));
+  FileHandle handle(
+    open_file_with_exception_sync_on_close(fop->filename(), "wb"));
   FILE* fp = handle.get();
 
-  png_structp png =
-    png_create_write_struct(PNG_LIBPNG_VER_STRING, (png_voidp)fop,
-                            report_png_error, report_png_error);
+  png_structp png = png_create_write_struct(
+    PNG_LIBPNG_VER_STRING, (png_voidp)fop, report_png_error, report_png_error);
   if (png == nullptr)
     return false;
 
@@ -558,17 +564,13 @@ bool PngFormat::onSave(FileOp* fop)
   switch (spec.colorMode()) {
     case ColorMode::RGB:
       color_type =
-        (img->needAlpha() ||
-         fix_one_alpha_pixel ?
-         PNG_COLOR_TYPE_RGB_ALPHA:
-         PNG_COLOR_TYPE_RGB);
+        (img->needAlpha() || fix_one_alpha_pixel ? PNG_COLOR_TYPE_RGB_ALPHA :
+                                                   PNG_COLOR_TYPE_RGB);
       break;
     case ColorMode::GRAYSCALE:
       color_type =
-        (img->needAlpha() ||
-         fix_one_alpha_pixel ?
-         PNG_COLOR_TYPE_GRAY_ALPHA:
-         PNG_COLOR_TYPE_GRAY);
+        (img->needAlpha() || fix_one_alpha_pixel ? PNG_COLOR_TYPE_GRAY_ALPHA :
+                                                   PNG_COLOR_TYPE_GRAY);
       break;
     case ColorMode::INDEXED:
       if (fix_one_alpha_pixel)
@@ -581,8 +583,15 @@ bool PngFormat::onSave(FileOp* fop)
   const png_uint_32 width = spec.width();
   const png_uint_32 height = spec.height();
 
-  png_set_IHDR(png, info, width, height, 8, color_type,
-               PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+  png_set_IHDR(png,
+               info,
+               width,
+               height,
+               8,
+               color_type,
+               PNG_INTERLACE_NONE,
+               PNG_COMPRESSION_TYPE_BASE,
+               PNG_FILTER_TYPE_BASE);
 
   // User chunks
   auto opts = fop->formatOptionsOfDocument<PngOptions>();
@@ -593,9 +602,8 @@ bool PngFormat::onSave(FileOp* fop)
     int i = 0;
     for (const auto& chunk : opts->chunks()) {
       png_unknown_chunk& unknown = unknowns[i];
-      for (int i=0; i<5; ++i) {
-        unknown.name[i] =
-          (i < int(chunk.name.size()) ? chunk.name[i]: 0);
+      for (int i = 0; i < 5; ++i) {
+        unknown.name[i] = (i < int(chunk.name.size()) ? chunk.name[i] : 0);
       }
       PNG_TRACE("PNG: Write unknown chunk '%c%c%c%c'\n",
                 unknown.name[0],
@@ -619,17 +627,17 @@ bool PngFormat::onSave(FileOp* fop)
     int pal_size = fop->sequenceGetNColors();
     pal_size = std::clamp(pal_size, 1, PNG_MAX_PALETTE_LENGTH);
 
-#if PNG_MAX_PALETTE_LENGTH != 256
-#error PNG_MAX_PALETTE_LENGTH should be 256
-#endif
+  #if PNG_MAX_PALETTE_LENGTH != 256
+    #error PNG_MAX_PALETTE_LENGTH should be 256
+  #endif
 
     // Save the color palette.
     palette = (png_colorp)png_malloc(png, pal_size * sizeof(png_color));
     for (c = 0; c < pal_size; c++) {
       fop->sequenceGetColor(c, &r, &g, &b);
-      palette[c].red   = r;
+      palette[c].red = r;
       palette[c].green = g;
-      palette[c].blue  = b;
+      palette[c].blue = b;
     }
 
     png_set_PLTE(png, info, palette, pal_size);
@@ -646,10 +654,10 @@ bool PngFormat::onSave(FileOp* fop)
     int num_trans = pal_size;
     png_bytep trans = (png_bytep)png_malloc(png, num_trans);
 
-    for (c=0; c<num_trans; ++c) {
+    for (c = 0; c < num_trans; ++c) {
       int alpha = 255;
       fop->sequenceGetAlpha(c, &alpha);
-      trans[c] = (c == mask_entry ? 0: alpha);
+      trans[c] = (c == mask_entry ? 0 : alpha);
       if (alpha < 255)
         all_opaque = false;
     }
@@ -665,7 +673,7 @@ bool PngFormat::onSave(FileOp* fop)
 
   row_pointer = (png_bytep)png_malloc(png, png_get_rowbytes(png, info));
 
-  for (png_uint_32 y=0; y<height; ++y) {
+  for (png_uint_32 y = 0; y < height; ++y) {
     uint8_t* dst_address = row_pointer;
 
     if (png_get_color_type(png, info) == PNG_COLOR_TYPE_RGB_ALPHA) {
@@ -675,14 +683,14 @@ bool PngFormat::onSave(FileOp* fop)
       if (spec.colorMode() == ColorMode::RGB) {
         auto src_address = (const uint32_t*)img->getScanline(y);
 
-        for (x=0; x<width; ++x) {
+        for (x = 0; x < width; ++x) {
           c = *(src_address++);
           a = rgba_geta(c);
 
           if (opaque) {
             if (a < 255)
               opaque = false;
-            else if (fix_one_alpha_pixel && x == width-1 && y == height-1)
+            else if (fix_one_alpha_pixel && x == width - 1 && y == height - 1)
               a = 254;
           }
 
@@ -700,7 +708,7 @@ bool PngFormat::onSave(FileOp* fop)
         int r, g, b, a;
         bool opaque = true;
 
-        for (x=0; x<width; ++x) {
+        for (x = 0; x < width; ++x) {
           c = *(src_address++);
           fop->sequenceGetColor(c, &r, &g, &b);
           fop->sequenceGetAlpha(c, &a);
@@ -708,7 +716,7 @@ bool PngFormat::onSave(FileOp* fop)
           if (opaque) {
             if (a < 255)
               opaque = false;
-            else if (fix_one_alpha_pixel && x == width-1 && y == height-1)
+            else if (fix_one_alpha_pixel && x == width - 1 && y == height - 1)
               a = 254;
           }
 
@@ -723,7 +731,7 @@ bool PngFormat::onSave(FileOp* fop)
       auto src_address = (const uint32_t*)img->getScanline(y);
       unsigned int x, c;
 
-      for (x=0; x<width; ++x) {
+      for (x = 0; x < width; ++x) {
         c = *(src_address++);
         *(dst_address++) = rgba_getr(c);
         *(dst_address++) = rgba_getg(c);
@@ -735,14 +743,14 @@ bool PngFormat::onSave(FileOp* fop)
       unsigned int x, c, a;
       bool opaque = true;
 
-      for (x=0; x<width; x++) {
+      for (x = 0; x < width; x++) {
         c = *(src_address++);
         a = graya_geta(c);
 
         if (opaque) {
           if (a < 255)
             opaque = false;
-          else if (fix_one_alpha_pixel && x == width-1 && y == height-1)
+          else if (fix_one_alpha_pixel && x == width - 1 && y == height - 1)
             a = 254;
         }
 
@@ -754,7 +762,7 @@ bool PngFormat::onSave(FileOp* fop)
       auto src_address = (const uint16_t*)img->getScanline(y);
       unsigned int x, c;
 
-      for (x=0; x<width; ++x) {
+      for (x = 0; x < width; ++x) {
         c = *(src_address++);
         *(dst_address++) = graya_getv(c);
       }
@@ -763,13 +771,13 @@ bool PngFormat::onSave(FileOp* fop)
       auto src_address = (const uint8_t*)img->getScanline(y);
       unsigned int x;
 
-      for (x=0; x<width; ++x)
+      for (x = 0; x < width; ++x)
         *(dst_address++) = *(src_address++);
     }
 
     png_write_rows(png, &row_pointer, 1);
 
-    fop->setProgress((double)(y+1) / (double)(height));
+    fop->setProgress((double)(y + 1) / (double)(height));
   }
 
   png_free(png, row_pointer);
@@ -783,11 +791,11 @@ bool PngFormat::onSave(FileOp* fop)
   return true;
 }
 
-void PngFormat::saveColorSpace(png_structp png_ptr, png_infop info_ptr,
+void PngFormat::saveColorSpace(png_structp png_ptr,
+                               png_infop info_ptr,
                                const gfx::ColorSpace* colorSpace)
 {
   switch (colorSpace->type()) {
-
     case gfx::ColorSpace::None:
       // Do just nothing (png file without profile, like old Aseprite versions)
       break;
@@ -805,31 +813,36 @@ void PngFormat::saveColorSpace(png_structp png_ptr, png_infop info_ptr,
     case gfx::ColorSpace::RGB: {
       if (colorSpace->hasPrimaries()) {
         const gfx::ColorSpacePrimaries* p = colorSpace->primaries();
-        png_set_cHRM_fixed(png_ptr, info_ptr,
-                           png_ftofix(p->wx), png_ftofix(p->wy),
-                           png_ftofix(p->rx), png_ftofix(p->ry),
-                           png_ftofix(p->gx), png_ftofix(p->gy),
-                           png_ftofix(p->bx), png_ftofix(p->by));
+        png_set_cHRM_fixed(png_ptr,
+                           info_ptr,
+                           png_ftofix(p->wx),
+                           png_ftofix(p->wy),
+                           png_ftofix(p->rx),
+                           png_ftofix(p->ry),
+                           png_ftofix(p->gx),
+                           png_ftofix(p->gy),
+                           png_ftofix(p->bx),
+                           png_ftofix(p->by));
       }
       if (colorSpace->hasGamma()) {
-        png_set_gAMA_fixed(png_ptr, info_ptr,
-                           png_ftofix(1.0f / colorSpace->gamma()));
+        png_set_gAMA_fixed(
+          png_ptr, info_ptr, png_ftofix(1.0f / colorSpace->gamma()));
       }
       break;
     }
 
     case gfx::ColorSpace::ICC: {
-      png_set_iCCP(png_ptr, info_ptr,
+      png_set_iCCP(png_ptr,
+                   info_ptr,
                    (png_const_charp)colorSpace->name().c_str(),
                    PNG_COMPRESSION_TYPE_DEFAULT,
                    (png_const_bytep)colorSpace->iccData(),
                    (png_uint_32)colorSpace->iccSize());
       break;
     }
-
   }
 }
 
 #endif  // ENABLE_SAVE
 
-} // namespace app
+}  // namespace app

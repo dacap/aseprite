@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -43,7 +43,7 @@ public:
     DUPLICATE_CELS,
     DUPLICATE_CELS_COPIES,
     DUPLICATE_CELS_LINKED,
-   };
+  };
 
   NewFrameCommand();
 
@@ -67,15 +67,13 @@ void NewFrameCommand::onLoadParams(const Params& params)
   m_content = Content::DUPLICATE_FRAME;
 
   std::string content = params.get("content");
-  if (content == "current" ||
-      content == "frame")
+  if (content == "current" || content == "frame")
     m_content = Content::DUPLICATE_FRAME;
   else if (content == "empty")
     m_content = Content::NEW_EMPTY_FRAME;
   else if (content == "cel")
     m_content = Content::DUPLICATE_CELS;
-  else if (content == "celblock" ||
-           content == "celcopies")
+  else if (content == "celblock" || content == "celcopies")
     m_content = Content::DUPLICATE_CELS_COPIES;
   else if (content == "cellinked")
     m_content = Content::DUPLICATE_CELS_LINKED;
@@ -103,13 +101,12 @@ void NewFrameCommand::onExecute(Context* context)
     DocApi api = document->getApi(tx);
 
     switch (m_content) {
-
       case Content::DUPLICATE_FRAME:
-        api.addFrame(sprite, writer.frame()+1);
+        api.addFrame(sprite, writer.frame() + 1);
         break;
 
       case Content::NEW_EMPTY_FRAME:
-        api.addEmptyFrame(sprite, writer.frame()+1);
+        api.addEmptyFrame(sprite, writer.frame() + 1);
         break;
 
       case Content::DUPLICATE_CELS:
@@ -117,13 +114,16 @@ void NewFrameCommand::onExecute(Context* context)
       case Content::DUPLICATE_CELS_COPIES: {
         std::unique_ptr<bool> continuous = nullptr;
         switch (m_content) {
-          case Content::DUPLICATE_CELS_COPIES: continuous.reset(new bool(false)); break;
-          case Content::DUPLICATE_CELS_LINKED: continuous.reset(new bool(true)); break;
+          case Content::DUPLICATE_CELS_COPIES:
+            continuous.reset(new bool(false));
+            break;
+          case Content::DUPLICATE_CELS_LINKED:
+            continuous.reset(new bool(true));
+            break;
         }
 
         const Site* site = writer.site();
-        if (site->inTimeline() &&
-            !site->selectedLayers().empty() &&
+        if (site->inTimeline() && !site->selectedLayers().empty() &&
             !site->selectedFrames().empty()) {
           auto timeline = App::instance()->timeline();
           timeline->prepareToMoveRange();
@@ -137,17 +137,18 @@ void NewFrameCommand::onExecute(Context* context)
             selLayers.expandCollapsedGroups();
           }
 
-          frame_t frameRange =
-            (site->selectedFrames().lastFrame() -
-             site->selectedFrames().firstFrame() + 1);
+          frame_t frameRange = (site->selectedFrames().lastFrame() -
+                                site->selectedFrames().firstFrame() + 1);
 
           for (Layer* layer : selLayers) {
             if (layer->isImage()) {
               for (frame_t srcFrame : site->selectedFrames().reversed()) {
-                frame_t dstFrame = srcFrame+frameRange;
-                api.copyCel(
-                  static_cast<LayerImage*>(layer), srcFrame,
-                  static_cast<LayerImage*>(layer), dstFrame, continuous.get());
+                frame_t dstFrame = srcFrame + frameRange;
+                api.copyCel(static_cast<LayerImage*>(layer),
+                            srcFrame,
+                            static_cast<LayerImage*>(layer),
+                            dstFrame,
+                            continuous.get());
               }
             }
           }
@@ -157,10 +158,9 @@ void NewFrameCommand::onExecute(Context* context)
         }
         else if (auto layer = static_cast<LayerImage*>(writer.layer())) {
           api.copyCel(
-            layer, writer.frame(),
-            layer, writer.frame()+1, continuous.get());
+            layer, writer.frame(), layer, writer.frame() + 1, continuous.get());
 
-          context->setActiveFrame(writer.frame()+1);
+          context->setActiveFrame(writer.frame() + 1);
         }
         break;
       }
@@ -173,9 +173,9 @@ void NewFrameCommand::onExecute(Context* context)
     update_screen_for_document(document);
 
     StatusBar::instance()->showTip(
-      1000, Strings::commands_NewFrame_tooltip(
-        (int)context->activeSite().frame()+1,
-        (int)sprite->totalFrames()));
+      1000,
+      Strings::commands_NewFrame_tooltip((int)context->activeSite().frame() + 1,
+                                         (int)sprite->totalFrames()));
 
     App::instance()->mainWindow()->popTimeline();
   }
@@ -211,4 +211,4 @@ Command* CommandFactory::createNewFrameCommand()
   return new NewFrameCommand;
 }
 
-} // namespace app
+}  // namespace app

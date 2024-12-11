@@ -6,14 +6,14 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "gfx/point.h"
 #include "gfx/size.h"
 #include "ui/message.h"
-#include "ui/size_hint_event.h"
 #include "ui/resize_event.h"
+#include "ui/size_hint_event.h"
 #include "ui/theme.h"
 #include "ui/view.h"
 #include "ui/viewport.h"
@@ -59,8 +59,7 @@ void Viewport::onResize(ResizeEvent& ev)
 
 void Viewport::onSizeHint(SizeHintEvent& ev)
 {
-  ev.setSizeHint(gfx::Size(1 + border().width(),
-                           1 + border().height()));
+  ev.setSizeHint(gfx::Size(1 + border().width(), 1 + border().height()));
 }
 
 void Viewport::onPaint(PaintEvent& ev)
@@ -82,4 +81,4 @@ Size Viewport::calculateNeededSize()
   return maxSize;
 }
 
-} // namespace ui
+}  // namespace ui

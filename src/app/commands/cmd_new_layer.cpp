@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -49,27 +49,27 @@
 #include "new_layer.xml.h"
 
 #include <algorithm>
+#include <cstdlib>
 #include <cstring>
 #include <string>
-#include <cstdlib>
 
 namespace app {
 
 using namespace ui;
 
 struct NewLayerParams : public NewParams {
-  Param<std::string> name { this, std::string(), "name" };
-  Param<bool> group { this, false, "group" };
-  Param<bool> reference { this, false, "reference" };
-  Param<bool> tilemap { this, false, "tilemap" };
-  Param<gfx::Rect> gridBounds { this, gfx::Rect(), "gridBounds" };
-  Param<bool> ask { this, false, "ask" };
-  Param<bool> fromFile { this, false, { "fromFile", "from-file" } };
-  Param<bool> fromClipboard { this, false, "fromClipboard" };
-  Param<bool> viaCut { this, false, "viaCut" };
-  Param<bool> viaCopy { this, false, "viaCopy" };
-  Param<bool> top { this, false, "top" };
-  Param<bool> before { this, false, "before" };
+  Param<std::string> name{ this, std::string(), "name" };
+  Param<bool> group{ this, false, "group" };
+  Param<bool> reference{ this, false, "reference" };
+  Param<bool> tilemap{ this, false, "tilemap" };
+  Param<gfx::Rect> gridBounds{ this, gfx::Rect(), "gridBounds" };
+  Param<bool> ask{ this, false, "ask" };
+  Param<bool> fromFile{ this, false, { "fromFile", "from-file" } };
+  Param<bool> fromClipboard{ this, false, "fromClipboard" };
+  Param<bool> viaCut{ this, false, "viaCut" };
+  Param<bool> viaCopy{ this, false, "viaCopy" };
+  Param<bool> top{ this, false, "top" };
+  Param<bool> before{ this, false, "before" };
 };
 
 class NewLayerCommand : public CommandWithNewParams<NewLayerParams> {
@@ -132,8 +132,7 @@ bool NewLayerCommand::onEnabled(Context* ctx)
       ctx->clipboard()->format() != ClipboardFormat::Image)
     return false;
 
-  if ((params().viaCut() ||
-       params().viaCopy()) &&
+  if ((params().viaCut() || params().viaCopy()) &&
       !ctx->checkFlags(ContextFlags::HasVisibleMask))
     return false;
 
@@ -141,14 +140,18 @@ bool NewLayerCommand::onEnabled(Context* ctx)
 }
 
 namespace {
-class Scoped {                  // TODO move this to base library
+class Scoped {  // TODO move this to base library
 public:
-  Scoped(const std::function<void()>& func) : m_func(func) { }
+  Scoped(const std::function<void()>& func)
+    : m_func(func)
+  {
+  }
   ~Scoped() { m_func(); }
+
 private:
   std::function<void()> m_func;
 };
-}
+}  // namespace
 
 void NewLayerCommand::onExecute(Context* context)
 {
@@ -164,19 +167,18 @@ void NewLayerCommand::onExecute(Context* context)
   const bool showTooltip = (document->transaction() == nullptr);
 
   Doc* pasteDoc = nullptr;
-  Scoped destroyPasteDoc(
-    [&pasteDoc, context]{
-      if (pasteDoc) {
-        try {
-          DocDestroyer destroyer(context, pasteDoc, 1000);
-          destroyer.destroyDocument();
-        }
-        catch (const CannotWriteDocException& e) {
-          LOG(ERROR, "%s\n", e.what());
-          Console::showException(e);
-        }
+  Scoped destroyPasteDoc([&pasteDoc, context] {
+    if (pasteDoc) {
+      try {
+        DocDestroyer destroyer(context, pasteDoc, 1000);
+        destroyer.destroyDocument();
       }
-    });
+      catch (const CannotWriteDocException& e) {
+        LOG(ERROR, "%s\n", e.what());
+        Console::showException(e);
+      }
+    }
+  });
 
   // Default name
   if (params().name.isSet())
@@ -198,8 +200,7 @@ void NewLayerCommand::onExecute(Context* context)
       if (pasteDoc)
         pasteDoc->setInhibitBackup(true);
 
-      static_cast<UIContext*>(context)
-        ->setActiveDocument(oldActiveDocument);
+      static_cast<UIContext*>(context)->setActiveDocument(oldActiveDocument);
     }
     // If the user didn't selected a new document, it means that the
     // file selector dialog was canceled.
@@ -210,11 +211,11 @@ void NewLayerCommand::onExecute(Context* context)
   // Information about the tileset to be used for new tilemaps
   TilesetSelector::Info tilesetInfo;
   tilesetInfo.newTileset = true;
-  tilesetInfo.grid = (params().gridBounds().isEmpty() ?
-                      context->activeSite().grid():
-                      doc::Grid(params().gridBounds()));
+  tilesetInfo.grid =
+    (params().gridBounds().isEmpty() ? context->activeSite().grid() :
+                                       doc::Grid(params().gridBounds()));
   tilesetInfo.baseIndex = 1;
-  tilesetInfo.matchFlags = 0;   // TODO default flags?
+  tilesetInfo.matchFlags = 0;  // TODO default flags?
 
   // If params specify to ask the user about the name...
   if (params().ask() && context->isUIAvailable()) {
@@ -254,8 +255,7 @@ void NewLayerCommand::onExecute(Context* context)
   Layer* activeLayer = reader.layer();
   SelectedLayers selLayers = site.selectedLayers();
   if (activeLayer) {
-    if (activeLayer->isGroup() &&
-        activeLayer->isExpanded() &&
+    if (activeLayer->isGroup() && activeLayer->isExpanded() &&
         m_type != Type::Group) {
       parent = static_cast<LayerGroup*>(activeLayer);
       activeLayer = nullptr;
@@ -330,9 +330,7 @@ void NewLayerCommand::onExecute(Context* context)
     }
     // Move the layer above the active one.
     else if (activeLayer && m_place == Place::AfterActiveLayer) {
-      api.restackLayerAfter(layer,
-                            activeLayer->parent(),
-                            activeLayer);
+      api.restackLayerAfter(layer, activeLayer->parent(), activeLayer);
     }
 
     // Put all selected layers inside the group
@@ -340,8 +338,7 @@ void NewLayerCommand::onExecute(Context* context)
       LayerGroup* commonParent = nullptr;
       layer_t sameParents = 0;
       for (Layer* l : selLayers) {
-        if (!commonParent ||
-            commonParent == l->parent()) {
+        if (!commonParent || commonParent == l->parent()) {
           commonParent = l->parent();
           ++sameParents;
         }
@@ -349,9 +346,8 @@ void NewLayerCommand::onExecute(Context* context)
 
       if (sameParents == selLayers.size()) {
         for (Layer* newChild : selLayers.toBrowsableLayerList()) {
-          tx(
-            new cmd::MoveLayer(newChild, layer,
-                               static_cast<LayerGroup*>(layer)->lastLayer()));
+          tx(new cmd::MoveLayer(
+            newChild, layer, static_cast<LayerGroup*>(layer)->lastLayer()));
         }
       }
     }
@@ -364,34 +360,29 @@ void NewLayerCommand::onExecute(Context* context)
       render.setBgOptions(render::BgOptions::MakeNone());
 
       // Add more frames at the end
-      if (writer.frame()+pasteSpr->lastFrame() > sprite->lastFrame())
-        api.addEmptyFramesTo(sprite, writer.frame()+pasteSpr->lastFrame());
+      if (writer.frame() + pasteSpr->lastFrame() > sprite->lastFrame())
+        api.addEmptyFramesTo(sprite, writer.frame() + pasteSpr->lastFrame());
 
       // Paste the given sprite as flatten
-      for (frame_t fr=0; fr<=pasteSpr->lastFrame(); ++fr) {
-        ImageRef pasteImage(
-          Image::create(
-            pasteSpr->pixelFormat(),
-            pasteSpr->width(),
-            pasteSpr->height()));
-        clear_image(pasteImage.get(),
-                    pasteSpr->transparentColor());
+      for (frame_t fr = 0; fr <= pasteSpr->lastFrame(); ++fr) {
+        ImageRef pasteImage(Image::create(
+          pasteSpr->pixelFormat(), pasteSpr->width(), pasteSpr->height()));
+        clear_image(pasteImage.get(), pasteSpr->transparentColor());
         render.renderSprite(pasteImage.get(), pasteSpr, fr);
 
-        frame_t dstFrame = writer.frame()+fr;
+        frame_t dstFrame = writer.frame() + fr;
 
         if (sprite->pixelFormat() != pasteSpr->pixelFormat() ||
             sprite->pixelFormat() == IMAGE_INDEXED) {
-          ImageRef pasteImageConv(
-            render::convert_pixel_format(
-              pasteImage.get(),
-              nullptr,
-              sprite->pixelFormat(),
-              render::Dithering(),
-              sprite->rgbMap(dstFrame),
-              pasteSpr->palette(fr),
-              (pasteSpr->backgroundLayer() ? true: false),
-              sprite->transparentColor()));
+          ImageRef pasteImageConv(render::convert_pixel_format(
+            pasteImage.get(),
+            nullptr,
+            sprite->pixelFormat(),
+            render::Dithering(),
+            sprite->rgbMap(dstFrame),
+            pasteSpr->palette(fr),
+            (pasteSpr->backgroundLayer() ? true : false),
+            sprite->transparentColor()));
           if (pasteImageConv)
             pasteImage = pasteImageConv;
         }
@@ -401,8 +392,8 @@ void NewLayerCommand::onExecute(Context* context)
           api.replaceImage(sprite, cel->imageRef(), pasteImage);
         }
         else {
-          cel = api.addCel(static_cast<LayerImage*>(layer),
-                           dstFrame, pasteImage);
+          cel =
+            api.addCel(static_cast<LayerImage*>(layer), dstFrame, pasteImage);
         }
 
         if (cel) {
@@ -411,8 +402,8 @@ void NewLayerCommand::onExecute(Context* context)
               cel, gfx::RectF(0, 0, pasteSpr->width(), pasteSpr->height()));
           }
           else {
-            cel->setPosition(sprite->width()/2 - pasteSpr->width()/2,
-                             sprite->height()/2 - pasteSpr->height()/2);
+            cel->setPosition(sprite->width() / 2 - pasteSpr->width() / 2,
+                             sprite->height() / 2 - pasteSpr->height() / 2);
           }
         }
       }
@@ -423,14 +414,13 @@ void NewLayerCommand::onExecute(Context* context)
 
       if (layer->isReference()) {
         if (Cel* cel = layer->cel(site.frame())) {
-          adjustRefCelBounds(
-            cel, cel->boundsF());
+          adjustRefCelBounds(cel, cel->boundsF());
         }
       }
     }
     // Paste new layer from selection
-    else if ((params().viaCut() || params().viaCopy())
-             && document->isMaskVisible()) {
+    else if ((params().viaCut() || params().viaCopy()) &&
+             document->isMaskVisible()) {
       const doc::Mask* mask = document->mask();
       ASSERT(mask);
 
@@ -455,8 +445,8 @@ void NewLayerCommand::onExecute(Context* context)
         if (!newImage)
           continue;
 
-        Cel* newCel = api.addCel(static_cast<LayerImage*>(layer),
-                                 frame, newImage);
+        Cel* newCel =
+          api.addCel(static_cast<LayerImage*>(layer), frame, newImage);
         if (newCel) {
           gfx::Point pos = mask->bounds().origin();
           newCel->setPosition(pos.x, pos.y);
@@ -464,12 +454,11 @@ void NewLayerCommand::onExecute(Context* context)
 
         for (Layer* layer : layers) {
           if (!layer->isImage() ||
-              !layer->isEditable()) // Locked layers will not be modified
+              !layer->isEditable())  // Locked layers will not be modified
             continue;
 
           Cel* origCel = layer->cel(site.frame());
-          if (origCel &&
-              params().viaCut()) {
+          if (origCel && params().viaCut()) {
             tx(new cmd::ClearMask(origCel));
 
             if (layer->isTransparent()) {
@@ -490,9 +479,7 @@ void NewLayerCommand::onExecute(Context* context)
     update_screen_for_document(document);
 
     StatusBar::instance()->showTip(
-      1000, fmt::format("{} '{}' created",
-                        layerPrefix(),
-                        name));
+      1000, fmt::format("{} '{}' created", layerPrefix(), name));
 
     App::instance()->mainWindow()->popTimeline();
   }
@@ -523,23 +510,22 @@ void NewLayerCommand::adjustRefCelBounds(Cel* cel, gfx::RectF bounds)
                           double(sprite->height()) / bounds.h);
   bounds.w *= scale;
   bounds.h *= scale;
-  bounds.x = sprite->width()/2 - bounds.w/2;
-  bounds.y = sprite->height()/2 - bounds.h/2;
+  bounds.x = sprite->width() / 2 - bounds.w / 2;
+  bounds.y = sprite->height() / 2 - bounds.h / 2;
   cel->setBoundsF(bounds);
 }
 
 std::string NewLayerCommand::getUniqueLayerName(const Sprite* sprite) const
 {
-  return fmt::format("{} {}",
-                     layerPrefix(),
-                     getMaxLayerNum(sprite->root())+1);
+  return fmt::format(
+    "{} {}", layerPrefix(), getMaxLayerNum(sprite->root()) + 1);
 }
 
 std::string NewLayerCommand::getUniqueTilesetName(const Sprite* sprite) const
 {
   return fmt::format("{} {}",
                      Strings::instance()->tileset_selector_default_name(),
-                     sprite->tilesets()->size()+1);
+                     sprite->tilesets()->size() + 1);
 }
 
 int NewLayerCommand::getMaxLayerNum(const Layer* layer) const
@@ -549,7 +535,7 @@ int NewLayerCommand::getMaxLayerNum(const Layer* layer) const
 
   int max = 0;
   if (std::strncmp(layer->name().c_str(), prefix.c_str(), prefix.size()) == 0)
-    max = std::strtol(layer->name().c_str()+prefix.size(), NULL, 10);
+    max = std::strtol(layer->name().c_str() + prefix.size(), NULL, 10);
 
   if (layer->isGroup()) {
     for (const Layer* child : static_cast<const LayerGroup*>(layer)->layers()) {
@@ -564,10 +550,14 @@ int NewLayerCommand::getMaxLayerNum(const Layer* layer) const
 std::string NewLayerCommand::layerPrefix() const
 {
   switch (m_type) {
-    case Type::Layer: return Strings::commands_NewLayer_Layer();
-    case Type::Group: return Strings::commands_NewLayer_Group();
-    case Type::ReferenceLayer: return Strings::commands_NewLayer_ReferenceLayer();
-    case Type::TilemapLayer: return Strings::commands_NewLayer_TilemapLayer();
+    case Type::Layer:
+      return Strings::commands_NewLayer_Layer();
+    case Type::Group:
+      return Strings::commands_NewLayer_Group();
+    case Type::ReferenceLayer:
+      return Strings::commands_NewLayer_ReferenceLayer();
+    case Type::TilemapLayer:
+      return Strings::commands_NewLayer_TilemapLayer();
   }
   return "Unknown";
 }
@@ -577,4 +567,4 @@ Command* CommandFactory::createNewLayerCommand()
   return new NewLayerCommand;
 }
 
-} // namespace app
+}  // namespace app

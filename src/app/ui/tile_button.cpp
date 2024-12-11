@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/tile_button.h"
@@ -79,7 +79,6 @@ void TileButton::onInitTheme(InitThemeEvent& ev)
 bool TileButton::onProcessMessage(Message* msg)
 {
   switch (msg->type()) {
-
     case kMouseEnterMessage:
       StatusBar::instance()->showTile(0, m_tile);
       break;
@@ -111,7 +110,8 @@ bool TileButton::onProcessMessage(Message* msg)
           gfx::Point screenPos = nativeWindow->pointToScreen(mousePos);
 
           picked = manager()->pickFromScreenPos(screenPos);
-          tileSource = (picked != this ? dynamic_cast<ITileSource*>(picked): nullptr);
+          tileSource =
+            (picked != this ? dynamic_cast<ITileSource*>(picked) : nullptr);
           if (tileSource) {
             nativeWindow = picked->display()->nativeWindow();
             mousePos = nativeWindow->pointFromScreen(screenPos);
@@ -136,7 +136,6 @@ bool TileButton::onProcessMessage(Message* msg)
         return true;
       }
       break;
-
   }
 
   return ButtonBase::onProcessMessage(msg);
@@ -145,8 +144,7 @@ bool TileButton::onProcessMessage(Message* msg)
 void TileButton::onSizeHint(SizeHintEvent& ev)
 {
   ButtonBase::onSizeHint(ev);
-  gfx::Size sz(32*guiscale(),
-               32*guiscale());
+  gfx::Size sz(32 * guiscale(), 32 * guiscale());
   ev.setSizeHint(sz);
 }
 
@@ -162,9 +160,7 @@ void TileButton::onPaint(PaintEvent& ev)
   g->fillRect(bg, rc);
 
   Site site = UIContext::instance()->activeSite();
-  draw_tile_button(g, rc,
-                   site, m_tile,
-                   hasMouse(), false);
+  draw_tile_button(g, rc, site, m_tile, hasMouse(), false);
 
   // Draw text
   if (m_tile != doc::notile) {
@@ -172,8 +168,8 @@ void TileButton::onPaint(PaintEvent& ev)
     if (site.tileset())
       baseIndex = site.tileset()->baseIndex();
 
-    std::string str = fmt::format(
-      "{}", int(doc::tile_geti(m_tile)) + baseIndex - 1);
+    std::string str =
+      fmt::format("{}", int(doc::tile_geti(m_tile)) + baseIndex - 1);
     setTextQuiet(str.c_str());
 
     // TODO calc a proper color for the text
@@ -189,4 +185,4 @@ void TileButton::onActiveSiteChange(const Site& site)
   invalidate();
 }
 
-} // namespace app
+}  // namespace app

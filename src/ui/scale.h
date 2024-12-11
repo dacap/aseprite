@@ -10,10 +10,10 @@
 
 namespace ui {
 
-  // This value is a factor to multiply every screen size/coordinate.
-  // Every icon/graphics/font should be scaled to this factor.
-  int guiscale();
+// This value is a factor to multiply every screen size/coordinate.
+// Every icon/graphics/font should be scaled to this factor.
+int guiscale();
 
-} // namespace ui
+}  // namespace ui
 
 #endif

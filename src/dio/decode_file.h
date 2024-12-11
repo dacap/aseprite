@@ -13,9 +13,8 @@ namespace dio {
 class DecodeDelegate;
 class FileInterface;
 
-bool decode_file(DecodeDelegate* delegate,
-                 FileInterface* f);
+bool decode_file(DecodeDelegate* delegate, FileInterface* f);
 
-} // namespace dio
+}  // namespace dio
 
 #endif

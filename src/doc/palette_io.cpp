@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/palette_io.h"
@@ -30,10 +30,10 @@ using namespace base::serialization::little_endian;
 
 void write_palette(std::ostream& os, const Palette* palette)
 {
-  write16(os, palette->frame()); // Frame
-  write16(os, palette->size());  // Number of colors
+  write16(os, palette->frame());  // Frame
+  write16(os, palette->size());   // Number of colors
 
-  for (int c=0; c<palette->size(); c++) {
+  for (int c = 0; c < palette->size(); c++) {
     uint32_t color = palette->getEntry(c);
     write32(os, color);
   }
@@ -41,12 +41,12 @@ void write_palette(std::ostream& os, const Palette* palette)
 
 Palette* read_palette(std::istream& is)
 {
-  frame_t frame(read16(is)); // Frame
-  int ncolors = read16(is);      // Number of colors
+  frame_t frame(read16(is));  // Frame
+  int ncolors = read16(is);   // Number of colors
 
   std::unique_ptr<Palette> palette(new Palette(frame, ncolors));
 
-  for (int c=0; c<ncolors; ++c) {
+  for (int c = 0; c < ncolors; ++c) {
     uint32_t color = read32(is);
     palette->setEntry(c, color);
   }
@@ -54,4 +54,4 @@ Palette* read_palette(std::istream& is)
   return palette.release();
 }
 
-}
+}  // namespace doc

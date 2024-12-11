@@ -13,12 +13,12 @@
 
 namespace app {
 
-  class IColorSource {
-  public:
-    virtual ~IColorSource() { }
-    virtual app::Color getColorByPosition(const gfx::Point& pos) = 0;
-  };
+class IColorSource {
+public:
+  virtual ~IColorSource() { }
+  virtual app::Color getColorByPosition(const gfx::Point& pos) = 0;
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

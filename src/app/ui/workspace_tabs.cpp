@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/workspace_tabs.h"
@@ -30,4 +30,4 @@ void WorkspaceTabs::setPanel(WorkspacePanel* panel)
   m_panel = panel;
 }
 
-} // namespace app
+}  // namespace app

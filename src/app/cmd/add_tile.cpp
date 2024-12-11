@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/add_tile.h"
@@ -16,8 +16,7 @@
 #include "doc/tileset.h"
 #include "doc/tilesets.h"
 
-namespace app {
-namespace cmd {
+namespace app { namespace cmd {
 
 AddTile::AddTile(doc::Tileset* tileset,
                  const doc::ImageRef& image,
@@ -31,8 +30,7 @@ AddTile::AddTile(doc::Tileset* tileset,
 {
 }
 
-AddTile::AddTile(doc::Tileset* tileset,
-                 const doc::tile_index ti)
+AddTile::AddTile(doc::Tileset* tileset, const doc::tile_index ti)
   : WithTileset(tileset)
   , WithImage(tileset->get(ti).get())
   , m_size(0)
@@ -111,5 +109,4 @@ void AddTile::addTile(doc::Tileset* tileset,
   tileset->incrementVersion();
 }
 
-} // namespace cmd
-} // namespace app
+}}  // namespace app::cmd

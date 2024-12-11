@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/xml_document.h"
@@ -54,4 +54,4 @@ bool bool_attr(const XMLElement* elem, const char* attrName, bool defaultVal)
   return value == NULL ? defaultVal : strcmp(value, "true") == 0;
 }
 
-} // namespace app
+}  // namespace app

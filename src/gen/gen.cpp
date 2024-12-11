@@ -10,7 +10,6 @@
 #include "base/program_options.h"
 #include "base/string.h"
 #include "gen/check_strings.h"
-#include "gen/check_strings.h"
 #include "gen/pref_types.h"
 #include "gen/strings_class.h"
 #include "gen/theme_class.h"
@@ -47,10 +46,9 @@ static void run(int argc, const char* argv[])
     base::FileHandle inputFile(base::open_file(inputFilename, "rb"));
     doc = std::make_unique<XMLDocument>();
     if (doc->LoadFile(inputFile.get()) != XML_SUCCESS) {
-      std::cerr << inputFilename << ":"
-                << doc->ErrorLineNum() << ": "
-                << "error " << int(doc->ErrorID()) << ": "
-                << doc->ErrorStr() << "\n";
+      std::cerr << inputFilename << ":" << doc->ErrorLineNum() << ": "
+                << "error " << int(doc->ErrorID()) << ": " << doc->ErrorStr()
+                << "\n";
       throw std::runtime_error("invalid input file");
     }
   }
@@ -78,11 +76,9 @@ static void run(int argc, const char* argv[])
     gen_command_ids(inputFilename);
   }
   // Check all translation files (en.ini, es.ini, etc.)
-  else if (po.enabled(widgetsDir) &&
-           po.enabled(stringsDir)) {
-    check_strings(po.value_of(widgetsDir),
-                  po.value_of(stringsDir),
-                  po.value_of(guiFile));
+  else if (po.enabled(widgetsDir) && po.enabled(stringsDir)) {
+    check_strings(
+      po.value_of(widgetsDir), po.value_of(stringsDir), po.value_of(guiFile));
   }
 }
 

@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/mini_help_button.h"
@@ -60,17 +60,18 @@ void MiniHelpButton::onSetDecorativeWidgetBounds()
   Widget* window = parent();
   gfx::Rect rect(0, 0, 0, 0);
   const gfx::Size thisSize = this->sizeHint();
-  const gfx::Size closeSize = theme->calcSizeHint(this, theme->styles.windowCloseButton());
+  const gfx::Size closeSize =
+    theme->calcSizeHint(this, theme->styles.windowCloseButton());
   const gfx::Border margin(0, 0, 0, 0);
 
   rect.w = thisSize.w;
   rect.h = thisSize.h;
-  rect.offset(window->bounds().x2()
-              - theme->styles.windowCloseButton()->margin().width() - closeSize.w
-              - style()->margin().right() - thisSize.w,
+  rect.offset(window->bounds().x2() -
+                theme->styles.windowCloseButton()->margin().width() -
+                closeSize.w - style()->margin().right() - thisSize.w,
               window->bounds().y + style()->margin().top());
 
   setBounds(rect);
 }
 
-} // namespace app
+}  // namespace app

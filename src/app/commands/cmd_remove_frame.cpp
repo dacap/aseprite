@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -42,9 +42,7 @@ bool RemoveFrameCommand::onEnabled(Context* context)
 
   const ContextReader reader(context);
   const Sprite* sprite(reader.sprite());
-  return
-    sprite &&
-    sprite->totalFrames() > 1;
+  return sprite && sprite->totalFrames() > 1;
 }
 
 void RemoveFrameCommand::onExecute(Context* context)
@@ -56,8 +54,7 @@ void RemoveFrameCommand::onExecute(Context* context)
     Tx tx(writer, "Remove Frame");
     DocApi api = document->getApi(tx);
     const Site* site = writer.site();
-    if (site->inTimeline() &&
-        !site->selectedFrames().empty()) {
+    if (site->inTimeline() && !site->selectedFrames().empty()) {
       for (frame_t frame : site->selectedFrames().reversed()) {
         api.removeFrame(sprite, frame);
       }
@@ -76,4 +73,4 @@ Command* CommandFactory::createRemoveFrameCommand()
   return new RemoveFrameCommand;
 }
 
-} // namespace app
+}  // namespace app

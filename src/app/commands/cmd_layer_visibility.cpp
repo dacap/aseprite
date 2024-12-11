@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/commands/command.h"
@@ -44,8 +44,7 @@ bool LayerVisibilityCommand::onEnabled(Context* context)
 bool LayerVisibilityCommand::onChecked(Context* context)
 {
   const ContextReader reader(context);
-  if (!reader.document() ||
-      !reader.layer())
+  if (!reader.document() || !reader.layer())
     return false;
 
   SelectedLayers selLayers;
@@ -93,4 +92,4 @@ Command* CommandFactory::createLayerVisibilityCommand()
   return new LayerVisibilityCommand;
 }
 
-} // namespace app
+}  // namespace app

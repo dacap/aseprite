@@ -15,17 +15,16 @@
 
 namespace doc {
 
-  class CelData;
-  class SubObjectsIO;
+class CelData;
+class SubObjectsIO;
 
-  void write_celdata(std::ostream& os,
-                     const CelData* cel);
+void write_celdata(std::ostream& os, const CelData* cel);
 
-  CelData* read_celdata(std::istream& is,
-                        SubObjectsIO* subObjects,
-                        bool setId = true,
-                        SerialFormat serial = SerialFormat::LastVer);
+CelData* read_celdata(std::istream& is,
+                      SubObjectsIO* subObjects,
+                      bool setId = true,
+                      SerialFormat serial = SerialFormat::LastVer);
 
-} // namespace doc
+}  // namespace doc
 
 #endif

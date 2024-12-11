@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/color_spaces.h"
@@ -26,10 +26,7 @@ static bool g_manage = false;
 void initialize_color_spaces(Preferences& pref)
 {
   g_manage = pref.color.manage();
-  pref.color.manage.AfterChange.connect(
-    [](bool manage){
-      g_manage = manage;
-    });
+  pref.color.manage.AfterChange.connect([](bool manage) { g_manage = manage; });
 }
 
 os::ColorSpaceRef get_screen_color_space()
@@ -111,4 +108,4 @@ ConvertCS convert_from_custom_to_srgb(const os::ColorSpaceRef& from)
                    os::instance()->makeColorSpace(gfx::ColorSpace::MakeSRGB()));
 }
 
-} // namespace app
+}  // namespace app

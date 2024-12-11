@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -41,11 +41,11 @@ using namespace ui;
 namespace app {
 
 struct NewFileParams : public NewParams {
-  Param<bool> ui { this, true, "ui" };
-  Param<int> width { this, 0, "width" };
-  Param<int> height { this, 0, "height" };
-  Param<ColorMode> colorMode { this, ColorMode::RGB, "colorMode" };
-  Param<bool> fromClipboard { this, false, "fromClipboard" };
+  Param<bool> ui{ this, true, "ui" };
+  Param<int> width{ this, 0, "width" };
+  Param<int> height{ this, 0, "height" };
+  Param<ColorMode> colorMode{ this, ColorMode::RGB, "colorMode" };
+  Param<bool> fromClipboard{ this, false, "fromClipboard" };
 };
 
 class NewFileCommand : public CommandWithNewParams<NewFileParams> {
@@ -70,9 +70,8 @@ NewFileCommand::NewFileCommand()
 
 bool NewFileCommand::onEnabled(Context* ctx)
 {
-  return
-    (!params().fromClipboard()
-     || (ctx->clipboard()->format() == ClipboardFormat::Image));
+  return (!params().fromClipboard() ||
+          (ctx->clipboard()->format() == ClipboardFormat::Image));
 }
 
 void NewFileCommand::onExecute(Context* ctx)
@@ -108,8 +107,7 @@ void NewFileCommand::onExecute(Context* ctx)
     if (!params().colorMode.isSet()) {
       colorMode = pref.newFile.colorMode();
       // Invalid format in config file.
-      if (colorMode != ColorMode::RGB &&
-          colorMode != ColorMode::INDEXED &&
+      if (colorMode != ColorMode::RGB && colorMode != ColorMode::INDEXED &&
           colorMode != ColorMode::GRAYSCALE) {
         colorMode = ColorMode::INDEXED;
       }
@@ -128,8 +126,10 @@ void NewFileCommand::onExecute(Context* ctx)
       h = clipboardSize.h;
     }
 
-    if (params().width.isSet()) w = width;
-    if (params().height.isSet()) h = height;
+    if (params().width.isSet())
+      w = width;
+    if (params().height.isSet())
+      h = height;
 
     window.width()->setTextf("%d", std::max(1, w));
     window.height()->setTextf("%d", std::max(1, h));
@@ -143,11 +143,10 @@ void NewFileCommand::onExecute(Context* ctx)
     // Advance options
     bool advanced = pref.newFile.advanced();
     window.advancedCheck()->setSelected(advanced);
-    window.advancedCheck()->Click.connect(
-      [&]{
-        window.advanced()->setVisible(window.advancedCheck()->isSelected());
-        window.expandWindow(window.sizeHint());
-      });
+    window.advancedCheck()->Click.connect([&] {
+      window.advanced()->setVisible(window.advancedCheck()->isSelected());
+      window.expandWindow(window.sizeHint());
+    });
     window.advanced()->setVisible(advanced);
     if (advanced)
       window.pixelRatio()->setValue(pref.newFile.pixelRatio());
@@ -168,12 +167,13 @@ void NewFileCommand::onExecute(Context* ctx)
     h = window.height()->textInt();
     bg = window.bgColor()->selectedItem();
     if (window.advancedCheck()->isSelected()) {
-      pixelRatio = base::convert_to<PixelRatio>(
-        window.pixelRatio()->getValue());
+      pixelRatio =
+        base::convert_to<PixelRatio>(window.pixelRatio()->getValue());
     }
 
     static_assert(int(ColorMode::RGB) == 0, "RGB pixel format should be 0");
-    static_assert(int(ColorMode::INDEXED) == 2, "Indexed pixel format should be 2");
+    static_assert(int(ColorMode::INDEXED) == 2,
+                  "Indexed pixel format should be 2");
 
     colorMode = std::clamp(colorMode, ColorMode::RGB, ColorMode::INDEXED);
     w = std::clamp(w, 1, DOC_SPRITE_MAX_WIDTH);
@@ -200,17 +200,16 @@ void NewFileCommand::onExecute(Context* ctx)
     height = h;
   }
 
-  ASSERT(colorMode == ColorMode::RGB ||
-         colorMode == ColorMode::GRAYSCALE ||
+  ASSERT(colorMode == ColorMode::RGB || colorMode == ColorMode::GRAYSCALE ||
          colorMode == ColorMode::INDEXED);
   if (width < 1 || height < 1)
     return;
 
   // Create the new sprite
-  std::unique_ptr<Sprite> sprite(
-    Sprite::MakeStdSprite(
-      ImageSpec(colorMode, width, height, 0,
-                get_working_rgb_space_from_preferences()), ncolors));
+  std::unique_ptr<Sprite> sprite(Sprite::MakeStdSprite(
+    ImageSpec(
+      colorMode, width, height, 0, get_working_rgb_space_from_preferences()),
+    ncolors));
 
   sprite->setPixelRatio(pixelRatio);
 
@@ -233,12 +232,10 @@ void NewFileCommand::onExecute(Context* ctx)
 
       doc::clear_image(
         image,
-        color_utils::color_for_target(
-          bgColor,
-          ColorTarget(
-            ColorTarget::BackgroundLayer,
-            sprite->pixelFormat(),
-            sprite->transparentColor())));
+        color_utils::color_for_target(bgColor,
+                                      ColorTarget(ColorTarget::BackgroundLayer,
+                                                  sprite->pixelFormat(),
+                                                  sprite->transparentColor())));
 
       set_current_palette(&oldPal, false);
     }
@@ -251,8 +248,13 @@ void NewFileCommand::onExecute(Context* ctx)
 
       if (clipboardPalette.isBlack()) {
         render::create_palette_from_sprite(
-          sprite.get(), 0, sprite->lastFrame(), true,
-          &clipboardPalette, nullptr, true,
+          sprite.get(),
+          0,
+          sprite->lastFrame(),
+          true,
+          &clipboardPalette,
+          nullptr,
+          true,
           Preferences::instance().quantization.rgbmapAlgorithm());
       }
       sprite->setPalette(&clipboardPalette, false);
@@ -261,10 +263,12 @@ void NewFileCommand::onExecute(Context* ctx)
     if (layer->isBackground())
       layer->setName(Strings::commands_NewFile_BackgroundLayer());
     else
-      layer->setName(fmt::format("{} {}", Strings::commands_NewLayer_Layer(), 1));
+      layer->setName(
+        fmt::format("{} {}", Strings::commands_NewLayer_Layer(), 1));
   }
   if (sprite->pixelFormat() == IMAGE_INDEXED) {
-    sprite->rgbMap(0, Sprite::RgbMapFor(!layer->isBackground()),
+    sprite->rgbMap(0,
+                   Sprite::RgbMapFor(!layer->isBackground()),
                    Preferences::instance().quantization.rgbmapAlgorithm(),
                    Preferences::instance().quantization.fitCriteria());
   }
@@ -272,8 +276,8 @@ void NewFileCommand::onExecute(Context* ctx)
   // Show the sprite to the user
   std::unique_ptr<Doc> doc(new Doc(sprite.get()));
   sprite.release();
-  doc->setFilename(fmt::format("{}-{:04d}",
-                               Strings::commands_NewFile_Sprite(), ++g_spriteCounter));
+  doc->setFilename(fmt::format(
+    "{}-{:04d}", Strings::commands_NewFile_Sprite(), ++g_spriteCounter));
   doc->setContext(ctx);
   doc.release();
 }
@@ -291,4 +295,4 @@ Command* CommandFactory::createNewFileCommand()
   return new NewFileCommand;
 }
 
-} // namespace app
+}  // namespace app

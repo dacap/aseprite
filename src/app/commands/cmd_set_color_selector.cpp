@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -48,8 +48,7 @@ void SetColorSelectorCommand::onLoadParams(const Params& params)
   else if (type == "tint-shade-tone") {
     m_type = ColorBar::ColorSelector::TINT_SHADE_TONE;
   }
-  else if (type == "wheel" ||
-           type == "rgb-wheel") {
+  else if (type == "wheel" || type == "rgb-wheel") {
     m_type = ColorBar::ColorSelector::RGB_WHEEL;
   }
   else if (type == "ryb-wheel") {
@@ -98,4 +97,4 @@ Command* CommandFactory::createSetColorSelectorCommand()
   return new SetColorSelectorCommand;
 }
 
-} // namespace app
+}  // namespace app

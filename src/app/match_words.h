@@ -17,29 +17,30 @@
 
 namespace app {
 
-  class MatchWords {
-  public:
-    MatchWords(const std::string& search = {}) {
-      base::split_string(base::string_to_lower(search),
-                         m_parts, " ");
+class MatchWords {
+public:
+  MatchWords(const std::string& search = {})
+  {
+    base::split_string(base::string_to_lower(search), m_parts, " ");
+  }
+
+  bool operator()(const std::string& item) const
+  {
+    std::string lowerItem = base::string_to_lower(item);
+    std::size_t matches = 0;
+
+    for (const auto& part : m_parts) {
+      if (lowerItem.find(part) != std::string::npos)
+        ++matches;
     }
 
-    bool operator()(const std::string& item) const {
-      std::string lowerItem = base::string_to_lower(item);
-      std::size_t matches = 0;
+    return (matches == m_parts.size());
+  }
 
-      for (const auto& part : m_parts) {
-        if (lowerItem.find(part) != std::string::npos)
-          ++matches;
-      }
+private:
+  std::vector<std::string> m_parts;
+};
 
-      return (matches == m_parts.size());
-    }
-
-  private:
-    std::vector<std::string> m_parts;
-  };
-
-} // namespace app
+}  // namespace app
 
 #endif

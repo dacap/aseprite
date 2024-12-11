@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/textbox.h"
@@ -25,7 +25,7 @@
 namespace ui {
 
 TextBox::TextBox(const std::string& text, int align)
- : Widget(kTextBoxWidget)
+  : Widget(kTextBoxWidget)
 {
   setBgColor(gfx::ColorNone);
   setFocusStop(true);
@@ -37,7 +37,6 @@ TextBox::TextBox(const std::string& text, int align)
 bool TextBox::onProcessMessage(Message* msg)
 {
   switch (msg->type()) {
-
     case kKeyDownMessage:
       if (hasFocus()) {
         View* view = View::getView(this);
@@ -47,34 +46,33 @@ bool TextBox::onProcessMessage(Message* msg)
           int textheight = textHeight();
 
           switch (static_cast<KeyMessage*>(msg)->scancode()) {
-
             case kKeyLeft:
-              scroll.x -= vp.w/2;
+              scroll.x -= vp.w / 2;
               view->setViewScroll(scroll);
               break;
 
             case kKeyRight:
-              scroll.x += vp.w/2;
+              scroll.x += vp.w / 2;
               view->setViewScroll(scroll);
               break;
 
             case kKeyUp:
-              scroll.y -= vp.h/2;
+              scroll.y -= vp.h / 2;
               view->setViewScroll(scroll);
               break;
 
             case kKeyDown:
-              scroll.y += vp.h/2;
+              scroll.y += vp.h / 2;
               view->setViewScroll(scroll);
               break;
 
             case kKeyPageUp:
-              scroll.y -= (vp.h-textheight);
+              scroll.y -= (vp.h - textheight);
               view->setViewScroll(scroll);
               break;
 
             case kKeyPageDown:
-              scroll.y += (vp.h-textheight);
+              scroll.y += (vp.h - textheight);
               view->setViewScroll(scroll);
               break;
 
@@ -140,7 +138,7 @@ bool TextBox::onProcessMessage(Message* msg)
         if (mouseMsg->preciseWheel())
           scroll += mouseMsg->wheelDelta();
         else
-          scroll += mouseMsg->wheelDelta() * textHeight()*3;
+          scroll += mouseMsg->wheelDelta() * textHeight() * 3;
 
         view->setViewScroll(scroll);
       }
@@ -193,4 +191,4 @@ void TextBox::onSetText()
   Widget::onSetText();
 }
 
-} // namespace ui
+}  // namespace ui

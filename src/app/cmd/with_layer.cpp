@@ -5,20 +5,19 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/with_layer.h"
 
 #include "doc/layer.h"
 
-namespace app {
-namespace cmd {
+namespace app { namespace cmd {
 
 using namespace doc;
 
 WithLayer::WithLayer(Layer* layer)
-  : m_layerId(layer ? layer->id(): 0)
+  : m_layerId(layer ? layer->id() : 0)
 {
 }
 
@@ -30,5 +29,4 @@ Layer* WithLayer::layer()
     return nullptr;
 }
 
-} // namespace cmd
-} // namespace app
+}}  // namespace app::cmd

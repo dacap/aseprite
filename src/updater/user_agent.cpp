@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "updater/user_agent.h"
@@ -14,8 +14,8 @@
 #include "base/platform.h"
 #include "ver/info.h"
 
-#include <string>
 #include <sstream>
+#include <string>
 
 namespace updater {
 
@@ -51,9 +51,7 @@ std::string getFullOSString()
 
 #elif LAF_MACOS
 
-  os << "macOS "
-     << p.osVer.major() << "."
-     << p.osVer.minor() << "."
+  os << "macOS " << p.osVer.major() << "." << p.osVer.minor() << "."
      << p.osVer.patch();
 
 #else
@@ -77,9 +75,9 @@ std::string getUserAgent()
   std::stringstream userAgent;
 
   // App name and version
-  userAgent << get_app_name() << "/" << get_app_version()
-            << " (" << getFullOSString() << ")";
+  userAgent << get_app_name() << "/" << get_app_version() << " ("
+            << getFullOSString() << ")";
   return userAgent.str();
 }
 
-} // namespace updater
+}  // namespace updater

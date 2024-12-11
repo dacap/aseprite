@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/editor/scrolling_state.h"
@@ -13,8 +13,8 @@
 #include "app/app.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/status_bar.h"
-#include "gfx/rect.h"
 #include "doc/sprite.h"
+#include "gfx/rect.h"
 #include "ui/message.h"
 #include "ui/system.h"
 #include "ui/view.h"
@@ -62,7 +62,8 @@ bool ScrollingState::onMouseMove(Editor* editor, MouseMessage* msg)
   return true;
 }
 
-bool ScrollingState::onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos)
+bool ScrollingState::onSetCursor(Editor* editor,
+                                 const gfx::Point& mouseScreenPos)
 {
   editor->showMouseCursor(kScrollCursor);
   return true;
@@ -83,4 +84,4 @@ bool ScrollingState::onUpdateStatusBar(Editor* editor)
   return false;
 }
 
-} // namespace app
+}  // namespace app

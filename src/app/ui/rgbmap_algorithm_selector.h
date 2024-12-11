@@ -13,14 +13,14 @@
 
 namespace app {
 
-  class RgbMapAlgorithmSelector : public ui::ComboBox {
-  public:
-    RgbMapAlgorithmSelector();
+class RgbMapAlgorithmSelector : public ui::ComboBox {
+public:
+  RgbMapAlgorithmSelector();
 
-    doc::RgbMapAlgorithm algorithm();
-    void algorithm(doc::RgbMapAlgorithm mapAlgo);
-  };
+  doc::RgbMapAlgorithm algorithm();
+  void algorithm(doc::RgbMapAlgorithm mapAlgo);
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

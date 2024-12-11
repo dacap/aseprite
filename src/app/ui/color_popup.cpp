@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/color_popup.h"
@@ -56,21 +56,23 @@ static std::unique_ptr<doc::Palette> g_simplePal(nullptr);
 
 class ColorPopup::SimpleColors : public HBox {
 public:
-
   class Item : public Button {
   public:
     Item(ColorPopup* colorPopup, const app::Color& color)
       : Button("")
       , m_colorPopup(colorPopup)
-      , m_color(color) {
+      , m_color(color)
+    {
     }
 
   private:
-    void onClick() override {
+    void onClick() override
+    {
       m_colorPopup->setColorWithSignal(m_color, ChangeType);
     }
 
-    void onPaint(PaintEvent& ev) override {
+    void onPaint(PaintEvent& ev) override
+    {
       Graphics* g = ev.graphics();
       auto theme = skin::SkinTheme::get(this);
       gfx::Rect rc = clientBounds();
@@ -85,38 +87,38 @@ public:
     app::Color m_color;
   };
 
-  SimpleColors(ColorPopup* colorPopup, TooltipManager* tooltips) {
-    for (int i=0; i<g_simplePal->size(); ++i) {
+  SimpleColors(ColorPopup* colorPopup, TooltipManager* tooltips)
+  {
+    for (int i = 0; i < g_simplePal->size(); ++i) {
       doc::color_t c = g_simplePal->getEntry(i);
-      app::Color color =
-        app::Color::fromRgb(doc::rgba_getr(c),
-                            doc::rgba_getg(c),
-                            doc::rgba_getb(c),
-                            doc::rgba_geta(c));
+      app::Color color = app::Color::fromRgb(doc::rgba_getr(c),
+                                             doc::rgba_getg(c),
+                                             doc::rgba_getb(c),
+                                             doc::rgba_geta(c));
 
       Item* item = new Item(colorPopup, color);
-      item->InitTheme.connect(
-        [item]{
-          auto theme = skin::SkinTheme::get(item);
-          item->setSizeHint(gfx::Size(16, 16)*ui::guiscale());
-          item->setStyle(theme->styles.simpleColor());
-        });
+      item->InitTheme.connect([item] {
+        auto theme = skin::SkinTheme::get(item);
+        item->setSizeHint(gfx::Size(16, 16) * ui::guiscale());
+        item->setStyle(theme->styles.simpleColor());
+      });
       item->initTheme();
       addChild(item);
 
-      tooltips->addTooltipFor(
-        item, g_simplePal->getEntryName(i), BOTTOM);
+      tooltips->addTooltipFor(item, g_simplePal->getEntryName(i), BOTTOM);
     }
   }
 
-  void selectColor(int index) {
-    for (int i=0; i<g_simplePal->size(); ++i) {
+  void selectColor(int index)
+  {
+    for (int i = 0; i < g_simplePal->size(); ++i) {
       children()[i]->setSelected(i == index);
     }
   }
 
-  void deselect() {
-    for (int i=0; i<g_simplePal->size(); ++i) {
+  void deselect()
+  {
+    for (int i = 0; i < g_simplePal->size(); ++i) {
       children()[i]->setSelected(false);
     }
   }
@@ -127,31 +129,29 @@ ColorPopup::CustomButtonSet::CustomButtonSet()
 {
 }
 
-void ColorPopup::CustomButtonSet::onSelectItem(Item* item, bool focusItem, ui::Message* msg)
+void ColorPopup::CustomButtonSet::onSelectItem(Item* item,
+                                               bool focusItem,
+                                               ui::Message* msg)
 {
   int count = countSelectedItems();
   int itemIndex = getItemIndex(item);
 
-  if (itemIndex == INDEX_MODE ||
-      itemIndex == MASK_MODE ||
-      !msg ||
+  if (itemIndex == INDEX_MODE || itemIndex == MASK_MODE || !msg ||
       // Any key modifier will act as multiple selection
-      (!msg->shiftPressed() &&
-       !msg->altPressed() &&
-       !msg->ctrlPressed() &&
+      (!msg->shiftPressed() && !msg->altPressed() && !msg->ctrlPressed() &&
        !msg->cmdPressed())) {
-    if (item &&
-        item->isSelected() &&
-        count == 1)
+    if (item && item->isSelected() && count == 1)
       return;
 
-    for (int i=0; i<COLOR_MODES; ++i)
+    for (int i = 0; i < COLOR_MODES; ++i)
       if (getItem(i)->isSelected())
         getItem(i)->setSelected(false);
   }
   else {
-    if (getItem(INDEX_MODE)->isSelected()) getItem(INDEX_MODE)->setSelected(false);
-    if (getItem(MASK_MODE)->isSelected()) getItem(MASK_MODE)->setSelected(false);
+    if (getItem(INDEX_MODE)->isSelected())
+      getItem(INDEX_MODE)->setSelected(false);
+    if (getItem(MASK_MODE)->isSelected())
+      getItem(MASK_MODE)->setSelected(false);
   }
 
   if (item) {
@@ -166,18 +166,19 @@ void ColorPopup::CustomButtonSet::onSelectItem(Item* item, bool focusItem, ui::M
 }
 
 ColorPopup::ColorPopup(const ColorButtonOptions& options)
-  : PopupWindowPin(" ", // Non-empty to create title-bar and close button
+  : PopupWindowPin(" ",  // Non-empty to create title-bar and close button
                    ClickBehavior::CloseOnClickInOtherWindow,
                    options.canPinSelector)
   , m_vbox(VERTICAL)
   , m_topBox(HORIZONTAL)
   , m_color(app::Color::fromMask())
   , m_closeButton(nullptr)
-  , m_colorPaletteContainer(options.showIndexTab ?
-                            new ui::View: nullptr)
-  , m_colorPalette(options.showIndexTab ?
-                   new PaletteView(false, PaletteView::SelectOneColor, this, 7*guiscale()):
-                   nullptr)
+  , m_colorPaletteContainer(options.showIndexTab ? new ui::View : nullptr)
+  , m_colorPalette(
+      options.showIndexTab ?
+        new PaletteView(
+          false, PaletteView::SelectOneColor, this, 7 * guiscale()) :
+        nullptr)
   , m_simpleColors(nullptr)
   , m_oldAndNew(Shade(2), ColorShades::ClickEntries)
   , m_maskLabel(Strings::color_popup_transparent_color_sel())
@@ -241,7 +242,7 @@ ColorPopup::ColorPopup(const ColorButtonOptions& options)
       m_topBox.addChild(vbox);
     }
   }
-  setText("");                  // To remove title
+  setText("");  // To remove title
 
   m_vbox.addChild(&m_tooltips);
   if (m_simpleColors)
@@ -253,7 +254,7 @@ ColorPopup::ColorPopup(const ColorButtonOptions& options)
   m_vbox.addChild(&m_maskLabel);
   addChild(&m_vbox);
 
-  m_colorType.ItemChange.connect([this]{ onColorTypeClick(); });
+  m_colorType.ItemChange.connect([this] { onColorTypeClick(); });
 
   m_sliders.ColorChange.connect(&ColorPopup::onColorSlidersChange, this);
   m_hexColorEntry.ColorChange.connect(&ColorPopup::onColorHexEntryChange, this);
@@ -268,9 +269,7 @@ ColorPopup::ColorPopup(const ColorButtonOptions& options)
     App::instance()->PaletteChange.connect(&ColorPopup::onPaletteChange, this);
 
   InitTheme.connect(
-    [this]{
-      setSizeHint(gfx::Size(300*guiscale(), sizeHint().h));
-    });
+    [this] { setSizeHint(gfx::Size(300 * guiscale(), sizeHint().h)); });
   initTheme();
 }
 
@@ -312,7 +311,7 @@ void ColorPopup::setColor(const app::Color& color,
   // Set the new color
   Shade shade = m_oldAndNew.getShade();
   shade.resize(2);
-  shade[1] = (color.getType() == app::Color::IndexType ? color.toRgb(): color);
+  shade[1] = (color.getType() == app::Color::IndexType ? color.toRgb() : color);
   if (!m_insideChange)
     shade[0] = shade[1];
   m_oldAndNew.setShade(shade);
@@ -411,8 +410,7 @@ void ColorPopup::onSelectOldColor(ColorShades::ClickEvent&)
 {
   Shade shade = m_oldAndNew.getShade();
   int hot = m_oldAndNew.getHotEntry();
-  if (hot >= 0 &&
-      hot < int(shade.size())) {
+  if (hot >= 0 && hot < int(shade.size())) {
     setColorWithSignal(shade[hot], DontChangeType);
   }
 }
@@ -476,8 +474,7 @@ void ColorPopup::onColorTypeClick()
                                      newColor.getAlpha());
       break;
     case GRAY_MODE:
-      newColor = app::Color::fromGray(newColor.getGray(),
-                                      newColor.getAlpha());
+      newColor = app::Color::fromGray(newColor.getGray(), newColor.getAlpha());
       break;
     case MASK_MODE:
       newColor = app::Color::fromMask();
@@ -548,11 +545,21 @@ void ColorPopup::selectColorType(app::Color::Type type)
         else
           m_colorType.setSelectedItem(RGB_MODE);
         break;
-      case app::Color::RgbType:   m_colorType.setSelectedItem(RGB_MODE); break;
-      case app::Color::HsvType:   m_colorType.setSelectedItem(HSV_MODE); break;
-      case app::Color::HslType:   m_colorType.setSelectedItem(HSL_MODE); break;
-      case app::Color::GrayType:  m_colorType.setSelectedItem(GRAY_MODE); break;
-      case app::Color::MaskType:  m_colorType.setSelectedItem(MASK_MODE); break;
+      case app::Color::RgbType:
+        m_colorType.setSelectedItem(RGB_MODE);
+        break;
+      case app::Color::HsvType:
+        m_colorType.setSelectedItem(HSV_MODE);
+        break;
+      case app::Color::HslType:
+        m_colorType.setSelectedItem(HSL_MODE);
+        break;
+      case app::Color::GrayType:
+        m_colorType.setSelectedItem(GRAY_MODE);
+        break;
+      case app::Color::MaskType:
+        m_colorType.setSelectedItem(MASK_MODE);
+        break;
     }
   }
 
@@ -585,8 +592,7 @@ bool ColorPopup::inEditMode()
     // TODO use other flag instead of m_canPin, here we want to ask if
     // this ColorPopup is related to the main ColorBar (instead of
     // other ColorButtons like the one in "Replace Color", etc.)
-    (m_canPin) &&
-    (ColorBar::instance()->inEditMode());
+    (m_canPin) && (ColorBar::instance()->inEditMode());
 }
 
-} // namespace app
+}  // namespace app

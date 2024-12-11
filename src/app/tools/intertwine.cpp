@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/tools/intertwine.h"
@@ -22,8 +22,7 @@
 
 #include <cmath>
 
-namespace app {
-namespace tools {
+namespace app { namespace tools {
 
 using namespace gfx;
 using namespace doc;
@@ -36,8 +35,7 @@ Intertwine::LineData::LineData(ToolLoop* loop,
   , b(b)
   , pt(a)
 {
-  const int steps = std::max(std::abs(b.x - a.x),
-                             std::abs(b.y - a.y))+1;
+  const int steps = std::max(std::abs(b.x - a.x), std::abs(b.y - a.y)) + 1;
   t = 0.0f;
   step = 1.0f / steps;
 }
@@ -45,13 +43,13 @@ Intertwine::LineData::LineData(ToolLoop* loop,
 void Intertwine::LineData::doStep(int x, int y)
 {
   t += step;
-  const float ti = 1.0f-t;
+  const float ti = 1.0f - t;
 
   pt.x = x;
   pt.y = y;
-  pt.size = ti*a.size + t*b.size;
-  pt.angle = ti*a.angle + t*b.angle;
-  pt.gradient = ti*a.gradient + t*b.gradient;
+  pt.size = ti * a.size + t * b.size;
+  pt.angle = ti * a.angle + t * b.angle;
+  pt.gradient = ti * a.gradient + t * b.gradient;
 }
 
 gfx::Rect Intertwine::getStrokeBounds(ToolLoop* loop, const Stroke& stroke)
@@ -96,7 +94,9 @@ void Intertwine::doPointshapePoint(int x, int y, ToolLoop* loop)
 }
 
 // static
-void Intertwine::doPointshapePointDynamics(int x, int y, Intertwine::LineData* data)
+void Intertwine::doPointshapePointDynamics(int x,
+                                           int y,
+                                           Intertwine::LineData* data)
 {
   data->doStep(x, y);
   data->loop->getIntertwine()->doPointshapeStrokePt(data->pt, data->loop);
@@ -109,7 +109,8 @@ void Intertwine::doPointshapeHline(int x1, int y, int x2, ToolLoop* loop)
 }
 
 // static
-void Intertwine::doPointshapeLineWithoutDynamics(int x1, int y1, int x2, int y2, ToolLoop* loop)
+void Intertwine::doPointshapeLineWithoutDynamics(
+  int x1, int y1, int x2, int y2, ToolLoop* loop)
 {
   Stroke::Pt a(x1, y1);
   Stroke::Pt b(x2, y2);
@@ -119,11 +120,13 @@ void Intertwine::doPointshapeLineWithoutDynamics(int x1, int y1, int x2, int y2,
 }
 
 void Intertwine::doPointshapeLine(const Stroke::Pt& a,
-                                  const Stroke::Pt& b, ToolLoop* loop)
+                                  const Stroke::Pt& b,
+                                  ToolLoop* loop)
 {
   doc::AlgoLineWithAlgoPixel algo = getLineAlgo(loop, a, b);
   LineData lineData(loop, a, b);
-  algo(a.x, a.y, b.x, b.y, (void*)&lineData, (AlgoPixel)doPointshapePointDynamics);
+  algo(
+    a.x, a.y, b.x, b.y, (void*)&lineData, (AlgoPixel)doPointshapePointDynamics);
 }
 
 // static
@@ -134,8 +137,7 @@ doc::AlgoLineWithAlgoPixel Intertwine::getLineAlgo(ToolLoop* loop,
   bool needsFixForLineBrush = false;
   if ((loop->getBrush()->type() == kLineBrushType) &&
       (a.size > 1.0 || b.size > 1.0)) {
-    if ((a.angle != 0.0f || b.angle != 0.0f) &&
-        (a.angle != b.angle)) {
+    if ((a.angle != 0.0f || b.angle != 0.0f) && (a.angle != b.angle)) {
       needsFixForLineBrush = true;
     }
     else {
@@ -146,26 +148,25 @@ doc::AlgoLineWithAlgoPixel Intertwine::getLineAlgo(ToolLoop* loop,
       float sF = std::sin(PI * angle / 180);
       int r = SGN(rF);
       int s = SGN(sF);
-      needsFixForLineBrush = ((p == q && r != s) ||
-                              (p != q && r == s));
+      needsFixForLineBrush = ((p == q && r != s) || (p != q && r == s));
     }
   }
 
-  if (// When "Snap Angle" in being used or...
-      (int(loop->getModifiers()) & int(ToolLoopModifiers::kSquareAspect)) ||
-      // "Snap to Grid" is enabled
-      (loop->getController()->canSnapToGrid() && loop->getSnapToGrid())) {
+  if (  // When "Snap Angle" in being used or...
+    (int(loop->getModifiers()) & int(ToolLoopModifiers::kSquareAspect)) ||
+    // "Snap to Grid" is enabled
+    (loop->getController()->canSnapToGrid() && loop->getSnapToGrid())) {
     // We prefer the perfect pixel lines that matches grid tiles
-    return (needsFixForLineBrush ? algo_line_perfect_with_fix_for_line_brush:
+    return (needsFixForLineBrush ? algo_line_perfect_with_fix_for_line_brush :
                                    algo_line_perfect);
   }
   else {
     // In other case we use the regular algorithm that is useful to
     // draw continuous lines/strokes.
-    return (needsFixForLineBrush ? algo_line_continuous_with_fix_for_line_brush:
-                                   algo_line_continuous);
+    return (needsFixForLineBrush ?
+              algo_line_continuous_with_fix_for_line_brush :
+              algo_line_continuous);
   }
 }
 
-} // namespace tools
-} // namespace app
+}}  // namespace app::tools

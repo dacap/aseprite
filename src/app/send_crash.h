@@ -18,29 +18,29 @@ namespace app {
 
 #if !ENABLE_SENTRY
 
-  class SendCrash : public INotificationDelegate {
-  public:
-    static std::string DefaultMemoryDumpFilename();
+class SendCrash : public INotificationDelegate {
+public:
+  static std::string DefaultMemoryDumpFilename();
 
-    ~SendCrash();
+  ~SendCrash();
 
-    void search();
+  void search();
 
-  public:                       // INotificationDelegate impl
-    virtual std::string notificationText() override;
-    virtual void notificationClick() override;
+public:  // INotificationDelegate impl
+  virtual std::string notificationText() override;
+  virtual void notificationClick() override;
 
-  private:
-    void onClickFilename();
-    void onClickDevFilename();
+private:
+  void onClickFilename();
+  void onClickDevFilename();
 
-  private:
-    Task m_task;
-    std::string m_dumpFilename;
-  };
+private:
+  Task m_task;
+  std::string m_dumpFilename;
+};
 
-#endif // !ENABLE_SENTRY
+#endif  // !ENABLE_SENTRY
 
-} // namespace app
+}  // namespace app
 
-#endif // APP_SEND_CRASH_H_INCLUDED
+#endif  // APP_SEND_CRASH_H_INCLUDED

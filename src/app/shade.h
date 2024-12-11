@@ -14,11 +14,11 @@
 
 namespace app {
 
-  typedef std::vector<app::Color> Shade;
+typedef std::vector<app::Color> Shade;
 
-  Shade shade_from_string(const std::string& str);
-  std::string shade_to_string(const Shade& shade);
+Shade shade_from_string(const std::string& str);
+std::string shade_to_string(const Shade& shade);
 
-} // namespace app
+}  // namespace app
 
 #endif

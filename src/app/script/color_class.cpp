@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -14,8 +14,7 @@
 #include "app/color_utils.h"
 #include "app/script/luacpp.h"
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 namespace {
 
@@ -35,9 +34,8 @@ app::Color Color_new(lua_State* L, int index)
       int a = 255;
       if (lua_getfield(L, index, "a") != LUA_TNIL)
         a = lua_tointeger(L, -1);
-      color = app::Color::fromRgb(lua_tointeger(L, -4),
-                                  lua_tointeger(L, -3),
-                                  lua_tointeger(L, -2), a);
+      color = app::Color::fromRgb(
+        lua_tointeger(L, -4), lua_tointeger(L, -3), lua_tointeger(L, -2), a);
       lua_pop(L, 4);
       return color;
     }
@@ -51,9 +49,8 @@ app::Color Color_new(lua_State* L, int index)
       int a = 255;
       if (lua_getfield(L, index, "alpha") != LUA_TNIL)
         a = lua_tointeger(L, -1);
-      color = app::Color::fromRgb(lua_tointeger(L, -4),
-                                  lua_tointeger(L, -3),
-                                  lua_tointeger(L, -2), a);
+      color = app::Color::fromRgb(
+        lua_tointeger(L, -4), lua_tointeger(L, -3), lua_tointeger(L, -2), a);
       lua_pop(L, 4);
       return color;
     }
@@ -67,9 +64,8 @@ app::Color Color_new(lua_State* L, int index)
       int a = 255;
       if (lua_getfield(L, index, "a") != LUA_TNIL)
         a = lua_tointeger(L, -1);
-      color = app::Color::fromHsv(lua_tonumber(L, -2),
-                                  lua_tonumber(L, -3),
-                                  lua_tonumber(L, -4), a);
+      color = app::Color::fromHsv(
+        lua_tonumber(L, -2), lua_tonumber(L, -3), lua_tonumber(L, -4), a);
       lua_pop(L, 4);
       return color;
     }
@@ -83,9 +79,8 @@ app::Color Color_new(lua_State* L, int index)
       int a = 255;
       if (lua_getfield(L, index, "alpha") != LUA_TNIL)
         a = lua_tointeger(L, -1);
-      color = app::Color::fromHsv(lua_tonumber(L, -2),
-                                  lua_tonumber(L, -3),
-                                  lua_tonumber(L, -4), a);
+      color = app::Color::fromHsv(
+        lua_tonumber(L, -2), lua_tonumber(L, -3), lua_tonumber(L, -4), a);
       lua_pop(L, 4);
       return color;
     }
@@ -99,9 +94,8 @@ app::Color Color_new(lua_State* L, int index)
       int a = 255;
       if (lua_getfield(L, index, "a") != LUA_TNIL)
         a = lua_tointeger(L, -1);
-      color = app::Color::fromHsl(lua_tonumber(L, -2),
-                                  lua_tonumber(L, -3),
-                                  lua_tonumber(L, -4), a);
+      color = app::Color::fromHsl(
+        lua_tonumber(L, -2), lua_tonumber(L, -3), lua_tonumber(L, -4), a);
       lua_pop(L, 4);
       return color;
     }
@@ -115,9 +109,8 @@ app::Color Color_new(lua_State* L, int index)
       int a = 255;
       if (lua_getfield(L, index, "alpha") != LUA_TNIL)
         a = lua_tointeger(L, -1);
-      color = app::Color::fromHsl(lua_tonumber(L, -2),
-                                  lua_tonumber(L, -3),
-                                  lua_tonumber(L, -4), a);
+      color = app::Color::fromHsl(
+        lua_tonumber(L, -2), lua_tonumber(L, -3), lua_tonumber(L, -4), a);
       lua_pop(L, 4);
       return color;
     }
@@ -158,7 +151,7 @@ app::Color Color_new(lua_State* L, int index)
   }
   // raw color into app color
   else if (!lua_isnone(L, index)) {
-    if (lua_isinteger(L, index) && (index < 0 || lua_isnone(L, index+1))) {
+    if (lua_isinteger(L, index) && (index < 0 || lua_isnone(L, index + 1))) {
       doc::color_t docColor = lua_tointeger(L, index);
 
       // TODO depending on current pixel format?
@@ -179,11 +172,11 @@ app::Color Color_new(lua_State* L, int index)
       }
     }
     else if (index >= 0) {
-      color = app::Color::fromRgb(lua_tointeger(L, index),
-                                  lua_tointeger(L, index+1),
-                                  lua_tointeger(L, index+2),
-                                  lua_isnone(L, index+3) ?
-                                  255: lua_tointeger(L, index+3));
+      color = app::Color::fromRgb(
+        lua_tointeger(L, index),
+        lua_tointeger(L, index + 1),
+        lua_tointeger(L, index + 2),
+        lua_isnone(L, index + 3) ? 255 : lua_tointeger(L, index + 3));
     }
   }
   return color;
@@ -342,20 +335,16 @@ int Color_set_red(lua_State* L)
 int Color_set_green(lua_State* L)
 {
   auto color = get_obj<app::Color>(L, 1);
-  *color = app::Color::fromRgb(color->getRed(),
-                               lua_tointeger(L, 2),
-                               color->getBlue(),
-                               color->getAlpha());
+  *color = app::Color::fromRgb(
+    color->getRed(), lua_tointeger(L, 2), color->getBlue(), color->getAlpha());
   return 0;
 }
 
 int Color_set_blue(lua_State* L)
 {
   auto color = get_obj<app::Color>(L, 1);
-  *color = app::Color::fromRgb(color->getRed(),
-                               color->getGreen(),
-                               lua_tointeger(L, 2),
-                               color->getAlpha());
+  *color = app::Color::fromRgb(
+    color->getRed(), color->getGreen(), lua_tointeger(L, 2), color->getAlpha());
   return 0;
 }
 
@@ -447,8 +436,7 @@ int Color_set_saturation(lua_State* L)
 int Color_set_gray(lua_State* L)
 {
   auto color = get_obj<app::Color>(L, 1);
-  *color = app::Color::fromGray(lua_tointeger(L, 2),
-                                color->getAlpha());
+  *color = app::Color::fromGray(lua_tointeger(L, 2), color->getAlpha());
   return 0;
 }
 
@@ -459,11 +447,9 @@ int Color_set_index(lua_State* L)
   return 0;
 }
 
-const luaL_Reg Color_methods[] = {
-  { "__gc", Color_gc },
-  { "__eq", Color_eq },
-  { nullptr, nullptr }
-};
+const luaL_Reg Color_methods[] = { { "__gc", Color_gc },
+                                   { "__eq", Color_eq },
+                                   { nullptr, nullptr } };
 
 const Property Color_properties[] = {
   { "red", Color_get_red, Color_set_red },
@@ -487,7 +473,7 @@ const Property Color_properties[] = {
   { nullptr, nullptr, nullptr }
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(app::Color);
 
@@ -503,12 +489,12 @@ app::Color convert_args_into_color(lua_State* L, int index)
   return Color_new(L, index);
 }
 
-doc::color_t convert_args_into_pixel_color(lua_State* L, int index,
+doc::color_t convert_args_into_pixel_color(lua_State* L,
+                                           int index,
                                            const doc::PixelFormat pixelFormat)
 {
   app::Color color = convert_args_into_color(L, index);
   return color_utils::color_for_image(color, pixelFormat);
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

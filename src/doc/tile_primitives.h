@@ -53,6 +53,6 @@ bool get_tile_pixel(
   tile_index& tf,
   color_t& tileImageColor);
 
-} // namespace doc
+}  // namespace doc
 
 #endif

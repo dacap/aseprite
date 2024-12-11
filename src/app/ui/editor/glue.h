@@ -20,10 +20,9 @@ namespace app {
 
 inline tools::Pointer::Button button_from_msg(const ui::MouseMessage* msg)
 {
-  return
-    (msg->right() ? tools::Pointer::Right:
-     (msg->middle() ? tools::Pointer::Middle:
-                      tools::Pointer::Left));
+  return (msg->right() ?
+            tools::Pointer::Right :
+            (msg->middle() ? tools::Pointer::Middle : tools::Pointer::Left));
 }
 
 inline tools::Pointer pointer_from_msg(
@@ -31,14 +30,13 @@ inline tools::Pointer pointer_from_msg(
   const ui::MouseMessage* msg,
   const tools::Vec2& velocity = tools::Vec2(0.0f, 0.0f))
 {
-  return
-    tools::Pointer(editor->screenToEditor(msg->position()),
-                   velocity,
-                   button_from_msg(msg),
-                   msg->pointerType(),
-                   msg->pressure());
+  return tools::Pointer(editor->screenToEditor(msg->position()),
+                        velocity,
+                        button_from_msg(msg),
+                        msg->pointerType(),
+                        msg->pressure());
 }
 
-} // namespace app
+}  // namespace app
 
 #endif

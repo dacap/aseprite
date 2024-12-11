@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/tile_primitives.h"
@@ -16,7 +16,7 @@
 #include "doc/image.h"
 #include "doc/layer_tilemap.h"
 
-#define TILE_TRACE(...) // TRACE(__VA_ARGS__)
+#define TILE_TRACE(...)  // TRACE(__VA_ARGS__)
 
 namespace doc {
 
@@ -48,9 +48,15 @@ bool get_tile_pixel(
 
   const gfx::Point tileStart = grid.tileToCanvas(tilePos);
   gfx::Point ipos = gfx::Point(canvasPos) - tileStart;
-  if (tf & doc::tile_f_xflip) { ipos.x = tile->width()-ipos.x-1; }
-  if (tf & doc::tile_f_yflip) { ipos.y = tile->height()-ipos.y-1; }
-  if (tf & doc::tile_f_dflip) { std::swap(ipos.x, ipos.y); }
+  if (tf & doc::tile_f_xflip) {
+    ipos.x = tile->width() - ipos.x - 1;
+  }
+  if (tf & doc::tile_f_yflip) {
+    ipos.y = tile->height() - ipos.y - 1;
+  }
+  if (tf & doc::tile_f_dflip) {
+    std::swap(ipos.x, ipos.y);
+  }
 
   tileImageColor = get_pixel(tile.get(), ipos.x, ipos.y);
 
@@ -68,9 +74,7 @@ bool get_tile_pixel(
   tile_index& tf,
   color_t& tileImageColor)
 {
-  if (!cel ||
-      !cel->layer()->isTilemap() ||
-      !cel->image()->isTilemap())
+  if (!cel || !cel->layer()->isTilemap() || !cel->image()->isTilemap())
     return false;
 
   Tileset* tileset = static_cast<LayerTilemap*>(cel->layer())->tileset();
@@ -78,8 +82,7 @@ bool get_tile_pixel(
     return false;
 
   return get_tile_pixel(
-    cel->image(), tileset, cel->grid(), canvasPos,
-    ti, tf, tileImageColor);
+    cel->image(), tileset, cel->grid(), canvasPos, ti, tf, tileImageColor);
 }
 
-} // namespace doc
+}  // namespace doc

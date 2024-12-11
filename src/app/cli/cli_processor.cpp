@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cli/cli_processor.h"
@@ -55,21 +55,18 @@ bool match_path(const std::string& filter,
   base::split_string(filter, a, "/");
   base::split_string(layer_path, b, "/");
 
-  for (std::size_t i=0; i<a.size() && i<b.size(); ++i) {
+  for (std::size_t i = 0; i < a.size() && i < b.size(); ++i) {
     if (a[i] != b[i] && a[i] != "*")
       return false;
   }
 
-  const bool wildcard = (!a.empty() && a[a.size()-1] == "*");
+  const bool wildcard = (!a.empty() && a[a.size() - 1] == "*");
 
   // Exclude group itself when all children are excluded. This special
   // case is only for exclusion because if we leave the group
   // selected, the propagation of the selection will include all
   // visible children too (see SelectedLayers::propagateSelection()).
-  if (exclude &&
-      a.size() > 1 &&
-      a.size() == b.size()+1 &&
-      wildcard) {
+  if (exclude && a.size() > 1 && a.size() == b.size() + 1 && wildcard) {
     return true;
   }
 
@@ -95,9 +92,8 @@ bool filter_layer(const std::string& layer_path,
 // If there is one layer with the given name "filter", we can convert
 // the filter to a full path to the layer (e.g. to match child layers
 // of a group).
-std::string convert_filter_to_layer_path_if_possible(
-  const Sprite* sprite,
-  const std::string& filter)
+std::string convert_filter_to_layer_path_if_possible(const Sprite* sprite,
+                                                     const std::string& filter)
 {
   std::string fullName;
   std::queue<Layer*> layers;
@@ -107,8 +103,7 @@ std::string convert_filter_to_layer_path_if_possible(
     const Layer* layer = layers.front();
     layers.pop();
 
-    if (layer != sprite->root() &&
-        layer->name() == filter) {
+    if (layer != sprite->root() && layer->name() == filter) {
       if (fullName.empty()) {
         fullName = get_layer_path(layer);
       }
@@ -130,7 +125,7 @@ std::string convert_filter_to_layer_path_if_possible(
     return filter;
 }
 
-} // anonymous namespace
+}  // anonymous namespace
 
 // static
 void CliProcessor::FilterLayers(const Sprite* sprite,
@@ -152,16 +147,14 @@ void CliProcessor::FilterLayers(const Sprite* sprite,
         (!includes.empty() && !filter_layer(layer_path, includes, true)))
       continue;
 
-    if (!excludes.empty() &&
-        !filter_layer(layer_path, excludes, false))
+    if (!excludes.empty() && !filter_layer(layer_path, excludes, false))
       continue;
 
     filteredLayers.insert(layer);
   }
 }
 
-CliProcessor::CliProcessor(CliDelegate* delegate,
-                           const AppOptions& options)
+CliProcessor::CliProcessor(CliDelegate* delegate, const AppOptions& options)
   : m_delegate(delegate)
   , m_options(options)
   , m_exporter(nullptr)
@@ -189,7 +182,8 @@ int CliProcessor::process(Context* ctx)
     CliOpenFile cof;
     SpriteSheetType sheetType = SpriteSheetType::None;
     Doc* lastDoc = nullptr;
-    render::DitheringAlgorithm ditheringAlgorithm = render::DitheringAlgorithm::None;
+    render::DitheringAlgorithm ditheringAlgorithm =
+      render::DitheringAlgorithm::None;
     std::string ditheringMatrix;
 
     for (const auto& value : m_options.values()) {
@@ -223,22 +217,26 @@ int CliProcessor::process(Context* ctx)
         // --sheet-width <width>
         else if (opt == &m_options.sheetWidth()) {
           if (m_exporter)
-            m_exporter->setTextureWidth(strtol(value.value().c_str(), nullptr, 0));
+            m_exporter->setTextureWidth(
+              strtol(value.value().c_str(), nullptr, 0));
         }
         // --sheet-height <height>
         else if (opt == &m_options.sheetHeight()) {
           if (m_exporter)
-            m_exporter->setTextureHeight(strtol(value.value().c_str(), nullptr, 0));
+            m_exporter->setTextureHeight(
+              strtol(value.value().c_str(), nullptr, 0));
         }
         // --sheet-columns <columns>
         else if (opt == &m_options.sheetColumns()) {
           if (m_exporter)
-            m_exporter->setTextureColumns(strtol(value.value().c_str(), nullptr, 0));
+            m_exporter->setTextureColumns(
+              strtol(value.value().c_str(), nullptr, 0));
         }
         // --sheet-rows <rows>
         else if (opt == &m_options.sheetRows()) {
           if (m_exporter)
-            m_exporter->setTextureRows(strtol(value.value().c_str(), nullptr, 0));
+            m_exporter->setTextureRows(
+              strtol(value.value().c_str(), nullptr, 0));
         }
         // --sheet-type <sheet-type>
         else if (opt == &m_options.sheetType()) {
@@ -302,12 +300,13 @@ int CliProcessor::process(Context* ctx)
           std::vector<std::string> splitRange;
           base::split_string(value.value(), splitRange, ",");
           if (splitRange.size() < 2)
-            throw std::runtime_error("--frame-range needs two parameters separated by comma (,)\n"
-                                     "Usage: --frame-range from,to\n"
-                                     "E.g. --frame-range 0,99");
+            throw std::runtime_error(
+              "--frame-range needs two parameters separated by comma (,)\n"
+              "Usage: --frame-range from,to\n"
+              "E.g. --frame-range 0,99");
 
           cof.fromFrame = base::convert_to<frame_t>(splitRange[0]);
-          cof.toFrame   = base::convert_to<frame_t>(splitRange[1]);
+          cof.toFrame = base::convert_to<frame_t>(splitRange[1]);
         }
         // --ignore-empty
         else if (opt == &m_options.ignoreEmpty()) {
@@ -323,7 +322,8 @@ int CliProcessor::process(Context* ctx)
         // --border-padding
         else if (opt == &m_options.borderPadding()) {
           if (m_exporter)
-            m_exporter->setBorderPadding(strtol(value.value().c_str(), NULL, 0));
+            m_exporter->setBorderPadding(
+              strtol(value.value().c_str(), NULL, 0));
         }
         // --shape-padding
         else if (opt == &m_options.shapePadding()) {
@@ -365,9 +365,10 @@ int CliProcessor::process(Context* ctx)
           std::vector<std::string> parts;
           base::split_string(value.value(), parts, ",");
           if (parts.size() < 4)
-            throw std::runtime_error("--crop needs four parameters separated by comma (,)\n"
-                                     "Usage: --crop x,y,width,height\n"
-                                     "E.g. --crop 0,0,32,32");
+            throw std::runtime_error(
+              "--crop needs four parameters separated by comma (,)\n"
+              "Usage: --crop x,y,width,height\n"
+              "E.g. --crop 0,0,32,32");
 
           cof.crop.x = base::convert_to<int>(parts[0]);
           cof.crop.y = base::convert_to<int>(parts[1]);
@@ -403,7 +404,7 @@ int CliProcessor::process(Context* ctx)
               // in case the output filename already contains {layer},
               // {tag}, or {slice} template elements.
               bool hasLayerTemplate = (is_layer_in_filename_format(fn) ||
-                                      is_group_in_filename_format(fn));
+                                       is_group_in_filename_format(fn));
               bool hasTagTemplate = is_tag_in_filename_format(fn);
               bool hasSliceTemplate = is_slice_in_filename_format(fn);
 
@@ -440,7 +441,8 @@ int CliProcessor::process(Context* ctx)
             m_delegate->loadPalette(ctx, filename);
           }
           else {
-            console.printf("You need to load a document to change its palette with --palette\n");
+            console.printf(
+              "You need to load a document to change its palette with --palette\n");
           }
         }
         // --scale <factor>
@@ -451,8 +453,8 @@ int CliProcessor::process(Context* ctx)
           // Scale all sprites
           for (auto doc : ctx->documents()) {
             ctx->setActiveDocument(doc);
-            ctx->executeCommand(Commands::instance()->byId(CommandId::SpriteSize()),
-                                params);
+            ctx->executeCommand(
+              Commands::instance()->byId(CommandId::SpriteSize()), params);
           }
         }
         // --dithering-algorithm <algorithm>
@@ -466,9 +468,10 @@ int CliProcessor::process(Context* ctx)
           else if (value.value() == "error-diffusion")
             ditheringAlgorithm = render::DitheringAlgorithm::ErrorDiffusion;
           else
-            throw std::runtime_error("--dithering-algorithm needs a valid algorithm name\n"
-                                     "Usage: --dithering-algorithm <algorithm>\n"
-                                     "Where <algorithm> can be none, ordered, old, or error-diffusion");
+            throw std::runtime_error(
+              "--dithering-algorithm needs a valid algorithm name\n"
+              "Usage: --dithering-algorithm <algorithm>\n"
+              "Where <algorithm> can be none, ordered, old, or error-diffusion");
         }
         // --dithering-matrix <id>
         else if (opt == &m_options.ditheringMatrix()) {
@@ -476,7 +479,8 @@ int CliProcessor::process(Context* ctx)
         }
         // --color-mode <mode>
         else if (opt == &m_options.colorMode()) {
-          Command* command = Commands::instance()->byId(CommandId::ChangePixelFormat());
+          Command* command =
+            Commands::instance()->byId(CommandId::ChangePixelFormat());
           Params params;
           if (value.value() == "rgb") {
             params.set("format", "rgb");
@@ -507,9 +511,10 @@ int CliProcessor::process(Context* ctx)
             }
           }
           else {
-            throw std::runtime_error("--color-mode needs a valid color mode for conversion\n"
-                                     "Usage: --color-mode <mode>\n"
-                                     "Where <mode> can be rgb, grayscale, or indexed");
+            throw std::runtime_error(
+              "--color-mode needs a valid color mode for conversion\n"
+              "Usage: --color-mode <mode>\n"
+              "Where <mode> can be rgb, grayscale, or indexed");
           }
 
           for (auto doc : ctx->documents()) {
@@ -522,9 +527,10 @@ int CliProcessor::process(Context* ctx)
           std::vector<std::string> dimensions;
           base::split_string(value.value(), dimensions, ",");
           if (dimensions.size() < 2)
-            throw std::runtime_error("--shrink-to needs two parameters separated by comma (,)\n"
-                                     "Usage: --shrink-to width,height\n"
-                                     "E.g. --shrink-to 128,64");
+            throw std::runtime_error(
+              "--shrink-to needs two parameters separated by comma (,)\n"
+              "Usage: --shrink-to width,height\n"
+              "E.g. --shrink-to 128,64");
 
           double maxWidth = base::convert_to<double>(dimensions[0]);
           double maxHeight = base::convert_to<double>(dimensions[1]);
@@ -533,14 +539,16 @@ int CliProcessor::process(Context* ctx)
           // Shrink all sprites if needed
           for (auto doc : ctx->documents()) {
             ctx->setActiveDocument(doc);
-            scaleWidth = (doc->width() > maxWidth ? maxWidth / doc->width() : 1.0);
-            scaleHeight = (doc->height() > maxHeight ? maxHeight / doc->height() : 1.0);
+            scaleWidth =
+              (doc->width() > maxWidth ? maxWidth / doc->width() : 1.0);
+            scaleHeight =
+              (doc->height() > maxHeight ? maxHeight / doc->height() : 1.0);
             if (scaleWidth < 1.0 || scaleHeight < 1.0) {
               scale = std::min(scaleWidth, scaleHeight);
               Params params;
               params.set("scale", base::convert_to<std::string>(scale).c_str());
-              ctx->executeCommand(Commands::instance()->byId(CommandId::SpriteSize()),
-                                  params);
+              ctx->executeCommand(
+                Commands::instance()->byId(CommandId::SpriteSize()), params);
             }
           }
         }
@@ -564,8 +572,7 @@ int CliProcessor::process(Context* ctx)
           const std::string& v = value.value();
           auto i = v.find('=');
           if (i != std::string::npos)
-            scriptParams.set(v.substr(0, i).c_str(),
-                             v.substr(i+1).c_str());
+            scriptParams.set(v.substr(0, i).c_str(), v.substr(i + 1).c_str());
           else
             scriptParams.set(v.c_str(), "1");
         }
@@ -612,11 +619,11 @@ int CliProcessor::process(Context* ctx)
         cof.document = nullptr;
         cof.filename = base::normalize_path(value.value());
 
-        if (// Check that the filename wasn't used loading a sequence
-            // of images as one sprite
-            m_usedFiles.find(cof.filename) == m_usedFiles.end() &&
-            // Open sprite
-            openFile(ctx, cof)) {
+        if (  // Check that the filename wasn't used loading a sequence
+          // of images as one sprite
+          m_usedFiles.find(cof.filename) == m_usedFiles.end() &&
+          // Open sprite
+          openFile(ctx, cof)) {
           lastDoc = cof.document;
         }
       }
@@ -652,9 +659,7 @@ bool CliProcessor::openFile(Context* ctx, CliOpenFile& cof)
 
   Doc* oldDoc = ctx->activeDocument();
 
-  m_batch.open(ctx,
-               cof.filename,
-               cof.oneFrame);
+  m_batch.open(ctx, cof.filename, cof.oneFrame);
 
   // Mark used file names as "already processed" so we don't try to
   // open then again
@@ -692,8 +697,8 @@ bool CliProcessor::openFile(Context* ctx, CliOpenFile& cof)
         // --frame-range with --frame-tag
         if (tag) {
           selFrames.insert(
-            tag->fromFrame()+std::clamp(cof.fromFrame, 0, tag->frames()-1),
-            tag->fromFrame()+std::clamp(cof.toFrame, 0, tag->frames()-1));
+            tag->fromFrame() + std::clamp(cof.fromFrame, 0, tag->frames() - 1),
+            tag->fromFrame() + std::clamp(cof.toFrame, 0, tag->frames() - 1));
         }
         // --frame-range without --frame-tag
         else {
@@ -707,31 +712,32 @@ bool CliProcessor::openFile(Context* ctx, CliOpenFile& cof)
 
       if (cof.exportTileset) {
         m_exporter->addTilesetsSamples(
-          doc,
-          (cof.hasLayersFilter() ? &filteredLayers: nullptr));
+          doc, (cof.hasLayersFilter() ? &filteredLayers : nullptr));
       }
       else {
         m_exporter->addDocumentSamples(
-          doc, tag,
+          doc,
+          tag,
           cof.splitLayers,
           cof.splitTags,
           cof.splitGrid,
-          (cof.hasLayersFilter() ? &filteredLayers: nullptr),
-          (!selFrames.empty() ? &selFrames: nullptr));
+          (cof.hasLayersFilter() ? &filteredLayers : nullptr),
+          (!selFrames.empty() ? &selFrames : nullptr));
       }
     }
   }
 
   m_delegate->afterOpenFile(cof);
 
-  return (doc ? true: false);
+  return (doc ? true : false);
 }
 
 void CliProcessor::saveFile(Context* ctx, const CliOpenFile& cof)
 {
   ctx->setActiveDocument(cof.document);
 
-  Command* trimCommand = Commands::instance()->byId(CommandId::AutocropSprite());
+  Command* trimCommand =
+    Commands::instance()->byId(CommandId::AutocropSprite());
   Command* undoCommand = Commands::instance()->byId(CommandId::Undo());
   Doc* doc = cof.document;
   bool clearUndo = false;
@@ -742,21 +748,20 @@ void CliProcessor::saveFile(Context* ctx, const CliOpenFile& cof)
     cropParams.set("y", base::convert_to<std::string>(cof.crop.y).c_str());
     cropParams.set("width", base::convert_to<std::string>(cof.crop.w).c_str());
     cropParams.set("height", base::convert_to<std::string>(cof.crop.h).c_str());
-    ctx->executeCommand(
-      Commands::instance()->byId(CommandId::CropSprite()),
-      cropParams);
+    ctx->executeCommand(Commands::instance()->byId(CommandId::CropSprite()),
+                        cropParams);
   }
 
   std::string fn = cof.filename;
   std::string filenameFormat = cof.filenameFormat;
-  if (filenameFormat.empty()) { // Default format
+  if (filenameFormat.empty()) {  // Default format
     bool hasFrames = (cof.roi().frames() > 1);
-    filenameFormat = get_default_filename_format(
-      fn,
-      true,                     // With path
-      hasFrames,                // Has frames
-      cof.splitLayers,          // Has layer
-      cof.splitTags);           // Has frame tag
+    filenameFormat =
+      get_default_filename_format(fn,
+                                  true,             // With path
+                                  hasFrames,        // Has frames
+                                  cof.splitLayers,  // Has layer
+                                  cof.splitTags);   // Has frame tag
   }
 
   SelectedLayers filteredLayers;
@@ -777,8 +782,7 @@ void CliProcessor::saveFile(Context* ctx, const CliOpenFile& cof)
 
   std::vector<doc::Tag*> tags;
   if (cof.hasTag()) {
-    tags.push_back(
-      doc->sprite()->tags().getByName(cof.tag));
+    tags.push_back(doc->sprite()->tags().getByName(cof.tag));
   }
   else {
     doc::Tags& origTags = cof.document->sprite()->tags();
@@ -786,8 +790,7 @@ void CliProcessor::saveFile(Context* ctx, const CliOpenFile& cof)
       for (doc::Tag* tag : origTags) {
         // In case the tag is outside the given --frame-range
         if (cof.hasFrameRange()) {
-          if (tag->toFrame() < cof.fromFrame ||
-              tag->fromFrame() > cof.toFrame)
+          if (tag->toFrame() < cof.fromFrame || tag->fromFrame() > cof.toFrame)
             continue;
         }
         tags.push_back(tag);
@@ -799,8 +802,7 @@ void CliProcessor::saveFile(Context* ctx, const CliOpenFile& cof)
 
   std::vector<doc::Slice*> slices;
   if (cof.hasSlice()) {
-    slices.push_back(
-      doc->sprite()->slices().getByName(cof.slice));
+    slices.push_back(doc->sprite()->slices().getByName(cof.slice));
   }
   else {
     doc::Slices& origSlices = cof.document->sprite()->slices();
@@ -826,7 +828,7 @@ void CliProcessor::saveFile(Context* ctx, const CliOpenFile& cof)
 
           // If the user doesn't want all layers and this one is hidden.
           if (!layer->isVisible())
-            continue;     // Just ignore this layer.
+            continue;  // Just ignore this layer.
 
           // Make this layer ("show") the only one visible.
           layersVisibility.showLayer(layer);
@@ -868,9 +870,7 @@ void CliProcessor::saveFile(Context* ctx, const CliOpenFile& cof)
           itemCof.includeLayers.push_back(layer->name());
         }
         if (tag) {
-          fnInfo
-            .innerTagName(tag->name())
-            .outerTagName(tag->name());
+          fnInfo.innerTagName(tag->name()).outerTagName(tag->name());
           itemCof.tag = tag->name();
         }
         if (slice) {
@@ -878,7 +878,8 @@ void CliProcessor::saveFile(Context* ctx, const CliOpenFile& cof)
           itemCof.slice = slice->name();
         }
         itemCof.filename = filename_formatter(filenameFormat, fnInfo);
-        itemCof.filenameFormat = filename_formatter(filenameFormat, fnInfo, false);
+        itemCof.filenameFormat =
+          filename_formatter(filenameFormat, fnInfo, false);
 
         // Call delegate
         m_delegate->saveFile(ctx, itemCof);
@@ -904,4 +905,4 @@ void CliProcessor::saveFile(Context* ctx, const CliOpenFile& cof)
   }
 }
 
-} // namespace app
+}  // namespace app

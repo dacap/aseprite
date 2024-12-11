@@ -10,19 +10,18 @@
 
 namespace ui {
 
-  class Manager;
+class Manager;
 
-  class MessageLoop
-  {
-  public:
-    MessageLoop(Manager* manager);
+class MessageLoop {
+public:
+  MessageLoop(Manager* manager);
 
-    void pumpMessages();
+  void pumpMessages();
 
-  private:
-    Manager* m_manager;
-  };
+private:
+  Manager* m_manager;
+};
 
-} // namespace ui
+}  // namespace ui
 
 #endif

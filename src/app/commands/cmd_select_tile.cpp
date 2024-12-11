@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/set_mask.h"
@@ -66,8 +66,7 @@ bool SelectTileCommand::onEnabled(Context* ctx)
 void SelectTileCommand::onExecute(Context* ctx)
 {
   auto editor = Editor::activeEditor();
-  if (!editor ||
-      !editor->hasMouse())
+  if (!editor || !editor->hasMouse())
     return;
 
   // Lock sprite
@@ -100,9 +99,7 @@ void SelectTileCommand::onExecute(Context* ctx)
   }
 
   // Set the new mask
-  Tx tx(writer,
-        friendlyName(),
-        DoesntModifyDocument);
+  Tx tx(writer, friendlyName(), DoesntModifyDocument);
   tx(new cmd::SetMask(doc, mask.get()));
   tx.commit();
 
@@ -134,4 +131,4 @@ Command* CommandFactory::createSelectTileCommand()
   return new SelectTileCommand;
 }
 
-} // namespace app
+}  // namespace app

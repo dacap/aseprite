@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -59,14 +59,13 @@ void AdvancedModeCommand::onExecute(Context* context)
 
   auto& pref = Preferences::instance();
 
-  if (oldMode == MainWindow::NormalMode &&
-      pref.advancedMode.showAlert()) {
+  if (oldMode == MainWindow::NormalMode && pref.advancedMode.showAlert()) {
     KeyPtr key = KeyboardShortcuts::instance()->command(this->id().c_str());
     if (!key->accels().empty()) {
       app::gen::AdvancedMode window;
 
       window.warningLabel()->setTextf("You can go back pressing \"%s\" key.",
-        key->accels().front().toString().c_str());
+                                      key->accels().front().toString().c_str());
 
       window.openWindowInForeground();
 
@@ -80,4 +79,4 @@ Command* CommandFactory::createAdvancedModeCommand()
   return new AdvancedModeCommand;
 }
 
-} // namespace app
+}  // namespace app

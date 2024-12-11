@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/message_loop.h"
@@ -26,4 +26,4 @@ void MessageLoop::pumpMessages()
     m_manager->dispatchMessages();
 }
 
-} // namespace ui
+}  // namespace ui

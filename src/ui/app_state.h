@@ -10,16 +10,16 @@
 
 namespace ui {
 
-  enum AppState {
-    kNormal,
-    kClosing,
-    kClosingWithException,
-  };
+enum AppState {
+  kNormal,
+  kClosing,
+  kClosingWithException,
+};
 
-  void set_app_state(AppState state);
-  AppState get_app_state();
-  bool is_app_state_closing();
+void set_app_state(AppState state);
+AppState get_app_state();
+bool is_app_state_closing();
 
-} // namespace ui
+}  // namespace ui
 
 #endif

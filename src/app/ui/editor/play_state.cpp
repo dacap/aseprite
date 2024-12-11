@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/editor/play_state.h"
@@ -67,16 +67,13 @@ void PlayState::onEnterState(Editor* editor)
 
   // Get the tag
   if (!m_playAll) {
-    m_tag = m_editor
-      ->getCustomizationDelegate()
-      ->getTagProvider()
-      ->getTagByFrame(m_refFrame, true);
+    m_tag =
+      m_editor->getCustomizationDelegate()->getTagProvider()->getTagByFrame(
+        m_refFrame, true);
 
     // Don't repeat the tag infinitely if the tag repeat field doesn't
     // say so.
-    if (m_playSubtags &&
-        m_tag &&
-        m_tag->repeat() != 0) {
+    if (m_playSubtags && m_tag && m_tag->repeat() != 0) {
       m_tag = nullptr;
     }
   }
@@ -89,9 +86,8 @@ void PlayState::onEnterState(Editor* editor)
     frame_t frame = 0;
 
     if (m_tag) {
-      frame = (m_tag->aniDir() == AniDir::REVERSE ?
-               m_tag->toFrame():
-               m_tag->fromFrame());
+      frame = (m_tag->aniDir() == AniDir::REVERSE ? m_tag->toFrame() :
+                                                    m_tag->fromFrame());
     }
 
     m_editor->setFrame(frame);
@@ -112,7 +108,7 @@ void PlayState::onEnterState(Editor* editor)
       m_editor->frame(),
       m_playOnce ? doc::Playback::PlayOnce :
       m_playAll  ? doc::Playback::PlayWithoutTagsInLoop :
-                  doc::Playback::PlayInLoop,
+                   doc::Playback::PlayInLoop,
       m_tag);
     m_nextFrameTime = getNextFrameTime();
     m_curFrameTick = base::current_tick();
@@ -120,7 +116,8 @@ void PlayState::onEnterState(Editor* editor)
   }
 }
 
-EditorState::LeaveAction PlayState::onLeaveState(Editor* editor, EditorState* newState)
+EditorState::LeaveAction PlayState::onLeaveState(Editor* editor,
+                                                 EditorState* newState)
 {
   // We don't stop the timer if we are going to the ScrollingState
   // (we keep playing the animation).
@@ -195,8 +192,7 @@ bool PlayState::onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos)
   if (ink) {
     if (ink->isZoom()) {
       auto theme = skin::SkinTheme::get(editor);
-      editor->showMouseCursor(
-        kCustomCursor, theme->cursors.magnifier());
+      editor->showMouseCursor(kCustomCursor, theme->cursors.magnifier());
       return true;
     }
   }
@@ -227,7 +223,9 @@ void PlayState::onPlaybackTick()
         // TODO invalid frame from Playback::nextFrame(), in this way
         //      we avoid any kind of crash or assert fail
         frame < 0 || frame > m_editor->sprite()->lastFrame()) {
-      TRACEARGS("!!! PlayState: invalid frame from Playback::nextFrame() frame=", frame);
+      TRACEARGS(
+        "!!! PlayState: invalid frame from Playback::nextFrame() frame=",
+        frame);
       m_editor->stop();
       break;
     }
@@ -270,9 +268,9 @@ void PlayState::onBeforeCommandExecution(CommandExecutionEvent& ev)
 
 double PlayState::getNextFrameTime()
 {
-  return
-    m_editor->sprite()->frameDuration(m_editor->frame())
-    / m_editor->getAnimationSpeedMultiplier(); // The "speed multiplier" is a "duration divider"
+  return m_editor->sprite()->frameDuration(m_editor->frame()) /
+         m_editor
+           ->getAnimationSpeedMultiplier();  // The "speed multiplier" is a "duration divider"
 }
 
-} // namespace app
+}  // namespace app

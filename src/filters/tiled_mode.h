@@ -10,13 +10,13 @@
 
 namespace filters {
 
-  enum class TiledMode {
-    NONE    = 0,
-    X_AXIS  = 1,
-    Y_AXIS  = 2,
-    BOTH    = 3,
-  };
+enum class TiledMode {
+  NONE = 0,
+  X_AXIS = 1,
+  Y_AXIS = 2,
+  BOTH = 3,
+};
 
-} // namespace filters
+}  // namespace filters
 
 #endif

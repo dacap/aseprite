@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -99,15 +99,16 @@ bool PlayPreviewAnimationCommand::onEnabled(Context* ctx)
 
 bool PlayPreviewAnimationCommand::onChecked(Context* ctx)
 {
-  PreviewEditorWindow* preview = App::instance()->mainWindow()->getPreviewEditor();
-  return (preview &&
-          preview->previewEditor() &&
+  PreviewEditorWindow* preview =
+    App::instance()->mainWindow()->getPreviewEditor();
+  return (preview && preview->previewEditor() &&
           preview->previewEditor()->isPlaying());
 }
 
 void PlayPreviewAnimationCommand::onExecute(Context* ctx)
 {
-  PreviewEditorWindow* preview = App::instance()->mainWindow()->getPreviewEditor();
+  PreviewEditorWindow* preview =
+    App::instance()->mainWindow()->getPreviewEditor();
   if (!preview->isPreviewEnabled())
     preview->setPreviewEnabled(true);
   preview->pressPlayButton();
@@ -125,4 +126,4 @@ Command* CommandFactory::createPlayPreviewAnimationCommand()
   return new PlayPreviewAnimationCommand;
 }
 
-} // namespace app
+}  // namespace app

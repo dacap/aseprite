@@ -16,21 +16,21 @@
 
 namespace ui {
 
-  class Property {
-  public:
-    Property(const std::string& name);
-    virtual ~Property();
+class Property {
+public:
+  Property(const std::string& name);
+  virtual ~Property();
 
-    std::string getName() const;
+  std::string getName() const;
 
-  private:
-    std::string m_name;
+private:
+  std::string m_name;
 
-    DISABLE_COPYING(Property);
-  };
+  DISABLE_COPYING(Property);
+};
 
-  typedef std::shared_ptr<Property> PropertyPtr;
+typedef std::shared_ptr<Property> PropertyPtr;
 
-} // namespace ui
+}  // namespace ui
 
 #endif

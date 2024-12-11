@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/window_with_hand.h"
@@ -54,7 +54,8 @@ void WindowWithHand::enableHandTool(const bool state)
     atm->setAllowQuickToolChanges(false);
     m_oldTool = m_editor->getCurrentEditorTool();
 
-    tools::Tool* hand = App::instance()->toolBox()->getToolById(tools::WellKnownTools::Hand);
+    tools::Tool* hand =
+      App::instance()->toolBox()->getToolById(tools::WellKnownTools::Hand);
     ToolBar::instance()->selectTool(hand);
   }
 }

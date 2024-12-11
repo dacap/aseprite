@@ -12,19 +12,20 @@
 
 namespace ui {
 
-  class CloseEvent : public Event
+class CloseEvent : public Event {
+public:
+  CloseEvent(Component* source)
+    : Event(source)
+    , m_canceled(false)
   {
-  public:
-    CloseEvent(Component* source)
-      : Event(source)
-      , m_canceled(false) { }
-    void cancel() { m_canceled = true; }
-    bool canceled() const { return m_canceled; }
+  }
+  void cancel() { m_canceled = true; }
+  bool canceled() const { return m_canceled; }
 
-  private:
-    bool m_canceled;
-  };
+private:
+  bool m_canceled;
+};
 
-} // namespace ui
+}  // namespace ui
 
 #endif  // UI_CLOSE_EVENT_H_INCLUDED

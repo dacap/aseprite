@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/doc.h"
@@ -28,28 +28,24 @@ namespace app {
 using namespace base;
 
 class FliFormat : public FileFormat {
+  const char* onGetName() const override { return "flc"; }
 
-  const char* onGetName() const override {
-    return "flc";
-  }
-
-  void onGetExtensions(base::paths& exts) const override {
+  void onGetExtensions(base::paths& exts) const override
+  {
     exts.push_back("flc");
     exts.push_back("fli");
   }
 
-  dio::FileFormat onGetDioFormat() const override {
+  dio::FileFormat onGetDioFormat() const override
+  {
     return dio::FileFormat::FLIC_ANIMATION;
   }
 
-  int onGetFlags() const override {
-    return
-      FILE_SUPPORT_LOAD |
-      FILE_SUPPORT_SAVE |
-      FILE_SUPPORT_INDEXED |
-      FILE_SUPPORT_FRAMES |
-      FILE_SUPPORT_PALETTES |
-      FILE_ENCODE_ABSTRACT_IMAGE;
+  int onGetFlags() const override
+  {
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_INDEXED |
+           FILE_SUPPORT_FRAMES | FILE_SUPPORT_PALETTES |
+           FILE_ENCODE_ABSTRACT_IMAGE;
   }
 
   bool onLoad(FileOp* fop) override;
@@ -80,7 +76,8 @@ bool FliFormat::onLoad(FileOp* fop)
   // Size by frame
   const int w = header.width;
   const int h = header.height;
-  ASSERT(w > 0 && h > 0); // The decoder cannot return invalid widht/height values
+  ASSERT(w > 0 &&
+         h > 0);  // The decoder cannot return invalid widht/height values
   if (w > 10000 || h > 10000) {
     fop->setError("Image size too big: %dx%d not suported\n", w, h);
     return false;
@@ -107,9 +104,7 @@ bool FliFormat::onLoad(FileOp* fop)
   fliFrame.rowstride = bmp->rowBytes();
 
   frame_t frame_out = 0;
-  for (frame_t frame_in=0;
-       frame_in<sprite->totalFrames();
-       ++frame_in) {
+  for (frame_t frame_in = 0; frame_in < sprite->totalFrames(); ++frame_in) {
     // Read the frame
     if (!decoder.readFrame(fliFrame)) {
       fop->setError("Error reading frame %d\n", frame_in);
@@ -122,10 +117,12 @@ bool FliFormat::onLoad(FileOp* fop)
       oldFliColormap = fliFrame.colormap;
 
       pal.resize(fliFrame.colormap.size());
-      for (int c=0; c<int(fliFrame.colormap.size()); c++) {
-        pal.setEntry(c, rgba(fliFrame.colormap[c].r,
-                             fliFrame.colormap[c].g,
-                             fliFrame.colormap[c].b, 255));
+      for (int c = 0; c < int(fliFrame.colormap.size()); c++) {
+        pal.setEntry(c,
+                     rgba(fliFrame.colormap[c].r,
+                          fliFrame.colormap[c].g,
+                          fliFrame.colormap[c].b,
+                          255));
       }
       pal.setFrame(frame_out);
       sprite->setPalette(&pal, true);
@@ -134,8 +131,7 @@ bool FliFormat::onLoad(FileOp* fop)
     }
 
     // First frame, or the frame changes
-    if (!prevCel ||
-        (count_diff_between_images(prevCel->image(), bmp.get()))) {
+    if (!prevCel || (count_diff_between_images(prevCel->image(), bmp.get()))) {
       // Add the new frame
       ImageRef image(Image::createCopy(bmp.get()));
       Cel* cel = new Cel(frame_out, image);
@@ -153,11 +149,11 @@ bool FliFormat::onLoad(FileOp* fop)
     // The palette and the image don't change: add duration to the last added frame
     else {
       sprite->setFrameDuration(
-        frame_out-1, sprite->frameDuration(frame_out-1) + header.speed);
+        frame_out - 1, sprite->frameDuration(frame_out - 1) + header.speed);
     }
 
     if (header.frames > 0)
-      fop->setProgress((float)(frame_in+1) / (float)(header.frames));
+      fop->setProgress((float)(frame_in + 1) / (float)(header.frames));
 
     if (fop->isStop())
       break;
@@ -209,7 +205,8 @@ bool FliFormat::onSave(FileOp* fop)
   const FileAbstractImage* sprite = fop->abstractImageToSave();
 
   // Open the file to write in binary mode
-  FileHandle handle(open_file_with_exception_sync_on_close(fop->filename(), "wb"));
+  FileHandle handle(
+    open_file_with_exception_sync_on_close(fop->filename(), "wb"));
   FILE* f = handle.get();
   flic::StdioFileInterface finterface(f);
   flic::Encoder encoder(&finterface);
@@ -235,7 +232,7 @@ bool FliFormat::onSave(FileOp* fop)
   auto frame_end = fop->roi().framesSequence().end();
   auto frame_it = frame_beg;
   frame_t nframes = fop->roi().frames();
-  for (frame_t f=0; f<=nframes; ++f, ++frame_it) {
+  for (frame_t f = 0; f <= nframes; ++f, ++frame_it) {
     if (frame_it == frame_end)
       frame_it = frame_beg;
 
@@ -243,7 +240,7 @@ bool FliFormat::onSave(FileOp* fop)
     const Palette* pal = sprite->palette(frame);
     int size = std::min(256, pal->size());
 
-    for (int c=0; c<size; c++) {
+    for (int c = 0; c < size; c++) {
       color_t color = pal->getEntry(c);
       fliFrame.colormap[c].r = rgba_getr(color);
       fliFrame.colormap[c].g = rgba_getg(color);
@@ -258,7 +255,7 @@ bool FliFormat::onSave(FileOp* fop)
     if (f < nframes) {
       int times = sprite->frameDuration(frame) / header.speed;
       times = std::max(1, times);
-      for (int c=0; c<times; c++)
+      for (int c = 0; c < times; c++)
         encoder.writeFrame(fliFrame);
     }
     else {
@@ -266,7 +263,7 @@ bool FliFormat::onSave(FileOp* fop)
     }
 
     // Update progress
-    fop->setProgress((float)(f+1) / (float)(nframes+1));
+    fop->setProgress((float)(f + 1) / (float)(nframes + 1));
   }
 
   return true;
@@ -274,4 +271,4 @@ bool FliFormat::onSave(FileOp* fop)
 
 #endif  // ENABLE_SAVE
 
-} // namespace app
+}  // namespace app

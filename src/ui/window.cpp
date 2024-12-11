@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/window.h"
@@ -50,34 +50,35 @@ gfx::Rect* clickedWindowPos = nullptr;
 
 class WindowTitleLabel : public Label {
 public:
-  WindowTitleLabel(const std::string& text) : Label(text) {
+  WindowTitleLabel(const std::string& text)
+    : Label(text)
+  {
     setDecorative(true);
     setType(kWindowTitleLabelWidget);
     initTheme();
   }
 };
 
-
 // Controls the "X" button in a window to close it.
 class WindowCloseButton : public ButtonBase {
 public:
   WindowCloseButton()
-    : ButtonBase("", kWindowCloseButtonWidget,
-                 kButtonWidget, kButtonWidget) {
+    : ButtonBase("", kWindowCloseButtonWidget, kButtonWidget, kButtonWidget)
+  {
     setDecorative(true);
     initTheme();
   }
 
 protected:
-
-  void onClick() override {
+  void onClick() override
+  {
     ButtonBase::onClick();
     closeWindow();
   }
 
-  bool onProcessMessage(Message* msg) override {
+  bool onProcessMessage(Message* msg) override
+  {
     switch (msg->type()) {
-
       case kSetCursorMessage:
         ui::set_mouse_cursor(kArrowCursor);
         return true;
@@ -106,7 +107,7 @@ protected:
   }
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 Window::Window(Type type, const std::string& text)
   : Widget(kWindowWidget)
@@ -202,8 +203,7 @@ void Window::loadNativeFrame(const gfx::Rect& frame)
   gfx::Size sz = sizeHint() * guiscale();
   if (display())
     sz *= display()->scale();
-  if (m_lastFrame.w < sz.w/5 ||
-      m_lastFrame.h < sz.h/5) {
+  if (m_lastFrame.w < sz.w / 5 || m_lastFrame.h < sz.h / 5) {
     m_lastFrame.setSize(sz);
   }
 }
@@ -228,9 +228,7 @@ void Window::onHitTest(HitTestEvent& ev)
   // the manager where we are receiving mouse events and are not
   // the top most window.
   Widget* picked = pick(ev.point());
-  if (picked &&
-      picked != this &&
-      picked->type() != kWindowTitleLabelWidget) {
+  if (picked && picked != this && picked->type() != kWindowTitleLabelWidget) {
     ev.setHit(ht);
     return;
   }
@@ -241,11 +239,8 @@ void Window::onHitTest(HitTestEvent& ev)
   gfx::Rect cpos = childrenBounds();
 
   // Move
-  if ((hasText())
-      && (((x >= cpos.x) &&
-           (x < cpos.x2()) &&
-           (y >= pos.y+border().bottom()) &&
-           (y < cpos.y)))) {
+  if ((hasText()) && (((x >= cpos.x) && (x < cpos.x2()) &&
+                       (y >= pos.y + border().bottom()) && (y < cpos.y)))) {
     ht = HitTestCaption;
   }
   // Resize
@@ -261,7 +256,7 @@ void Window::onHitTest(HitTestEvent& ev)
     if ((x >= pos.x) && (x < cpos.x)) {
       if ((y >= pos.y) && (y < cpos.y))
         ht = HitTestBorderNW;
-      else if ((y > cpos.y2()-1) && (y <= pos.y2()-1))
+      else if ((y > cpos.y2() - 1) && (y <= pos.y2() - 1))
         ht = HitTestBorderSW;
       else
         ht = HitTestBorderW;
@@ -269,23 +264,23 @@ void Window::onHitTest(HitTestEvent& ev)
     else if ((y >= pos.y) && (y < cpos.y)) {
       if ((x >= pos.x) && (x < cpos.x))
         ht = HitTestBorderNW;
-      else if ((x > cpos.x2()-1) && (x <= pos.x2()-1))
+      else if ((x > cpos.x2() - 1) && (x <= pos.x2() - 1))
         ht = HitTestBorderNE;
       else
         ht = HitTestBorderN;
     }
-    else if ((x > cpos.x2()-1) && (x <= pos.x2()-1)) {
+    else if ((x > cpos.x2() - 1) && (x <= pos.x2() - 1)) {
       if ((y >= pos.y) && (y < cpos.y))
         ht = HitTestBorderNE;
-      else if ((y > cpos.y2()-1) && (y <= pos.y2()-1))
+      else if ((y > cpos.y2() - 1) && (y <= pos.y2() - 1))
         ht = HitTestBorderSE;
       else
         ht = HitTestBorderE;
     }
-    else if ((y > cpos.y2()-1) && (y <= pos.y2()-1)) {
+    else if ((y > cpos.y2() - 1) && (y <= pos.y2() - 1)) {
       if ((x >= pos.x) && (x < cpos.x))
         ht = HitTestBorderSW;
-      else if ((x > cpos.x2()-1) && (x <= pos.x2()-1))
+      else if ((x > cpos.x2() - 1) && (x <= pos.x2() - 1))
         ht = HitTestBorderSE;
       else
         ht = HitTestBorderS;
@@ -352,9 +347,10 @@ void Window::centerWindow(Display* parentDisplay)
 
   fit_bounds(parentDisplay,
              this,
-             gfx::Rect(displaySize.w/2 - windowSize.w/2,
-                       displaySize.h/2 - windowSize.h/2,
-                       windowSize.w, windowSize.h));
+             gfx::Rect(displaySize.w / 2 - windowSize.w / 2,
+                       displaySize.h / 2 - windowSize.h / 2,
+                       windowSize.w,
+                       windowSize.h));
 }
 
 void Window::moveWindow(const gfx::Rect& rect)
@@ -437,7 +433,6 @@ bool Window::isTopLevel()
 bool Window::onProcessMessage(Message* msg)
 {
   switch (msg->type()) {
-
     case kOpenMessage:
       m_closer = nullptr;
       break;
@@ -453,8 +448,7 @@ bool Window::onProcessMessage(Message* msg)
       clickedMousePos = static_cast<MouseMessage*>(msg)->position();
       m_hitTest = hitTest(clickedMousePos);
 
-      if (m_hitTest != HitTestNowhere &&
-          m_hitTest != HitTestClient) {
+      if (m_hitTest != HitTestNowhere && m_hitTest != HitTestClient) {
         if (clickedWindowPos == nullptr)
           clickedWindowPos = new gfx::Rect(bounds());
         else
@@ -464,15 +458,33 @@ bool Window::onProcessMessage(Message* msg)
         if (ownDisplay()) {
           os::WindowAction action = os::WindowAction::Cancel;
           switch (m_hitTest) {
-            case HitTestCaption:  action = os::WindowAction::Move; break;
-            case HitTestBorderNW: action = os::WindowAction::ResizeFromTopLeft; break;
-            case HitTestBorderN:  action = os::WindowAction::ResizeFromTop;  break;
-            case HitTestBorderNE: action = os::WindowAction::ResizeFromTopRight; break;
-            case HitTestBorderW:  action = os::WindowAction::ResizeFromLeft;  break;
-            case HitTestBorderE:  action = os::WindowAction::ResizeFromRight;  break;
-            case HitTestBorderSW: action = os::WindowAction::ResizeFromBottomLeft; break;
-            case HitTestBorderS:  action = os::WindowAction::ResizeFromBottom;  break;
-            case HitTestBorderSE: action = os::WindowAction::ResizeFromBottomRight; break;
+            case HitTestCaption:
+              action = os::WindowAction::Move;
+              break;
+            case HitTestBorderNW:
+              action = os::WindowAction::ResizeFromTopLeft;
+              break;
+            case HitTestBorderN:
+              action = os::WindowAction::ResizeFromTop;
+              break;
+            case HitTestBorderNE:
+              action = os::WindowAction::ResizeFromTopRight;
+              break;
+            case HitTestBorderW:
+              action = os::WindowAction::ResizeFromLeft;
+              break;
+            case HitTestBorderE:
+              action = os::WindowAction::ResizeFromRight;
+              break;
+            case HitTestBorderSW:
+              action = os::WindowAction::ResizeFromBottomLeft;
+              break;
+            case HitTestBorderS:
+              action = os::WindowAction::ResizeFromBottom;
+              break;
+            case HitTestBorderSE:
+              action = os::WindowAction::ResizeFromBottomRight;
+              break;
           }
           if (action != os::WindowAction::Cancel) {
             display()->nativeWindow()->performWindowAction(action, nullptr);
@@ -518,7 +530,8 @@ bool Window::onProcessMessage(Message* msg)
 
         // Reposition/resize
         if (m_hitTest == HitTestCaption) {
-          gfx::Point pos = clickedWindowPos->origin() + mousePos - clickedMousePos;
+          gfx::Point pos =
+            clickedWindowPos->origin() + mousePos - clickedMousePos;
           gfx::Rect rect(pos, bounds().size());
           // Limit window position to avoid hiding the title bar
           limitPosition(rect);
@@ -528,18 +541,18 @@ bool Window::onProcessMessage(Message* msg)
         else {
           gfx::Size size = clickedWindowPos->size();
 
-          bool hitLeft = (m_hitTest == HitTestBorderNW ||
-                          m_hitTest == HitTestBorderW ||
-                          m_hitTest == HitTestBorderSW);
-          bool hitTop = (m_hitTest == HitTestBorderNW ||
-                         m_hitTest == HitTestBorderN ||
-                         m_hitTest == HitTestBorderNE);
-          bool hitRight = (m_hitTest == HitTestBorderNE ||
-                           m_hitTest == HitTestBorderE ||
-                           m_hitTest == HitTestBorderSE);
-          bool hitBottom = (m_hitTest == HitTestBorderSW ||
-                            m_hitTest == HitTestBorderS ||
-                            m_hitTest == HitTestBorderSE);
+          bool hitLeft =
+            (m_hitTest == HitTestBorderNW || m_hitTest == HitTestBorderW ||
+             m_hitTest == HitTestBorderSW);
+          bool hitTop =
+            (m_hitTest == HitTestBorderNW || m_hitTest == HitTestBorderN ||
+             m_hitTest == HitTestBorderNE);
+          bool hitRight =
+            (m_hitTest == HitTestBorderNE || m_hitTest == HitTestBorderE ||
+             m_hitTest == HitTestBorderSE);
+          bool hitBottom =
+            (m_hitTest == HitTestBorderSW || m_hitTest == HitTestBorderS ||
+             m_hitTest == HitTestBorderSE);
 
           if (hitLeft) {
             size.w += clickedMousePos.x - mousePos.x;
@@ -587,22 +600,39 @@ bool Window::onProcessMessage(Message* msg)
         CursorType cursor = kArrowCursor;
 
         switch (ht) {
-          case HitTestCaption: cursor = kArrowCursor; break;
-          case HitTestBorderNW: cursor = kSizeNWCursor; break;
-          case HitTestBorderW: cursor = kSizeWCursor; break;
-          case HitTestBorderSW: cursor = kSizeSWCursor; break;
-          case HitTestBorderNE: cursor = kSizeNECursor; break;
-          case HitTestBorderE: cursor = kSizeECursor; break;
-          case HitTestBorderSE: cursor = kSizeSECursor; break;
-          case HitTestBorderN: cursor = kSizeNCursor; break;
-          case HitTestBorderS: cursor = kSizeSCursor; break;
+          case HitTestCaption:
+            cursor = kArrowCursor;
+            break;
+          case HitTestBorderNW:
+            cursor = kSizeNWCursor;
+            break;
+          case HitTestBorderW:
+            cursor = kSizeWCursor;
+            break;
+          case HitTestBorderSW:
+            cursor = kSizeSWCursor;
+            break;
+          case HitTestBorderNE:
+            cursor = kSizeNECursor;
+            break;
+          case HitTestBorderE:
+            cursor = kSizeECursor;
+            break;
+          case HitTestBorderSE:
+            cursor = kSizeSECursor;
+            break;
+          case HitTestBorderN:
+            cursor = kSizeNCursor;
+            break;
+          case HitTestBorderS:
+            cursor = kSizeSCursor;
+            break;
         }
 
         set_mouse_cursor(cursor);
         return true;
       }
       break;
-
   }
 
   return Widget::onProcessMessage(msg);
@@ -672,7 +702,7 @@ void Window::onSizeHint(SizeHintEvent& ev)
     Size reqSize;
 
     if (m_titleLabel)
-      maxSize.w = maxSize.h = 16*guiscale();
+      maxSize.w = maxSize.h = 16 * guiscale();
 
     for (auto child : children()) {
       if (!child->isDecorative()) {
@@ -686,8 +716,7 @@ void Window::onSizeHint(SizeHintEvent& ev)
     if (m_titleLabel)
       maxSize.w = std::max(maxSize.w, m_titleLabel->sizeHint().w);
 
-    ev.setSizeHint(maxSize.w + border().width(),
-                   maxSize.h + border().height());
+    ev.setSizeHint(maxSize.w + border().width(), maxSize.h + border().height());
   }
 }
 
@@ -718,9 +747,7 @@ void Window::onVisible(bool visible)
 {
   Widget::onVisible(visible);
   Display* display = this->display();
-  if (ownDisplay() &&
-      display &&
-      display->nativeWindow()) {
+  if (ownDisplay() && display && display->nativeWindow()) {
     display->nativeWindow()->setVisible(visible);
   }
 }
@@ -742,8 +769,7 @@ void Window::onBuildTitleLabel()
     else {
       m_titleLabel->setText(text());
       m_titleLabel->setBounds(
-        gfx::Rect(m_titleLabel->bounds()).setSize(
-          m_titleLabel->sizeHint()));
+        gfx::Rect(m_titleLabel->bounds()).setSize(m_titleLabel->sizeHint()));
     }
   }
 }
@@ -850,9 +876,7 @@ void Window::moveWindow(const gfx::Rect& rect, bool use_blit)
   // it's the old window drawable region without the new window
   // drawable region.
   Region invalidManagerRegion;
-  invalidManagerRegion.createSubtraction(
-    oldDrawableRegion,
-    newDrawableRegion);
+  invalidManagerRegion.createSubtraction(oldDrawableRegion, newDrawableRegion);
 
   // In second place, we have to setup the window invalid region...
 
@@ -864,7 +888,7 @@ void Window::moveWindow(const gfx::Rect& rect, bool use_blit)
       // On X11 it's better to avoid copying screen areas
       || true
 #endif
-      ) {
+  ) {
     use_blit = false;
   }
 
@@ -905,4 +929,4 @@ void Window::moveWindow(const gfx::Rect& rect, bool use_blit)
   onWindowMovement();
 }
 
-} // namespace ui
+}  // namespace ui

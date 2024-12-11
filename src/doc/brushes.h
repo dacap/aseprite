@@ -14,8 +14,8 @@
 
 namespace doc {
 
-  typedef std::vector<BrushRef> Brushes;
+typedef std::vector<BrushRef> Brushes;
 
-} // namespace doc
+}  // namespace doc
 
 #endif

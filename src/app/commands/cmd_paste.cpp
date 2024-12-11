@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -26,6 +26,7 @@ protected:
   void onLoadParams(const Params& params) override;
   bool onEnabled(Context* ctx) override;
   void onExecute(Context* ctx) override;
+
 private:
   std::unique_ptr<gfx::Point> m_position;
 };
@@ -60,4 +61,4 @@ Command* CommandFactory::createPasteCommand()
   return new PasteCommand;
 }
 
-} // namespace app
+}  // namespace app

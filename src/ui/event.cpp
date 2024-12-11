@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/event.h"
@@ -26,4 +26,4 @@ Component* Event::getSource()
   return m_source;
 }
 
-} // namespace ui
+}  // namespace ui

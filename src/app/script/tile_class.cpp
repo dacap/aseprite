@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/replace_image.h"
@@ -17,8 +17,7 @@
 #include "app/script/userdata.h"
 #include "doc/tileset.h"
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 using namespace doc;
 
@@ -27,10 +26,10 @@ namespace {
 struct Tile {
   ObjectId id;
   tile_index ti;
-  Tile(const Tileset* ts,
-       const tile_index ti)
+  Tile(const Tileset* ts, const tile_index ti)
     : id(ts->id())
-    , ti(ti) {
+    , ti(ti)
+  {
   }
 };
 
@@ -61,9 +60,7 @@ int Tile_set_image(lua_State* L)
 
   if (ts && ts->sprite()) {
     Tx tx(ts->sprite());
-    tx(new cmd::ReplaceImage(ts->sprite(),
-                             ts->get(tile->ti),
-                             newImage));
+    tx(new cmd::ReplaceImage(ts->sprite(), ts->get(tile->ti), newImage));
     tx.commit();
   }
   return 0;
@@ -169,9 +166,8 @@ int Tile_set_properties(lua_State* L)
   auto newProperties = get_value_from_lua<doc::UserData::Properties>(L, 2);
   if (ts->sprite()) {
     Tx tx(ts->sprite());
-    tx(new cmd::SetTileDataProperties(ts, tile->ti,
-                                      std::string(),
-                                      std::move(newProperties)));
+    tx(new cmd::SetTileDataProperties(
+      ts, tile->ti, std::string(), std::move(newProperties)));
     tx.commit();
   }
   else {
@@ -181,9 +177,7 @@ int Tile_set_properties(lua_State* L)
   return 0;
 }
 
-const luaL_Reg Tile_methods[] = {
-  { nullptr, nullptr }
-};
+const luaL_Reg Tile_methods[] = { { nullptr, nullptr } };
 
 const Property Tile_properties[] = {
   { "index", Tile_get_index, nullptr },
@@ -194,7 +188,7 @@ const Property Tile_properties[] = {
   { nullptr, nullptr, nullptr }
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(Tile);
 
@@ -216,5 +210,4 @@ Tileset* get_tile_index_from_arg(lua_State* L, int index, tile_index& ti)
   return doc::get<Tileset>(tile->id);
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

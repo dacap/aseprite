@@ -18,6 +18,6 @@ public:
   virtual void onDropPixels(DropAction action) { }
 };
 
-} // namespace app
+}  // namespace app
 
 #endif

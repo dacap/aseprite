@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cli/default_cli_delegate.h"
@@ -42,16 +42,13 @@ namespace app {
 
 void DefaultCliDelegate::showHelp(const AppOptions& options)
 {
-  std::cout
-    << get_app_name() << " v" << get_app_version()
-    << " | A pixel art program\n"
-    << get_app_copyright()
-    << "\n\nUsage:\n"
-    << "  " << options.exeName() << " [OPTIONS] [FILES]...\n\n"
-    << "Options:\n"
-    << options.programOptions()
-    << "\nFind more information in " << get_app_name()
-    << " web site: " << get_app_url() << "\n\n";
+  std::cout << get_app_name() << " v" << get_app_version()
+            << " | A pixel art program\n"
+            << get_app_copyright() << "\n\nUsage:\n"
+            << "  " << options.exeName() << " [OPTIONS] [FILES]...\n\n"
+            << "Options:\n"
+            << options.programOptions() << "\nFind more information in "
+            << get_app_name() << " web site: " << get_app_url() << "\n\n";
 }
 
 void DefaultCliDelegate::showVersion()
@@ -61,7 +58,7 @@ void DefaultCliDelegate::showVersion()
 
 void DefaultCliDelegate::afterOpenFile(const CliOpenFile& cof)
 {
-  if (!cof.document)            // Do nothing
+  if (!cof.document)  // Do nothing
     return;
 
   if (cof.listLayers) {
@@ -70,7 +67,8 @@ void DefaultCliDelegate::afterOpenFile(const CliOpenFile& cof)
   }
 
   if (cof.listLayerHierarchy) {
-    std::cout << cof.document->sprite()->visibleLayerHierarchyAsString() << "\n";
+    std::cout << cof.document->sprite()->visibleLayerHierarchyAsString()
+              << "\n";
   }
 
   if (cof.listTags) {
@@ -86,7 +84,8 @@ void DefaultCliDelegate::afterOpenFile(const CliOpenFile& cof)
 
 void DefaultCliDelegate::saveFile(Context* ctx, const CliOpenFile& cof)
 {
-  Command* saveAsCommand = Commands::instance()->byId(CommandId::SaveFileCopyAs());
+  Command* saveAsCommand =
+    Commands::instance()->byId(CommandId::SaveFileCopyAs());
   Params params;
   params.set("filename", cof.filename.c_str());
   params.set("filename-format", cof.filenameFormat.c_str());
@@ -98,7 +97,8 @@ void DefaultCliDelegate::saveFile(Context* ctx, const CliOpenFile& cof)
     params.set("playSubtags", "true");
   }
   if (cof.hasFrameRange()) {
-    params.set("from-frame", base::convert_to<std::string>(cof.fromFrame).c_str());
+    params.set("from-frame",
+               base::convert_to<std::string>(cof.fromFrame).c_str());
     params.set("to-frame", base::convert_to<std::string>(cof.toFrame).c_str());
   }
   if (cof.hasSlice()) {
@@ -111,12 +111,12 @@ void DefaultCliDelegate::saveFile(Context* ctx, const CliOpenFile& cof)
   ctx->executeCommand(saveAsCommand, params);
 }
 
-void DefaultCliDelegate::loadPalette(Context* ctx,
-                                     const std::string& filename)
+void DefaultCliDelegate::loadPalette(Context* ctx, const std::string& filename)
 {
   std::unique_ptr<doc::Palette> palette(load_palette(filename.c_str()));
   if (palette) {
-    Command* loadPalCommand = Commands::instance()->byId(CommandId::LoadPalette());
+    Command* loadPalCommand =
+      Commands::instance()->byId(CommandId::LoadPalette());
     Params params;
     params.set("filename", filename.c_str());
 
@@ -133,8 +133,7 @@ void DefaultCliDelegate::exportFiles(Context* ctx, DocExporter& exporter)
   LOG("APP: Exporting sheet...\n");
 
   base::task_token token;
-  std::unique_ptr<Doc> spriteSheet(
-    exporter.exportSheet(ctx, token));
+  std::unique_ptr<Doc> spriteSheet(exporter.exportSheet(ctx, token));
 
   // Sprite sheet isn't used, we just delete it.
 
@@ -154,6 +153,6 @@ int DefaultCliDelegate::execScript(const std::string& filename,
     throw base::Exception("Error executing script %s", filename.c_str());
   return engine->returnCode();
 }
-#endif // ENABLE_SCRIPTING
+#endif  // ENABLE_SCRIPTING
 
-} // namespace app
+}  // namespace app

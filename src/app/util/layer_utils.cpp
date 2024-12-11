@@ -17,15 +17,13 @@ namespace app {
 
 using namespace doc;
 
-Layer* candidate_if_layer_is_deleted(
-  const Layer* selectedLayer,
-  const Layer* layerToDelete)
+Layer* candidate_if_layer_is_deleted(const Layer* selectedLayer,
+                                     const Layer* layerToDelete)
 {
   const Layer* layerToSelect = selectedLayer;
 
   if ((selectedLayer == layerToDelete) ||
-      (selectedLayer &&
-       selectedLayer->hasAncestor(layerToDelete))) {
+      (selectedLayer && selectedLayer->hasAncestor(layerToDelete))) {
     Sprite* sprite = selectedLayer->sprite();
     LayerGroup* parent = layerToDelete->parent();
 
@@ -60,8 +58,8 @@ bool layer_is_locked(Editor* editor)
 
   if (!layer->isEditableHierarchy()) {
     if (statusBar) {
-      statusBar->showTip(
-        1000, Strings::statusbar_tips_layer_locked(layer->name()));
+      statusBar->showTip(1000,
+                         Strings::statusbar_tips_layer_locked(layer->name()));
     }
     return true;
   }
@@ -72,7 +70,7 @@ bool layer_is_locked(Editor* editor)
 std::string get_layer_path(const Layer* layer)
 {
   std::string path;
-  for (; layer != layer->sprite()->root(); layer=layer->parent()) {
+  for (; layer != layer->sprite()->root(); layer = layer->parent()) {
     if (!path.empty())
       path.insert(0, "/");
     path.insert(0, layer->name());
@@ -80,4 +78,4 @@ std::string get_layer_path(const Layer* layer)
   return path;
 }
 
-} // namespace app
+}  // namespace app

@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/editor/moving_slice_state.h"
@@ -84,8 +84,7 @@ bool MovingSliceState::onMouseMove(Editor* editor, MouseMessage* msg)
     key = item.oldKey;
 
     gfx::Rect rc =
-      (m_hit.type() == EditorHit::SliceCenter ? key.center():
-                                                key.bounds());
+      (m_hit.type() == EditorHit::SliceCenter ? key.center() : key.bounds());
 
     // Move slice
     if (m_hit.border() == (CENTER | MIDDLE)) {
@@ -98,7 +97,7 @@ bool MovingSliceState::onMouseMove(Editor* editor, MouseMessage* msg)
         rc.x += delta.x;
         rc.w -= delta.x;
         if (rc.w < 1) {
-          rc.x += rc.w-1;
+          rc.x += rc.w - 1;
           rc.w = 1;
         }
       }
@@ -106,7 +105,7 @@ bool MovingSliceState::onMouseMove(Editor* editor, MouseMessage* msg)
         rc.y += delta.y;
         rc.h -= delta.y;
         if (rc.h < 1) {
-          rc.y += rc.h-1;
+          rc.y += rc.h - 1;
           rc.h = 1;
         }
       }
@@ -127,7 +126,7 @@ bool MovingSliceState::onMouseMove(Editor* editor, MouseMessage* msg)
         rc.x += delta.x * (totalBounds.x2() - rc.x) / totalBounds.w;
         rc.w -= delta.x * rc.w / totalBounds.w;
         if (rc.w < 1) {
-          rc.x += rc.w-1;
+          rc.x += rc.w - 1;
           rc.w = 1;
         }
       }
@@ -135,7 +134,7 @@ bool MovingSliceState::onMouseMove(Editor* editor, MouseMessage* msg)
         rc.y += delta.y * (totalBounds.y2() - rc.y) / totalBounds.h;
         rc.h -= delta.y * rc.h / totalBounds.h;
         if (rc.h < 1) {
-          rc.y += rc.h-1;
+          rc.y += rc.h - 1;
           rc.h = 1;
         }
       }
@@ -169,7 +168,8 @@ bool MovingSliceState::onMouseMove(Editor* editor, MouseMessage* msg)
   return StandbyState::onMouseMove(editor, msg);
 }
 
-bool MovingSliceState::onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos)
+bool MovingSliceState::onSetCursor(Editor* editor,
+                                   const gfx::Point& mouseScreenPos)
 {
   switch (m_hit.border()) {
     case TOP | LEFT:
@@ -221,4 +221,4 @@ gfx::Rect MovingSliceState::selectedSlicesBounds() const
   return bounds;
 }
 
-} // namespace app
+}  // namespace app

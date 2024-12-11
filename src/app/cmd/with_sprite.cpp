@@ -6,15 +6,14 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/with_sprite.h"
 
 #include "doc/sprite.h"
 
-namespace app {
-namespace cmd {
+namespace app { namespace cmd {
 
 WithSprite::WithSprite(doc::Sprite* sprite)
   : m_spriteId(sprite->id())
@@ -26,5 +25,4 @@ doc::Sprite* WithSprite::sprite()
   return doc::get<doc::Sprite>(m_spriteId);
 }
 
-} // namespace cmd
-} // namespace app
+}}  // namespace app::cmd

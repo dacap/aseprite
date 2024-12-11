@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/shade.h"
@@ -39,4 +39,4 @@ std::string shade_to_string(const Shade& shade)
   return res;
 }
 
-} // namespace app
+}  // namespace app

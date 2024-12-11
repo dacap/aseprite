@@ -7,7 +7,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -23,17 +23,22 @@ using namespace gfx;
 class ToggleTimelineThumbnailsCommand : public Command {
 public:
   ToggleTimelineThumbnailsCommand()
-    : Command(CommandId::ToggleTimelineThumbnails(), CmdUIOnlyFlag) {
+    : Command(CommandId::ToggleTimelineThumbnails(), CmdUIOnlyFlag)
+  {
   }
 
 protected:
-  bool onChecked(Context* context) override {
-    DocumentPreferences& docPref = Preferences::instance().document(context->activeDocument());
+  bool onChecked(Context* context) override
+  {
+    DocumentPreferences& docPref =
+      Preferences::instance().document(context->activeDocument());
     return docPref.thumbnails.enabled();
   }
 
-  void onExecute(Context* context) override {
-    DocumentPreferences& docPref = Preferences::instance().document(context->activeDocument());
+  void onExecute(Context* context) override
+  {
+    DocumentPreferences& docPref =
+      Preferences::instance().document(context->activeDocument());
 
     // Loading default zoom when activating thumbnail
     if (docPref.thumbnails.zoom() <= 1 && !docPref.thumbnails.enabled())
@@ -48,4 +53,4 @@ Command* CommandFactory::createToggleTimelineThumbnailsCommand()
   return new ToggleTimelineThumbnailsCommand;
 }
 
-} // namespace app
+}  // namespace app

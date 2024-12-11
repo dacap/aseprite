@@ -13,18 +13,18 @@
 #endif
 
 namespace app {
-  namespace script {
-    class Engine;
-  }
+namespace script {
+class Engine;
+}
 
-  class Shell {
-  public:
-    Shell();
-    ~Shell();
+class Shell {
+public:
+  Shell();
+  ~Shell();
 
-    void run(script::Engine& engine);
-  };
+  void run(script::Engine& engine);
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

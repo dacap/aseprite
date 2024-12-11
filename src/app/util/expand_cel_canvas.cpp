@@ -5,10 +5,10 @@
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
 
-#define EXP_TRACE(...) // TRACEARGS(__VA_ARGS__)
+#define EXP_TRACE(...)  // TRACEARGS(__VA_ARGS__)
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/util/expand_cel_canvas.h"
@@ -66,16 +66,15 @@ static void create_buffers()
   }
 }
 
-}
+}  // namespace
 
 namespace app {
 
-ExpandCelCanvas::ExpandCelCanvas(
-  Site site,
-  Layer* layer,
-  const TiledMode tiledMode,
-  CmdSequence* cmds,
-  const Flags flags)
+ExpandCelCanvas::ExpandCelCanvas(Site site,
+                                 Layer* layer,
+                                 const TiledMode tiledMode,
+                                 CmdSequence* cmds,
+                                 const Flags flags)
   : m_document(site.document())
   , m_sprite(site.sprite())
   , m_layer(layer)
@@ -119,17 +118,14 @@ ExpandCelCanvas::ExpandCelCanvas(
   m_origCelPos = m_cel->position();
 
   // Region to draw
-  gfx::Rect celBounds = (m_celCreated ? m_sprite->bounds():
-                                        m_cel->bounds());
+  gfx::Rect celBounds = (m_celCreated ? m_sprite->bounds() : m_cel->bounds());
 
-  gfx::Rect spriteBounds(0, 0,
-    m_sprite->width(),
-    m_sprite->height());
+  gfx::Rect spriteBounds(0, 0, m_sprite->width(), m_sprite->height());
 
-  if (tiledMode == TiledMode::NONE) { // Non-tiled
+  if (tiledMode == TiledMode::NONE) {  // Non-tiled
     m_bounds = celBounds.createUnion(spriteBounds);
   }
-  else {                         // Tiled
+  else {  // Tiled
     m_bounds = spriteBounds;
   }
 
@@ -164,9 +160,13 @@ ExpandCelCanvas::ExpandCelCanvas(
     m_cel->setPosition(m_bounds.origin());
 
   EXP_TRACE("ExpandCelCanvas",
-            "m_cel->bounds()=", m_cel->bounds(),
-            "m_bounds=", m_bounds,
-            "m_grid=", m_grid.origin(), m_grid.tileSize());
+            "m_cel->bounds()=",
+            m_cel->bounds(),
+            "m_bounds=",
+            m_bounds,
+            "m_grid=",
+            m_grid.origin(),
+            m_grid.tileSize());
 
   if (m_celCreated) {
     // Calling "getDestCanvas()" we create the m_dstImage
@@ -177,15 +177,13 @@ ExpandCelCanvas::ExpandCelCanvas(
     if (previewSpecificLayerChanges())
       static_cast<LayerImage*>(m_layer)->addCel(m_cel);
   }
-  else if (m_layer->isTilemap() &&
-           m_tilemapMode == TilemapMode::Tiles) {
+  else if (m_layer->isTilemap() && m_tilemapMode == TilemapMode::Tiles) {
     getDestCanvas();
     m_cel->data()->setImage(m_dstImage, m_layer);
   }
   // If we are in a tilemap, we use m_dstImage to draw pixels (instead
   // of the tilemap image).
-  else if (m_layer->isTilemap() &&
-           m_tilemapMode == TilemapMode::Pixels &&
+  else if (m_layer->isTilemap() && m_tilemapMode == TilemapMode::Pixels &&
            !isTilesetPreview()) {
     getDestCanvas();
     m_cel->data()->setImage(m_dstImage, m_layer);
@@ -212,8 +210,10 @@ ExpandCelCanvas::~ExpandCelCanvas()
 void ExpandCelCanvas::commit()
 {
   EXP_TRACE("ExpandCelCanvas::commit",
-            "validSrcRegion", m_validSrcRegion.bounds(),
-            "validDstRegion", m_validDstRegion.bounds());
+            "validSrcRegion",
+            m_validSrcRegion.bounds(),
+            "validDstRegion",
+            m_validDstRegion.bounds());
 
   ASSERT(!m_closed);
   ASSERT(!m_committed);
@@ -239,15 +239,16 @@ void ExpandCelCanvas::commit()
       gfx::Rect trimBounds = getTrimDstImageBounds();
       if (!trimBounds.isEmpty()) {
         // Convert the image to tiles
-        if (m_layer->isTilemap() &&
-            m_tilemapMode == TilemapMode::Pixels) {
+        if (m_layer->isTilemap() && m_tilemapMode == TilemapMode::Pixels) {
           doc::ImageRef newTilemap;
           draw_image_into_new_tilemap_cel(
-            m_cmds, static_cast<doc::LayerTilemap*>(m_layer), m_cel,
+            m_cmds,
+            static_cast<doc::LayerTilemap*>(m_layer),
+            m_cel,
             // Draw the dst image in the tilemap
             m_dstImage.get(),
             m_origCelPos,
-            gfx::Point(0, 0), // m_dstImage->bounds(),
+            gfx::Point(0, 0),  // m_dstImage->bounds(),
             trimBounds,
             newTilemap);
         }
@@ -259,9 +260,9 @@ void ExpandCelCanvas::commit()
           m_cel->setPosition(
             m_cel->position() +
             (m_layer->isTilemap() ?
-             // TODO we should get the exact coordinate from getTrimDstImageBounds()
-             m_grid.tileToCanvas(trimBounds.origin()):
-             trimBounds.origin()));
+               // TODO we should get the exact coordinate from getTrimDstImageBounds()
+               m_grid.tileToCanvas(trimBounds.origin()) :
+               trimBounds.origin()));
         }
 
         // And add the cel again in the layer.
@@ -299,11 +300,13 @@ void ExpandCelCanvas::commit()
     gfx::Region reduced;
 
     if (m_canCompareSrcVsDst) {
-      ASSERT(gfx::Region().createSubtraction(m_validDstRegion, m_validSrcRegion).isEmpty());
+      ASSERT(gfx::Region()
+               .createSubtraction(m_validDstRegion, m_validSrcRegion)
+               .isEmpty());
 
       for (gfx::Rect rc : m_validDstRegion) {
-        if (algorithm::shrink_bounds2(getSourceCanvas(),
-                                      getDestCanvas(), rc, rc)) {
+        if (algorithm::shrink_bounds2(
+              getSourceCanvas(), getDestCanvas(), rc, rc)) {
           reduced |= gfx::Region(rc);
         }
       }
@@ -314,8 +317,7 @@ void ExpandCelCanvas::commit()
     EXP_TRACE(" - regionToPatch", regionToPatch->bounds());
 
     // Convert the image to tiles again
-    if (m_layer->isTilemap() &&
-        m_tilemapMode == TilemapMode::Pixels) {
+    if (m_layer->isTilemap() && m_tilemapMode == TilemapMode::Pixels) {
       ASSERT(m_celImage->pixelFormat() == IMAGE_TILEMAP);
 
       // Validate the whole m_dstImage (invalid areas are cleared, as we
@@ -334,7 +336,9 @@ void ExpandCelCanvas::commit()
         regionToPatch->offset(m_bounds.origin());
 
         modify_tilemap_cel_region(
-          m_cmds, m_cel, nullptr,
+          m_cmds,
+          m_cel,
+          nullptr,
           *regionToPatch,
           m_tilesetMode,
           [this](const doc::ImageRef& origTile,
@@ -345,12 +349,13 @@ void ExpandCelCanvas::commit()
       else {
         ASSERT(m_celImage.get() == m_cel->image());
 
-        const Tileset* srcTileset = static_cast<LayerTilemap*>(m_layer)->tileset();
+        const Tileset* srcTileset =
+          static_cast<LayerTilemap*>(m_layer)->tileset();
         ASSERT(srcTileset);
         ASSERT(srcTileset->size() == m_dstTileset->size());
 
         // Patch tiles
-        for (tile_index ti=1; ti<srcTileset->size(); ++ti) {
+        for (tile_index ti = 1; ti < srcTileset->size(); ++ti) {
           gfx::Region diffRgn;
           create_region_with_differences(srcTileset->get(ti).get(),
                                          m_dstTileset->get(ti).get(),
@@ -358,14 +363,13 @@ void ExpandCelCanvas::commit()
                                          diffRgn);
           if (!diffRgn.isEmpty()) {
             m_cmds->executeAndAdd(
-              new cmd::CopyTileRegion(
-                srcTileset->get(ti).get(),
-                m_dstTileset->get(ti).get(),
-                diffRgn,
-                gfx::Point(0, 0),
-                false,
-                ti,
-                srcTileset));
+              new cmd::CopyTileRegion(srcTileset->get(ti).get(),
+                                      m_dstTileset->get(ti).get(),
+                                      diffRgn,
+                                      gfx::Point(0, 0),
+                                      false,
+                                      ti,
+                                      srcTileset));
           }
         }
       }
@@ -377,12 +381,8 @@ void ExpandCelCanvas::commit()
         // TODO support for tilemap backgrounds?
         ASSERT(m_celImage.get() == m_cel->image());
 
-        m_cmds->executeAndAdd(
-          new cmd::CopyRegion(
-            m_cel->image(),
-            m_dstImage.get(),
-            *regionToPatch,
-            m_bounds.origin()));
+        m_cmds->executeAndAdd(new cmd::CopyRegion(
+          m_cel->image(), m_dstImage.get(), *regionToPatch, m_bounds.origin()));
       }
       else if (m_tilemapMode == TilemapMode::Tiles) {
         ASSERT(m_celImage.get() != m_cel->image());
@@ -392,22 +392,14 @@ void ExpandCelCanvas::commit()
 
         EXP_TRACE(" - Tilemap bounds to patch", regionInCanvas.bounds());
 
-        m_cmds->executeAndAdd(
-          new cmd::PatchCel(
-            m_cel,
-            m_dstImage.get(),
-            regionInCanvas,
-            m_grid.origin()));
+        m_cmds->executeAndAdd(new cmd::PatchCel(
+          m_cel, m_dstImage.get(), regionInCanvas, m_grid.origin()));
       }
       else {
         ASSERT(m_celImage.get() == m_cel->image());
 
-        m_cmds->executeAndAdd(
-          new cmd::PatchCel(
-            m_cel,
-            m_dstImage.get(),
-            *regionToPatch,
-            m_bounds.origin()));
+        m_cmds->executeAndAdd(new cmd::PatchCel(
+          m_cel, m_dstImage.get(), *regionToPatch, m_bounds.origin()));
       }
     }
     // Restore the original cel image if needed (e.g. no region to
@@ -441,8 +433,7 @@ void ExpandCelCanvas::rollback()
   // Restore the original tilemap
   else if (m_layer->isTilemap()) {
     ASSERT(m_celImage->pixelFormat() == IMAGE_TILEMAP);
-    m_cel->data()->setImage(m_celImage,
-                            m_cel->layer());
+    m_cel->data()->setImage(m_celImage, m_cel->layer());
   }
 
   m_closed = true;
@@ -462,13 +453,13 @@ Image* ExpandCelCanvas::getSourceCanvas()
 
   if (!m_srcImage) {
     if (m_tilemapMode == TilemapMode::Tiles) {
-      m_srcImage.reset(Image::create(IMAGE_TILEMAP,
-                                     m_bounds.w, m_bounds.h, src_buffer));
+      m_srcImage.reset(
+        Image::create(IMAGE_TILEMAP, m_bounds.w, m_bounds.h, src_buffer));
       m_srcImage->setMaskColor(doc::notile);
     }
     else {
-      m_srcImage.reset(Image::create(m_sprite->pixelFormat(),
-                                     m_bounds.w, m_bounds.h, src_buffer));
+      m_srcImage.reset(Image::create(
+        m_sprite->pixelFormat(), m_bounds.w, m_bounds.h, src_buffer));
       m_srcImage->setMaskColor(m_sprite->transparentColor());
     }
     m_srcImage->clear(m_srcImage->maskColor());
@@ -480,13 +471,13 @@ Image* ExpandCelCanvas::getDestCanvas()
 {
   if (!m_dstImage) {
     if (m_tilemapMode == TilemapMode::Tiles) {
-      m_dstImage.reset(Image::create(IMAGE_TILEMAP,
-                                     m_bounds.w, m_bounds.h, dst_buffer));
+      m_dstImage.reset(
+        Image::create(IMAGE_TILEMAP, m_bounds.w, m_bounds.h, dst_buffer));
       m_dstImage->setMaskColor(doc::notile);
     }
     else {
-      m_dstImage.reset(Image::create(m_sprite->pixelFormat(),
-                                     m_bounds.w, m_bounds.h, dst_buffer));
+      m_dstImage.reset(Image::create(
+        m_sprite->pixelFormat(), m_bounds.w, m_bounds.h, dst_buffer));
       m_dstImage->setMaskColor(m_sprite->transparentColor());
     }
     m_dstImage->clear(m_dstImage->maskColor());
@@ -497,8 +488,10 @@ Image* ExpandCelCanvas::getDestCanvas()
 Tileset* ExpandCelCanvas::getDestTileset()
 {
   EXP_TRACE("ExpandCelCanvas::getDestTileset()"
-            "celCreated", m_celCreated,
-            "tilesetPreview", isTilesetPreview());
+            "celCreated",
+            m_celCreated,
+            "tilesetPreview",
+            isTilesetPreview());
 
   // When we edit the pixels in manual mode, we can create a tileset
   // that will be used for preview purposes to see changes in all
@@ -537,15 +530,14 @@ void ExpandCelCanvas::validateSourceCanvas(const gfx::Region& rgn)
 
   rgnToValidate.offset(zeroPos);
   rgnToValidate.createSubtraction(rgnToValidate, m_validSrcRegion);
-  rgnToValidate.createIntersection(rgnToValidate, gfx::Region(m_srcImage->bounds()));
+  rgnToValidate.createIntersection(rgnToValidate,
+                                   gfx::Region(m_srcImage->bounds()));
 
   if (m_celImage && previewSpecificLayerChanges()) {
     gfx::Region rgnToClear;
     rgnToClear.createSubtraction(
       rgnToValidate,
-      gfx::Region(m_celImage->bounds()
-                  .offset(origCelPos)
-                  .offset(zeroPos)));
+      gfx::Region(m_celImage->bounds().offset(origCelPos).offset(zeroPos)));
     for (const auto& rc : rgnToClear)
       fill_rect(m_srcImage.get(), rc, m_srcImage->maskColor());
 
@@ -557,18 +549,21 @@ void ExpandCelCanvas::validateSourceCanvas(const gfx::Region& rgn)
       // tiles in the rgnToValidate of this cel.
       render::Render subRender;
       for (const auto& rc : rgnToValidate) {
-        subRender.renderCel(
-          m_srcImage.get(),
-          m_cel,
-          m_sprite,
-          m_celImage.get(),
-          m_layer,
-          m_sprite->palette(m_frame),
-          gfx::RectF(0, 0, m_bounds.w, m_bounds.h),
-          gfx::Clip(rc.x, rc.y,
-                    rc.x+m_bounds.x-origCelPos.x,
-                    rc.y+m_bounds.y-origCelPos.y, rc.w, rc.h),
-          255, BlendMode::NORMAL);
+        subRender.renderCel(m_srcImage.get(),
+                            m_cel,
+                            m_sprite,
+                            m_celImage.get(),
+                            m_layer,
+                            m_sprite->palette(m_frame),
+                            gfx::RectF(0, 0, m_bounds.w, m_bounds.h),
+                            gfx::Clip(rc.x,
+                                      rc.y,
+                                      rc.x + m_bounds.x - origCelPos.x,
+                                      rc.y + m_bounds.y - origCelPos.y,
+                                      rc.w,
+                                      rc.h),
+                            255,
+                            BlendMode::NORMAL);
       }
     }
     else if (m_celImage->pixelFormat() == IMAGE_TILEMAP &&
@@ -579,9 +574,8 @@ void ExpandCelCanvas::validateSourceCanvas(const gfx::Region& rgn)
       for (const auto& rc : rgnToValidate) {
         m_srcImage->copy(
           m_celImage.get(),
-          gfx::Clip(rc.x, rc.y,
-                    rc.x-origCelPos.x,
-                    rc.y-origCelPos.y, rc.w, rc.h));
+          gfx::Clip(
+            rc.x, rc.y, rc.x - origCelPos.x, rc.y - origCelPos.y, rc.w, rc.h));
       }
     }
     else {
@@ -590,11 +584,13 @@ void ExpandCelCanvas::validateSourceCanvas(const gfx::Region& rgn)
 
       // We can copy the cel image directly
       for (const auto& rc : rgnToValidate)
-        m_srcImage->copy(
-          m_celImage.get(),
-          gfx::Clip(rc.x, rc.y,
-                    rc.x+m_bounds.x-origCelPos.x,
-                    rc.y+m_bounds.y-origCelPos.y, rc.w, rc.h));
+        m_srcImage->copy(m_celImage.get(),
+                         gfx::Clip(rc.x,
+                                   rc.y,
+                                   rc.x + m_bounds.x - origCelPos.x,
+                                   rc.y + m_bounds.y - origCelPos.y,
+                                   rc.w,
+                                   rc.h));
     }
   }
   else {
@@ -623,7 +619,7 @@ void ExpandCelCanvas::validateDestCanvas(const gfx::Region& rgn)
     src_y = m_origCelPos.y;
   }
 
-  getDestCanvas();              // Create m_dstImage
+  getDestCanvas();  // Create m_dstImage
 
   gfx::Region rgnToValidate;
   if (m_tilemapMode == TilemapMode::Tiles) {
@@ -638,23 +634,27 @@ void ExpandCelCanvas::validateDestCanvas(const gfx::Region& rgn)
   if (m_tilemapMode != TilemapMode::Tiles)
     rgnToValidate.offset(-m_bounds.origin());
   rgnToValidate.createSubtraction(rgnToValidate, m_validDstRegion);
-  rgnToValidate.createIntersection(rgnToValidate, gfx::Region(m_dstImage->bounds()));
+  rgnToValidate.createIntersection(rgnToValidate,
+                                   gfx::Region(m_dstImage->bounds()));
 
   // ASSERT(src);                  // TODO is it always true?
   if (src) {
     gfx::Region rgnToClear;
-    rgnToClear.createSubtraction(rgnToValidate,
-      gfx::Region(src->bounds()
-        .offset(src_x, src_y)
-        .offset(-m_bounds.origin())));
+    rgnToClear.createSubtraction(
+      rgnToValidate,
+      gfx::Region(
+        src->bounds().offset(src_x, src_y).offset(-m_bounds.origin())));
     for (const auto& rc : rgnToClear)
       fill_rect(m_dstImage.get(), rc, m_dstImage->maskColor());
 
     for (const auto& rc : rgnToValidate)
       m_dstImage->copy(src,
-        gfx::Clip(rc.x, rc.y,
-          rc.x+m_bounds.x-src_x,
-          rc.y+m_bounds.y-src_y, rc.w, rc.h));
+                       gfx::Clip(rc.x,
+                                 rc.y,
+                                 rc.x + m_bounds.x - src_x,
+                                 rc.y + m_bounds.y - src_y,
+                                 rc.w,
+                                 rc.h));
   }
   else {
     for (const auto& rc : rgnToValidate)
@@ -664,7 +664,8 @@ void ExpandCelCanvas::validateDestCanvas(const gfx::Region& rgn)
   m_validDstRegion.createUnion(m_validDstRegion, rgnToValidate);
 }
 
-void ExpandCelCanvas::validateDestTileset(const gfx::Region& rgn, const gfx::Region& forceRgn)
+void ExpandCelCanvas::validateDestTileset(const gfx::Region& rgn,
+                                          const gfx::Region& forceRgn)
 {
   EXP_TRACE("ExpandCelCanvas::validateDestTileset", rgn.bounds(), m_dstTileset);
 
@@ -672,14 +673,13 @@ void ExpandCelCanvas::validateDestTileset(const gfx::Region& rgn, const gfx::Reg
   if (m_dstTileset) {
     gfx::Region regionToPatch = rgn;
     modify_tilemap_cel_region(
-      m_cmds, m_cel,
+      m_cmds,
+      m_cel,
       m_dstTileset.get(),
       regionToPatch,
       m_tilesetMode,
-      [this](const doc::ImageRef& origTile,
-             const gfx::Rect& tileBoundsInCanvas) -> doc::ImageRef {
-        return trimDstImage(tileBoundsInCanvas);
-      },
+      [this](const doc::ImageRef& origTile, const gfx::Rect& tileBoundsInCanvas)
+        -> doc::ImageRef { return trimDstImage(tileBoundsInCanvas); },
       forceRgn);
   }
 }
@@ -714,7 +714,7 @@ void ExpandCelCanvas::copyValidDestToSourceCanvas(const gfx::Region& rgn)
   rgn2.createIntersection(rgn2, m_validDstRegion);
   for (const auto& rc : rgn2)
     m_srcImage->copy(m_dstImage.get(),
-      gfx::Clip(rc.x, rc.y, rc.x, rc.y, rc.w, rc.h));
+                     gfx::Clip(rc.x, rc.y, rc.x, rc.y, rc.w, rc.h));
 
   // We cannot compare src vs dst in this case (e.g. on tools like
   // spray and jumble that updated the source image from the modified
@@ -728,20 +728,20 @@ gfx::Rect ExpandCelCanvas::getTrimDstImageBounds() const
     return m_dstImage->bounds();
   else {
     gfx::Rect bounds;
-    algorithm::shrink_bounds(m_dstImage.get(),
-                             m_dstImage->maskColor(), m_layer, bounds);
+    algorithm::shrink_bounds(
+      m_dstImage.get(), m_dstImage->maskColor(), m_layer, bounds);
     return bounds;
   }
 }
 
 ImageRef ExpandCelCanvas::trimDstImage(const gfx::Rect& bounds) const
 {
-  return ImageRef(
-    crop_image(m_dstImage.get(),
-               bounds.x-m_bounds.x,
-               bounds.y-m_bounds.y,
-               bounds.w, bounds.h,
-               m_dstImage->maskColor()));
+  return ImageRef(crop_image(m_dstImage.get(),
+                             bounds.x - m_bounds.x,
+                             bounds.y - m_bounds.y,
+                             bounds.w,
+                             bounds.h,
+                             m_dstImage->maskColor()));
 }
 
 void ExpandCelCanvas::copySourceTilestToDestTileset()
@@ -749,13 +749,12 @@ void ExpandCelCanvas::copySourceTilestToDestTileset()
   ASSERT(m_layer->isTilemap());
   const Tileset* srcTileset = static_cast<LayerTilemap*>(m_layer)->tileset();
 
-  for (tile_index i=0; i<srcTileset->size(); ++i) {
-    doc::copy_image(m_dstTileset->get(i).get(),
-                    srcTileset->get(i).get());
+  for (tile_index i = 0; i < srcTileset->size(); ++i) {
+    doc::copy_image(m_dstTileset->get(i).get(), srcTileset->get(i).get());
     m_dstTileset->setTileData(i, srcTileset->getTileData(i));
     // To rehash the tileset
     m_dstTileset->notifyTileContentChange(i);
   }
 }
 
-} // namespace app
+}  // namespace app

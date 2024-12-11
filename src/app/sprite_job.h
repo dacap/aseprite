@@ -36,7 +36,8 @@ class Context;
 class SpriteJob : public Job,
                   public render::TaskDelegate {
 public:
-  SpriteJob(Context* ctx, Doc* doc,
+  SpriteJob(Context* ctx,
+            Doc* doc,
             const std::string& jobName,
             const bool showProgress);
   ~SpriteJob();
@@ -45,7 +46,8 @@ public:
   Sprite* sprite() const { return m_sprite; }
 
   template<typename T>
-  void startJobWithCallback(T&& callback) {
+  void startJobWithCallback(T&& callback)
+  {
     m_callback = std::move(callback);
     Job::startJob();
   }
@@ -78,6 +80,6 @@ private:
   std::function<void(Tx&)> m_callback;
 };
 
-} // namespace app
+}  // namespace app
 
-#endif // APP_SPRITE_JOB_H_INCLUDED
+#endif  // APP_SPRITE_JOB_H_INCLUDED

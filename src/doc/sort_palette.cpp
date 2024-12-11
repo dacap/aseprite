@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/sort_palette.h"
@@ -36,10 +36,12 @@ struct PalEntryWithIndexPredicate {
 
   PalEntryWithIndexPredicate(SortPaletteBy channel, bool ascending)
     : channel(channel)
-    , ascending(ascending) {
+    , ascending(ascending)
+  {
   }
 
-  bool operator()(const PalEntryWithIndex& a, const PalEntryWithIndex& b) {
+  bool operator()(const PalEntryWithIndex& a, const PalEntryWithIndex& b)
+  {
     const color_t c1 = a.color;
     const color_t c2 = b.color;
 
@@ -69,18 +71,17 @@ struct PalEntryWithIndexPredicate {
     const uint8_t b2 = rgba_getb(c2);
 
     switch (channel) {
-
       case SortPaletteBy::RED:
-        return (ascending ? r1 < r2: r2 < r1);
+        return (ascending ? r1 < r2 : r2 < r1);
 
       case SortPaletteBy::GREEN:
-        return (ascending ? g1 < g2: g2 < g1);
+        return (ascending ? g1 < g2 : g2 < g1);
 
       case SortPaletteBy::BLUE:
-        return (ascending ? b1 < b2: b2 < b1);
+        return (ascending ? b1 < b2 : b2 < b1);
 
       case SortPaletteBy::ALPHA:
-        return (ascending ? a1 < a2: a2 < a1);
+        return (ascending ? a1 < a2 : a2 < a1);
 
       case SortPaletteBy::HUE: {
         const Hsv hsv1(Rgb(r1, g1, b1));
@@ -95,7 +96,7 @@ struct PalEntryWithIndexPredicate {
         if (sat1 == 0 && sat2 == 0) {
           const int val1 = hsv1.valueInt();
           const int val2 = hsv2.valueInt();
-          return (ascending ? val1 < val2: val2 < val1);
+          return (ascending ? val1 < val2 : val2 < val1);
         }
         else if (sat1 == 0) {
           return ascending;
@@ -106,7 +107,7 @@ struct PalEntryWithIndexPredicate {
 
         const int hue1 = hsv1.hueInt();
         const int hue2 = hsv2.hueInt();
-        return (ascending ? hue1 < hue2: hue2 < hue1);
+        return (ascending ? hue1 < hue2 : hue2 < hue1);
       }
 
       case SortPaletteBy::SATURATION: {
@@ -124,9 +125,9 @@ struct PalEntryWithIndexPredicate {
         if (sat1 == sat2) {
           const int val1 = hsv1.valueInt();
           const int val2 = hsv2.valueInt();
-          return (ascending ? val1 < val2: val2 < val1);
+          return (ascending ? val1 < val2 : val2 < val1);
         }
-        return (ascending ? sat1 < sat2: sat2 < sat1);
+        return (ascending ? sat1 < sat2 : sat2 < sat1);
       }
 
       case SortPaletteBy::VALUE: {
@@ -137,9 +138,9 @@ struct PalEntryWithIndexPredicate {
         if (val1 == val2) {
           const int sat1 = hsv1.saturationInt();
           const int sat2 = hsv2.saturationInt();
-          return (ascending ? sat1 < sat2: sat2 < sat1);
+          return (ascending ? sat1 < sat2 : sat2 < sat1);
         }
-        return (ascending ? val1 < val2: val2 < val1);
+        return (ascending ? val1 < val2 : val2 < val1);
       }
 
       case SortPaletteBy::LUMA: {
@@ -150,7 +151,7 @@ struct PalEntryWithIndexPredicate {
         // source for palette colors is sRGB.
         const int lum1 = rgb_luma(r1 * r1, g1 * g1, b1 * b1);
         const int lum2 = rgb_luma(r2 * r2, g2 * g2, b2 * b2);
-        return (ascending ? lum1 < lum2: lum2 < lum1);
+        return (ascending ? lum1 < lum2 : lum2 < lum1);
       }
 
       case SortPaletteBy::LIGHTNESS: {
@@ -163,7 +164,7 @@ struct PalEntryWithIndexPredicate {
         const int mx2 = std::max(r2, std::max(g2, b2));
         const int light2 = (mn2 + mx2) / 2;
 
-        return (ascending ? light1 < light2: light2 < light1);
+        return (ascending ? light1 < light2 : light2 < light1);
       }
 
       default: {
@@ -174,25 +175,26 @@ struct PalEntryWithIndexPredicate {
   }
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 Remap sort_palette(const Palette* palette,
                    const SortPaletteBy channel,
                    const bool ascending)
 {
   std::vector<PalEntryWithIndex> tmp(palette->size());
-  for (int i=0; i<palette->size(); ++i) {
+  for (int i = 0; i < palette->size(); ++i) {
     tmp[i].index = i;
     tmp[i].color = palette->getEntry(i);
   }
 
-  std::stable_sort(tmp.begin(), tmp.end(), PalEntryWithIndexPredicate(channel, ascending));
+  std::stable_sort(
+    tmp.begin(), tmp.end(), PalEntryWithIndexPredicate(channel, ascending));
 
   Remap remap(palette->size());
-  for (int i=0; i<palette->size(); ++i)
+  for (int i = 0; i < palette->size(); ++i)
     remap.map(tmp[i].index, i);
 
   return remap;
 }
 
-} // namespace doc
+}  // namespace doc

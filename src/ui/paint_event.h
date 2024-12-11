@@ -12,29 +12,27 @@
 
 namespace ui {
 
-  class Graphics;
-  class Widget;
+class Graphics;
+class Widget;
 
-  class PaintEvent : public Event {
-  public:
-    PaintEvent(Widget* source, Graphics* graphics);
-    virtual ~PaintEvent();
+class PaintEvent : public Event {
+public:
+  PaintEvent(Widget* source, Graphics* graphics);
+  virtual ~PaintEvent();
 
-    Graphics* graphics();
+  Graphics* graphics();
 
-    bool isPainted() const { return m_painted; }
-    bool isTransparentBg() const { return m_transparentBg; }
+  bool isPainted() const { return m_painted; }
+  bool isTransparentBg() const { return m_transparentBg; }
 
-    void setTransparentBg(bool state) {
-      m_transparentBg = state;
-    }
+  void setTransparentBg(bool state) { m_transparentBg = state; }
 
-  private:
-    Graphics* m_graphics;
-    bool m_painted;
-    bool m_transparentBg;
-  };
+private:
+  Graphics* m_graphics;
+  bool m_painted;
+  bool m_transparentBg;
+};
 
-} // namespace ui
+}  // namespace ui
 
 #endif

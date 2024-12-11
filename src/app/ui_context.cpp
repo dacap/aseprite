@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui_context.h"
@@ -96,8 +96,7 @@ void UIContext::setActiveView(DocView* docView)
 
   // Do nothing cases: 1) the view is already selected, or 2) the view
   // is the a preview.
-  if (m_lastSelectedView == docView ||
-      (docView && docView->isPreview()))
+  if (m_lastSelectedView == docView || (docView && docView->isPreview()))
     return;
 
   Editor* editor = nullptr;
@@ -147,7 +146,7 @@ void UIContext::onSetActiveDocument(Doc* document, bool notify)
   app::Context::onSetActiveDocument(document, false);
 
   DocView* docView = getFirstDocView(document);
-  if (docView) {     // The view can be null if we are in --batch mode
+  if (docView) {  // The view can be null if we are in --batch mode
     setActiveView(docView);
     notify = false;
   }
@@ -178,9 +177,9 @@ void UIContext::onSetActiveFrame(const doc::frame_t frame)
 
 void UIContext::onSetRange(const DocRange& range)
 {
-  Timeline* timeline =
-    (App::instance()->mainWindow() ?
-     App::instance()->mainWindow()->getTimeline(): nullptr);
+  Timeline* timeline = (App::instance()->mainWindow() ?
+                          App::instance()->mainWindow()->getTimeline() :
+                          nullptr);
   if (timeline) {
     timeline->setRange(range);
   }
@@ -212,7 +211,8 @@ void UIContext::onSetSelectedTiles(const doc::PalettePicks& picks)
 DocView* UIContext::getFirstDocView(Doc* document) const
 {
   Workspace* workspace = App::instance()->workspace();
-  if (!workspace) // Workspace (main window) can be null if we are in --batch mode
+  if (
+    !workspace)  // Workspace (main window) can be null if we are in --batch mode
     return nullptr;
 
   for (WorkspaceView* view : *workspace) {
@@ -305,10 +305,10 @@ void UIContext::onAddDocument(Doc* doc)
     return;
 
   // Add a new view for this document
-  DocView* view = new DocView(
-    lastSelectedDoc(),
-    DocView::Normal,
-    App::instance()->mainWindow()->getPreviewEditor());
+  DocView* view =
+    new DocView(lastSelectedDoc(),
+                DocView::Normal,
+                App::instance()->mainWindow()->getPreviewEditor());
 
   // Add a tab with the new view for the document
   App::instance()->workspace()->addView(view);
@@ -351,9 +351,7 @@ void UIContext::onGetActiveSite(Site* site) const
       // could enable the range even if the timeline is hidden. In
       // this way we avoid using the timeline selection unexpectedly.
       Timeline* timeline = App::instance()->timeline();
-      if (timeline &&
-          timeline->isVisible() &&
-          timeline->range().enabled()) {
+      if (timeline && timeline->isVisible() && timeline->range().enabled()) {
         site->range(timeline->range());
       }
       else {
@@ -393,4 +391,4 @@ void UIContext::onCloseDocument(Doc* doc)
   m_closedDocs.addClosedDoc(doc);
 }
 
-} // namespace app
+}  // namespace app

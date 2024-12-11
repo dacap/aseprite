@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/drm.h"
@@ -61,4 +61,4 @@ bool FileFormat::postLoad(FileOp* fop)
   return onPostLoad(fop);
 }
 
-} // namespace app
+}  // namespace app

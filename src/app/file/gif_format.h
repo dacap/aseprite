@@ -10,12 +10,12 @@
 
 namespace app {
 
-  class GifEncoderDurationFix {
-  public:
-    GifEncoderDurationFix(bool state);
-    ~GifEncoderDurationFix();
-  };
+class GifEncoderDurationFix {
+public:
+  GifEncoderDurationFix(bool state);
+  ~GifEncoderDurationFix();
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

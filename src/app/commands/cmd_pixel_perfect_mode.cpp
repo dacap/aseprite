@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -45,7 +45,8 @@ bool PixelPerfectModeCommand::onChecked(Context* ctx)
     return false;
 
   auto& toolPref = Preferences::instance().tool(tool);
-  return (toolPref.freehandAlgorithm() == tools::FreehandAlgorithm::PIXEL_PERFECT);
+  return (toolPref.freehandAlgorithm() ==
+          tools::FreehandAlgorithm::PIXEL_PERFECT);
 }
 
 void PixelPerfectModeCommand::onExecute(Context* ctx)
@@ -55,10 +56,10 @@ void PixelPerfectModeCommand::onExecute(Context* ctx)
     return;
 
   auto& toolPref = Preferences::instance().tool(tool);
-  toolPref.freehandAlgorithm(
-    toolPref.freehandAlgorithm() == tools::FreehandAlgorithm::DEFAULT ?
-    tools::FreehandAlgorithm::PIXEL_PERFECT:
-    tools::FreehandAlgorithm::DEFAULT);
+  toolPref.freehandAlgorithm(toolPref.freehandAlgorithm() ==
+                                 tools::FreehandAlgorithm::DEFAULT ?
+                               tools::FreehandAlgorithm::PIXEL_PERFECT :
+                               tools::FreehandAlgorithm::DEFAULT);
 }
 
 Command* CommandFactory::createPixelPerfectModeCommand()
@@ -66,4 +67,4 @@ Command* CommandFactory::createPixelPerfectModeCommand()
   return new PixelPerfectModeCommand;
 }
 
-} // namespace app
+}  // namespace app

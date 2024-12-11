@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/slice.h"
@@ -57,7 +57,7 @@ Slice::~Slice()
 
 int Slice::getMemSize() const
 {
-  return sizeof(*this) + sizeof(SliceKey)*m_keys.size();
+  return sizeof(*this) + sizeof(SliceKey) * m_keys.size();
 }
 
 void Slice::insert(const frame_t frame, const SliceKey& key)
@@ -102,4 +102,4 @@ void Slice::setName(const std::string& name)
   m_name = name;
 }
 
-} // namespace doc
+}  // namespace doc

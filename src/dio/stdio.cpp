@@ -52,4 +52,4 @@ void StdioFileInterface::write8(uint8_t value)
   fputc(value, m_file);
 }
 
-} // namespace dio
+}  // namespace dio

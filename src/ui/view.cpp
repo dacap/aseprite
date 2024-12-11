@@ -8,7 +8,7 @@
 // #define DEBUG_SCROLL_EVENTS
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "gfx/size.h"
@@ -26,9 +26,9 @@
 #include "ui/widget.h"
 
 #ifdef DEBUG_SCROLL_EVENTS
-#include "base/thread.h"
-#include "os/surface.h"
-#include "os/window.h"
+  #include "base/thread.h"
+  #include "os/surface.h"
+  #include "os/window.h"
 #endif
 
 #include <algorithm>
@@ -76,14 +76,9 @@ void View::makeVisibleAllScrollableArea()
   Size reqSize = m_viewport.calculateNeededSize();
 
   setMinSize(
-    gfx::Size(
-      + reqSize.w
-      + m_viewport.border().width()
-      + border().width(),
+    gfx::Size(+reqSize.w + m_viewport.border().width() + border().width(),
 
-      + reqSize.h
-      + m_viewport.border().height()
-      + border().height()));
+              +reqSize.h + m_viewport.border().height() + border().height()));
 }
 
 void View::hideScrollBars()
@@ -100,25 +95,21 @@ void View::showScrollBars()
 
 Size View::getScrollableSize() const
 {
-  return Size(m_scrollbar_h.size(),
-              m_scrollbar_v.size());
+  return Size(m_scrollbar_h.size(), m_scrollbar_v.size());
 }
 
-void View::setScrollableSize(const gfx::Size& sz,
-                             const bool setScrollPos)
+void View::setScrollableSize(const gfx::Size& sz, const bool setScrollPos)
 {
   gfx::Rect viewportArea = childrenBounds();
 
   if (m_hasBars) {
-    setup_scrollbars(sz,
-                     viewportArea,
-                     *this,
-                     m_scrollbar_h,
-                     m_scrollbar_v);
+    setup_scrollbars(sz, viewportArea, *this, m_scrollbar_h, m_scrollbar_v);
   }
   else {
-    if (m_scrollbar_h.parent()) removeChild(&m_scrollbar_h);
-    if (m_scrollbar_v.parent()) removeChild(&m_scrollbar_v);
+    if (m_scrollbar_h.parent())
+      removeChild(&m_scrollbar_h);
+    if (m_scrollbar_v.parent())
+      removeChild(&m_scrollbar_v);
     m_scrollbar_h.setVisible(false);
     m_scrollbar_v.setVisible(false);
     m_scrollbar_h.setSize(sz.w);
@@ -128,7 +119,7 @@ void View::setScrollableSize(const gfx::Size& sz,
 
   // Setup viewport
   if (setScrollPos) {
-    setViewScroll(viewScroll()); // Setup the same scroll-point
+    setViewScroll(viewScroll());  // Setup the same scroll-point
     invalidate();
   }
 }
@@ -141,8 +132,7 @@ Size View::visibleSize() const
 
 Point View::viewScroll() const
 {
-  return Point(m_scrollbar_h.getPos(),
-               m_scrollbar_v.getPos());
+  return Point(m_scrollbar_h.getPos(), m_scrollbar_v.getPos());
 }
 
 void View::setViewScroll(const Point& pt)
@@ -201,8 +191,7 @@ Rect View::viewportBounds()
 // static
 View* View::getView(const Widget* widget)
 {
-  if ((widget->parent()) &&
-      (widget->parent()->type() == kViewViewportWidget) &&
+  if ((widget->parent()) && (widget->parent()->type() == kViewViewportWidget) &&
       (widget->parent()->parent()) &&
       (widget->parent()->parent()->type() == kViewWidget))
     return static_cast<View*>(widget->parent()->parent());
@@ -213,7 +202,6 @@ View* View::getView(const Widget* widget)
 bool View::onProcessMessage(Message* msg)
 {
   switch (msg->type()) {
-
     case kFocusEnterMessage:
     case kFocusLeaveMessage:
       // TODO This is theme specific stuff
@@ -324,7 +312,7 @@ void View::onSetViewScroll(const gfx::Point& pt)
     Region movable = validRegion;
     movable.offset(delta);
     movable &= validRegion;
-    invalidRegion -= movable;   // Remove the moved region as invalid
+    invalidRegion -= movable;  // Remove the moved region as invalid
     movable.offset(-delta);
 
     ui::move_region(display, movable, delta.x, delta.y);
@@ -375,8 +363,7 @@ void View::updateAttachedWidgetBounds(const gfx::Point& scrollPos)
     Size reqSize = child->sizeHint();
     cpos.w = std::max(reqSize.w, cpos.w);
     cpos.h = std::max(reqSize.h, cpos.h);
-    if (cpos.w != child->bounds().w ||
-        cpos.h != child->bounds().h)
+    if (cpos.w != child->bounds().w || cpos.h != child->bounds().h)
       child->setBounds(cpos);
     else
       child->offsetWidgets(cpos.x - child->bounds().x,
@@ -392,4 +379,4 @@ gfx::Point View::limitScrollPosToViewport(const gfx::Point& pt) const
                std::clamp(pt.y, 0, std::max(0, maxSize.h - visible.h)));
 }
 
-} // namespace ui
+}  // namespace ui

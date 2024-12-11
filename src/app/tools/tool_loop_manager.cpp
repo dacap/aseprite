@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/tools/tool_loop_manager.h"
@@ -32,10 +32,9 @@
 #include <climits>
 #include <cmath>
 
-#define TOOL_TRACE(...) // TRACEARGS(__VA_ARGS__)
+#define TOOL_TRACE(...)  // TRACEARGS(__VA_ARGS__)
 
-namespace app {
-namespace tools {
+namespace app { namespace tools {
 
 using namespace gfx;
 using namespace doc;
@@ -113,8 +112,10 @@ void ToolLoopManager::pressButton(const Pointer& pointer)
     return;
 
   // If the user pressed the other mouse button...
-  if ((m_toolLoop->getMouseButton() == ToolLoop::Left && pointer.button() == Pointer::Right) ||
-      (m_toolLoop->getMouseButton() == ToolLoop::Right && pointer.button() == Pointer::Left)) {
+  if ((m_toolLoop->getMouseButton() == ToolLoop::Left &&
+       pointer.button() == Pointer::Right) ||
+      (m_toolLoop->getMouseButton() == ToolLoop::Right &&
+       pointer.button() == Pointer::Left)) {
     // Cancel the tool-loop (the destination image should be completely discarded)
     cancel();
     return;
@@ -126,13 +127,14 @@ void ToolLoopManager::pressButton(const Pointer& pointer)
   m_toolLoop->getController()->pressButton(m_toolLoop, m_stroke, spritePoint);
 
   std::string statusText;
-  m_toolLoop->getController()->getStatusBarText(m_toolLoop, m_stroke, statusText);
+  m_toolLoop->getController()->getStatusBarText(
+    m_toolLoop, m_stroke, statusText);
   m_toolLoop->updateStatusBar(statusText.c_str());
 
   // We evaluate if the trace policy has changed compared with
   // the initial trace policy.
   if (!(m_toolLoop->getTracePolicy() == TracePolicy::Last) &&
-        tracePolicyWasLast) {
+      tracePolicyWasLast) {
     // Do nothing. We do not need execute an additional doLoopStep
     // (which it want to accumulate more points in m_pts in function
     // joinStroke() from intertwiners.h)
@@ -162,8 +164,7 @@ bool ToolLoopManager::releaseButton(const Pointer& pointer)
 
   if (!res && (m_toolLoop->getTracePolicy() == TracePolicy::Last ||
                m_toolLoop->getInk()->isSelection() ||
-               m_toolLoop->getInk()->isSlice() ||
-               m_toolLoop->getFilled())) {
+               m_toolLoop->getInk()->isSlice() || m_toolLoop->getFilled())) {
     m_toolLoop->getInk()->setFinalStep(m_toolLoop, true);
     doLoopStep(true);
     m_toolLoop->getInk()->setFinalStep(m_toolLoop, false);
@@ -178,11 +179,12 @@ void ToolLoopManager::movement(Pointer pointer)
   if (m_dynamics.stabilizer && m_dynamics.stabilizerFactor > 0) {
     const double f = m_dynamics.stabilizerFactor;
     const gfx::Point delta = (pointer.point() - m_stabilizerCenter);
-    const double distance = std::sqrt(delta.x*delta.x + delta.y*delta.y);
+    const double distance = std::sqrt(delta.x * delta.x + delta.y * delta.y);
 
     const double angle = std::atan2(delta.y, delta.x);
-    const gfx::PointF newPoint(m_stabilizerCenter.x + distance/f*std::cos(angle),
-                               m_stabilizerCenter.y + distance/f*std::sin(angle));
+    const gfx::PointF newPoint(
+      m_stabilizerCenter.x + distance / f * std::cos(angle),
+      m_stabilizerCenter.y + distance / f * std::sin(angle));
 
     m_stabilizerCenter = newPoint;
 
@@ -202,7 +204,8 @@ void ToolLoopManager::movement(Pointer pointer)
   m_toolLoop->getController()->movement(m_toolLoop, m_stroke, spritePoint);
 
   std::string statusText;
-  m_toolLoop->getController()->getStatusBarText(m_toolLoop, m_stroke, statusText);
+  m_toolLoop->getController()->getStatusBarText(
+    m_toolLoop, m_stroke, statusText);
   m_toolLoop->updateStatusBar(statusText.c_str());
 
   doLoopStep(false);
@@ -238,8 +241,7 @@ void ToolLoopManager::doLoopStep(bool lastStep)
   // released) we are only showing a preview of the tool, so we can
   // limit the dirty area to the visible viewport bounds. In this way
   // the area using in validateoDstImage() can be a lot smaller.
-  if (m_toolLoop->getTracePolicy() == TracePolicy::Last &&
-      !lastStep &&
+  if (m_toolLoop->getTracePolicy() == TracePolicy::Last && !lastStep &&
       // We cannot limit the dirty area for LineFreehandController (or
       // in any case that the trace policy is handled by the
       // controller) just in case the user is using the Pencil tool
@@ -265,12 +267,10 @@ void ToolLoopManager::doLoopStep(bool lastStep)
 
   // True when we have to fill
   const bool fillStrokes =
-    (m_toolLoop->getFilled() &&
-     (lastStep || m_toolLoop->getPreviewFilled()));
+    (m_toolLoop->getFilled() && (lastStep || m_toolLoop->getPreviewFilled()));
 
   // Invalidate the whole destination image area.
-  if (m_toolLoop->getTracePolicy() == TracePolicy::Last ||
-      fillStrokes) {
+  if (m_toolLoop->getTracePolicy() == TracePolicy::Last || fillStrokes) {
     // Copy source to destination (reset all the previous
     // traces). Useful for tools like Line and Ellipse (we keep the
     // last trace only) or to draw the final result in contour tool
@@ -304,13 +304,12 @@ void ToolLoopManager::doLoopStep(bool lastStep)
 void ToolLoopManager::snapToGrid(Stroke::Pt& pt)
 {
   if (!m_toolLoop->getController()->canSnapToGrid() ||
-      !m_toolLoop->getSnapToGrid() ||
-      m_toolLoop->isSelectingTiles())
+      !m_toolLoop->getSnapToGrid() || m_toolLoop->isSelectingTiles())
     return;
 
   gfx::Point point(pt.x, pt.y);
-  point = snap_to_grid(m_toolLoop->getGridBounds(), point,
-                       PreferSnapTo::ClosestGridVertex);
+  point = snap_to_grid(
+    m_toolLoop->getGridBounds(), point, PreferSnapTo::ClosestGridVertex);
   point += m_toolLoop->getBrush()->center();
   pt.x = point.x;
   pt.y = point.y;
@@ -338,14 +337,13 @@ void ToolLoopManager::calculateDirtyArea(const Strokes& strokes)
     Rect r1, r2;
 
     m_toolLoop->getPointShape()->getModifiedArea(
-      m_toolLoop,
-      strokeBounds.x,
-      strokeBounds.y, r1);
+      m_toolLoop, strokeBounds.x, strokeBounds.y, r1);
 
     m_toolLoop->getPointShape()->getModifiedArea(
       m_toolLoop,
-      strokeBounds.x+strokeBounds.w-1,
-      strokeBounds.y+strokeBounds.h-1, r2);
+      strokeBounds.x + strokeBounds.w - 1,
+      strokeBounds.y + strokeBounds.h - 1,
+      r2);
 
     m_dirtyArea.createUnion(m_dirtyArea, Region(r1.createUnion(r2)));
   }
@@ -382,8 +380,7 @@ Stroke::Pt ToolLoopManager::getSpriteStrokePt(const Pointer& pointer)
   }
 
   // Inform the original velocity vector to the ToolLoop
-  m_toolLoop->setSpeed(gfx::Point(pointer.velocity().x,
-                                  pointer.velocity().y));
+  m_toolLoop->setSpeed(gfx::Point(pointer.velocity().x, pointer.velocity().y));
 
   return spritePoint;
 }
@@ -413,20 +410,21 @@ void ToolLoopManager::adjustPointWithDynamics(const Pointer& pointer,
     }
     else if (p > m_dynamics.maxPressureThreshold ||
              // To avoid div by zero
-             m_dynamics.minPressureThreshold == m_dynamics.maxPressureThreshold) {
+             m_dynamics.minPressureThreshold ==
+               m_dynamics.maxPressureThreshold) {
       p = 1.0f;
     }
     else {
-      p =
-        (p - m_dynamics.minPressureThreshold) /
-        (m_dynamics.maxPressureThreshold - m_dynamics.minPressureThreshold);
+      p = (p - m_dynamics.minPressureThreshold) /
+          (m_dynamics.maxPressureThreshold - m_dynamics.minPressureThreshold);
     }
   }
   ASSERT(p >= 0.0f && p <= 1.0f);
   p = std::clamp(p, 0.0f, 1.0f);
 
   // Velocity
-  float v = pointer.velocity().magnitude() / VelocitySensor::kScreenPixelsForFullVelocity;
+  float v = pointer.velocity().magnitude() /
+            VelocitySensor::kScreenPixelsForFullVelocity;
   v = std::clamp(v, 0.0f, 1.0f);
   if (v < m_dynamics.minVelocityThreshold) {
     v = 0.0f;
@@ -437,28 +435,29 @@ void ToolLoopManager::adjustPointWithDynamics(const Pointer& pointer,
     v = 1.0f;
   }
   else {
-    v =
-      (v - m_dynamics.minVelocityThreshold) /
-      (m_dynamics.maxVelocityThreshold - m_dynamics.minVelocityThreshold);
+    v = (v - m_dynamics.minVelocityThreshold) /
+        (m_dynamics.maxVelocityThreshold - m_dynamics.minVelocityThreshold);
   }
   ASSERT(v >= 0.0f && v <= 1.0f);
   v = std::clamp(v, 0.0f, 1.0f);
 
   switch (m_dynamics.size) {
     case DynamicSensor::Pressure:
-      if (hasP) size = (1.0f-p)*m_dynamics.minSize + p*size;
+      if (hasP)
+        size = (1.0f - p) * m_dynamics.minSize + p * size;
       break;
     case DynamicSensor::Velocity:
-      size = (1.0f-v)*m_dynamics.minSize + v*size;
+      size = (1.0f - v) * m_dynamics.minSize + v * size;
       break;
   }
 
   switch (m_dynamics.angle) {
     case DynamicSensor::Pressure:
-      if (hasP) angle = (1.0f-p)*m_dynamics.minAngle + p*angle;
+      if (hasP)
+        angle = (1.0f - p) * m_dynamics.minAngle + p * angle;
       break;
     case DynamicSensor::Velocity:
-      angle = (1.0f-v)*m_dynamics.minAngle + v*angle;
+      angle = (1.0f - v) * m_dynamics.minAngle + v * angle;
       break;
   }
 
@@ -471,9 +470,9 @@ void ToolLoopManager::adjustPointWithDynamics(const Pointer& pointer,
       break;
   }
 
-  pt.size = std::clamp(size, int(Brush::kMinBrushSize), int(Brush::kMaxBrushSize));
+  pt.size =
+    std::clamp(size, int(Brush::kMinBrushSize), int(Brush::kMaxBrushSize));
   pt.angle = std::clamp(angle, -180, 180);
 }
 
-} // namespace tools
-} // namespace app
+}}  // namespace app::tools

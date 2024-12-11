@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/doc.h"
@@ -71,10 +71,9 @@ Preferences::Preferences()
   // bounds to sync the default grid bounds for new sprites in the
   // "doc" layer.
   auto& defPref = document(nullptr);
-  defPref.grid.bounds.AfterChange.connect(
-    [](const gfx::Rect& newValue){
-      doc::Sprite::SetDefaultGridBounds(newValue);
-    });
+  defPref.grid.bounds.AfterChange.connect([](const gfx::Rect& newValue) {
+    doc::Sprite::SetDefaultGridBounds(newValue);
+  });
   doc::Sprite::SetDefaultGridBounds(defPref.grid.bounds());
 
   // Reset confusing defaults for a new instance of the program.
@@ -87,9 +86,7 @@ Preferences::Preferences()
   // Hide the menu bar depending on:
   // 1. this is the first run of the program
   // 2. the native menu bar is available
-  if (firstTime &&
-      os::instance() &&
-      os::instance()->menus()) {
+  if (firstTime && os::instance() && os::instance()->menus()) {
     general.showMenuBar(false);
   }
 }
@@ -156,8 +153,7 @@ ToolPreferences& Preferences::tool(tools::Tool* tool)
     ToolPreferences* toolPref = new ToolPreferences(section);
 
     // Default size for eraser, blur, etc.
-    if (tool && (tool->getInk(0)->isEraser() ||
-                 tool->getInk(0)->isEffect())) {
+    if (tool && (tool->getInk(0)->isEraser() || tool->getInk(0)->isEffect())) {
       toolPref->brush.size.setDefaultValue(8);
     }
 
@@ -188,8 +184,8 @@ DocumentPreferences& Preferences::document(const Doc* doc)
       *docPref = defPref;
 
       // Default values for symmetry
-      docPref->symmetry.xAxis.setValueAndDefault(doc->sprite()->width()/2);
-      docPref->symmetry.yAxis.setValueAndDefault(doc->sprite()->height()/2);
+      docPref->symmetry.xAxis.setValueAndDefault(doc->sprite()->width() / 2);
+      docPref->symmetry.yAxis.setValueAndDefault(doc->sprite()->height() / 2);
     }
 
     // Load specific settings of this document
@@ -250,8 +246,9 @@ std::string Preferences::docConfigFileName(const Doc* doc)
 
   ResourceFinder rf;
   std::string fn = doc->filename();
-  for (size_t i=0; i<fn.size(); ++i) {
-    if (fn[i] == ' ' || fn[i] == '/' || fn[i] == '\\' || fn[i] == ':' || fn[i] == '.') {
+  for (size_t i = 0; i < fn.size(); ++i) {
+    if (fn[i] == ' ' || fn[i] == '/' || fn[i] == '\\' || fn[i] == ':' ||
+        fn[i] == '.') {
       fn[i] = '-';
     }
   }
@@ -259,7 +256,9 @@ std::string Preferences::docConfigFileName(const Doc* doc)
   return rf.getFirstOrCreateDefault();
 }
 
-void Preferences::serializeDocPref(const Doc* doc, app::DocumentPreferences* docPref, bool save)
+void Preferences::serializeDocPref(const Doc* doc,
+                                   app::DocumentPreferences* docPref,
+                                   bool save)
 {
   bool flush_config = false;
 
@@ -295,4 +294,4 @@ void Preferences::serializeDocPref(const Doc* doc, app::DocumentPreferences* doc
   }
 }
 
-} // namespace app
+}  // namespace app

@@ -33,7 +33,6 @@ public:
 
   // Writes one byte in the file (or do nothing if ok() = false)
   virtual void write8(uint8_t value) = 0;
-
 };
 
 class StdioFileInterface : public FileInterface {
@@ -45,11 +44,12 @@ public:
   uint8_t read8() override;
   size_t readBytes(uint8_t* buf, size_t n) override;
   void write8(uint8_t value) override;
+
 private:
   FILE* m_file;
   bool m_ok;
 };
 
-} // namespace dio
+}  // namespace dio
 
 #endif

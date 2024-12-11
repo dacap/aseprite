@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -62,8 +62,7 @@ void LayerOpacityCommand::onExecute(Context* context)
 {
   ContextWriter writer(context);
   Layer* layer = writer.layer();
-  if (!layer ||
-      !layer->isImage() ||
+  if (!layer || !layer->isImage() ||
       static_cast<LayerImage*>(layer)->opacity() == m_opacity)
     return;
 
@@ -82,7 +81,8 @@ void LayerOpacityCommand::onExecute(Context* context)
 
     for (auto layer : selLayers) {
       if (layer->isImage())
-        tx(new cmd::SetLayerOpacity(static_cast<LayerImage*>(layer), m_opacity));
+        tx(
+          new cmd::SetLayerOpacity(static_cast<LayerImage*>(layer), m_opacity));
     }
 
     tx.commit();
@@ -102,4 +102,4 @@ Command* CommandFactory::createLayerOpacityCommand()
   return new LayerOpacityCommand;
 }
 
-} // namespace app
+}  // namespace app

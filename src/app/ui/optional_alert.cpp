@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/optional_alert.h"
@@ -32,4 +32,4 @@ int OptionalAlert::show(Option<bool>& option,
   return ret;
 }
 
-} // namespace app
+}  // namespace app

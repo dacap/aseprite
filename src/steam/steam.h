@@ -25,13 +25,14 @@ public:
 
   bool writeScreenshot(void* rgbBuffer,
                        uint32_t sizeInBytes,
-                       int width, int height);
+                       int width,
+                       int height);
 
 private:
   class Impl;
   std::unique_ptr<Impl> m_impl;
 };
 
-} // namespace steam
+}  // namespace steam
 
 #endif

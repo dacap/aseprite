@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/image_io.h"
@@ -31,10 +31,10 @@ using namespace base::serialization::little_endian;
 bool write_image(std::ostream& os, const Image* image, CancelIO* cancel)
 {
   write32(os, image->id());
-  write8(os, image->pixelFormat());    // Pixel format
-  write16(os, image->width());         // Width
-  write16(os, image->height());        // Height
-  write32(os, image->maskColor());     // Mask color
+  write8(os, image->pixelFormat());  // Pixel format
+  write16(os, image->width());       // Width
+  write16(os, image->height());      // Height
+  write32(os, image->maskColor());   // Mask color
 
   // Number of bytes for visible pixels on each row
   const int widthBytes = image->widthBytes();
@@ -47,11 +47,11 @@ bool write_image(std::ostream& os, const Image* image, CancelIO* cancel)
 #else
   {
     std::ostream::pos_type total_output_pos = os.tellp();
-    write32(os, 0);    // Compressed size (we update this value later)
+    write32(os, 0);  // Compressed size (we update this value later)
 
     z_stream zstream;
     zstream.zalloc = (alloc_func)0;
-    zstream.zfree  = (free_func)0;
+    zstream.zfree = (free_func)0;
     zstream.opaque = (voidpf)0;
     int err = deflateInit(&zstream, Z_DEFAULT_COMPRESSION);
     if (err != Z_OK)
@@ -60,7 +60,7 @@ bool write_image(std::ostream& os, const Image* image, CancelIO* cancel)
     std::vector<uint8_t> compressed(4096);
     int total_output_bytes = 0;
 
-    for (int y=0; y<image->height(); y++) {
+    for (int y = 0; y < image->height(); y++) {
       if (cancel && cancel->isCanceled()) {
         deflateEnd(&zstream);
         return false;
@@ -68,7 +68,7 @@ bool write_image(std::ostream& os, const Image* image, CancelIO* cancel)
 
       zstream.next_in = (Bytef*)image->getPixelAddress(0, y);
       zstream.avail_in = widthBytes;
-      int flush = (y == image->height()-1 ? Z_FINISH: Z_NO_FLUSH);
+      int flush = (y == image->height() - 1 ? Z_FINISH : Z_NO_FLUSH);
 
       do {
         zstream.next_out = (Bytef*)&compressed[0];
@@ -105,18 +105,15 @@ bool write_image(std::ostream& os, const Image* image, CancelIO* cancel)
 Image* read_image(std::istream& is, const bool setId)
 {
   ObjectId id = read32(is);
-  int pixelFormat = read8(is);          // Pixel format
-  int width = read16(is);               // Width
-  int height = read16(is);              // Height
-  uint32_t maskColor = read32(is);      // Mask color
+  int pixelFormat = read8(is);      // Pixel format
+  int width = read16(is);           // Width
+  int height = read16(is);          // Height
+  uint32_t maskColor = read32(is);  // Mask color
 
-  if ((pixelFormat != IMAGE_RGB &&
-       pixelFormat != IMAGE_GRAYSCALE &&
-       pixelFormat != IMAGE_INDEXED &&
-       pixelFormat != IMAGE_BITMAP &&
+  if ((pixelFormat != IMAGE_RGB && pixelFormat != IMAGE_GRAYSCALE &&
+       pixelFormat != IMAGE_INDEXED && pixelFormat != IMAGE_BITMAP &&
        pixelFormat != IMAGE_TILEMAP) ||
-      (width < 1 || height < 1) ||
-      (width > 0xfffff || height > 0xfffff))
+      (width < 1 || height < 1) || (width > 0xfffff || height > 0xfffff))
     return nullptr;
 
   std::unique_ptr<Image> image(
@@ -135,7 +132,7 @@ Image* read_image(std::istream& is, const bool setId)
 
     z_stream zstream;
     zstream.zalloc = (alloc_func)0;
-    zstream.zfree  = (free_func)0;
+    zstream.zfree = (free_func)0;
     zstream.opaque = (voidpf)0;
 
     int err = inflateInit(&zstream);
@@ -195,7 +192,8 @@ Image* read_image(std::istream& is, const bool setId)
         if (err != Z_OK && err != Z_STREAM_END && err != Z_BUF_ERROR)
           throw base::Exception("ZLib error %d in inflate().", err);
 
-        int uncompressed_bytes = (int)((address_end - address) - zstream.avail_out);
+        int uncompressed_bytes =
+          (int)((address_end - address) - zstream.avail_out);
         if (uncompressed_bytes > 0) {
           address += uncompressed_bytes;
         }
@@ -214,4 +212,4 @@ Image* read_image(std::istream& is, const bool setId)
   return image.release();
 }
 
-}
+}  // namespace doc

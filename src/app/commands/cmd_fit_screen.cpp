@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -45,4 +45,4 @@ Command* CommandFactory::createFitScreenCommand()
   return new FitScreenCommand;
 }
 
-} //namespace app
+}  //namespace app

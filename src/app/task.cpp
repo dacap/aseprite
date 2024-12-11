@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/task.h"
@@ -42,4 +42,4 @@ void Task::wait()
   }
 }
 
-} // namespace app
+}  // namespace app

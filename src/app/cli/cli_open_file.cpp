@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cli/cli_open_file.h"
@@ -35,4 +35,4 @@ FileOpROI CliOpenFile::roi() const
                    true);
 }
 
-} // namespace app
+}  // namespace app

@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "net/http_response.h"
@@ -19,4 +19,4 @@ void HttpResponse::write(const char* data, std::size_t length)
   m_stream->write(data, length);
 }
 
-} // namespace net
+}  // namespace net

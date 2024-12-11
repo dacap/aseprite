@@ -33,9 +33,8 @@ public:
     b->addLayer(bb);
   }
 
-  void filter(
-    std::vector<std::string> includes,
-    std::vector<std::string> excludes)
+  void filter(std::vector<std::string> includes,
+              std::vector<std::string> excludes)
   {
     CliProcessor::FilterLayers(
       &sprite, std::move(includes), std::move(excludes), sel);

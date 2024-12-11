@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -19,22 +19,24 @@ using namespace gfx;
 class ToggleTilesModeCommand : public Command {
 public:
   ToggleTilesModeCommand()
-    : Command(CommandId::ToggleTilesMode(), CmdUIOnlyFlag) {
+    : Command(CommandId::ToggleTilesMode(), CmdUIOnlyFlag)
+  {
   }
 
 protected:
-  bool onChecked(Context* context) override {
+  bool onChecked(Context* context) override
+  {
     auto colorBar = ColorBar::instance();
     return (colorBar->tilemapMode() == TilemapMode::Tiles);
   }
 
-  void onExecute(Context* context) override {
+  void onExecute(Context* context) override
+  {
     auto colorBar = ColorBar::instance();
     if (!colorBar->isTilemapModeLocked()) {
-      colorBar->setTilemapMode(
-        colorBar->tilemapMode() == TilemapMode::Pixels ?
-        TilemapMode::Tiles:
-        TilemapMode::Pixels);
+      colorBar->setTilemapMode(colorBar->tilemapMode() == TilemapMode::Pixels ?
+                                 TilemapMode::Tiles :
+                                 TilemapMode::Pixels);
     }
   }
 };
@@ -44,4 +46,4 @@ Command* CommandFactory::createToggleTilesModeCommand()
   return new ToggleTilesModeCommand;
 }
 
-} // namespace app
+}  // namespace app

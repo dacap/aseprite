@@ -5,20 +5,21 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/render/shader_renderer.h"
 
-#if SK_ENABLE_SKSL && ENABLE_DEVMODE // TODO remove ENABLE_DEVMODE when the ShaderRenderer is ready
+#if SK_ENABLE_SKSL &&                                                          \
+  ENABLE_DEVMODE  // TODO remove ENABLE_DEVMODE when the ShaderRenderer is ready
 
-#include "app/color_utils.h"
-#include "app/util/shader_helpers.h"
-#include "doc/render_plan.h"
-#include "os/skia/skia_surface.h"
+  #include "app/color_utils.h"
+  #include "app/util/shader_helpers.h"
+  #include "doc/render_plan.h"
+  #include "os/skia/skia_surface.h"
 
-#include "include/core/SkCanvas.h"
-#include "include/effects/SkRuntimeEffect.h"
+  #include "include/core/SkCanvas.h"
+  #include "include/effects/SkRuntimeEffect.h"
 
 namespace app {
 
@@ -55,32 +56,52 @@ half4 main(vec2 fragcoord) {
 }
 )";
 
-inline SkBlendMode to_skia(const doc::BlendMode bm) {
+inline SkBlendMode to_skia(const doc::BlendMode bm)
+{
   switch (bm) {
-    case doc::BlendMode::NORMAL: return SkBlendMode::kSrcOver;
-    case doc::BlendMode::MULTIPLY: return SkBlendMode::kMultiply;
-    case doc::BlendMode::SCREEN: return SkBlendMode::kScreen;
-    case doc::BlendMode::OVERLAY: return SkBlendMode::kOverlay;
-    case doc::BlendMode::DARKEN: return SkBlendMode::kDarken;
-    case doc::BlendMode::LIGHTEN: return SkBlendMode::kLighten;
-    case doc::BlendMode::COLOR_DODGE: return SkBlendMode::kColorDodge;
-    case doc::BlendMode::COLOR_BURN: return SkBlendMode::kColorBurn;
-    case doc::BlendMode::HARD_LIGHT: return SkBlendMode::kHardLight;
-    case doc::BlendMode::SOFT_LIGHT: return SkBlendMode::kSoftLight;
-    case doc::BlendMode::DIFFERENCE: return SkBlendMode::kDifference;
-    case doc::BlendMode::EXCLUSION: return SkBlendMode::kExclusion;
-    case doc::BlendMode::HSL_HUE: return SkBlendMode::kHue;
-    case doc::BlendMode::HSL_SATURATION: return SkBlendMode::kSaturation;
-    case doc::BlendMode::HSL_COLOR: return SkBlendMode::kColor;
-    case doc::BlendMode::HSL_LUMINOSITY: return SkBlendMode::kLuminosity;
-    case doc::BlendMode::ADDITION: return SkBlendMode::kPlus;
-    case doc::BlendMode::SUBTRACT: break; // TODO
-    case doc::BlendMode::DIVIDE: break; // TODO
+    case doc::BlendMode::NORMAL:
+      return SkBlendMode::kSrcOver;
+    case doc::BlendMode::MULTIPLY:
+      return SkBlendMode::kMultiply;
+    case doc::BlendMode::SCREEN:
+      return SkBlendMode::kScreen;
+    case doc::BlendMode::OVERLAY:
+      return SkBlendMode::kOverlay;
+    case doc::BlendMode::DARKEN:
+      return SkBlendMode::kDarken;
+    case doc::BlendMode::LIGHTEN:
+      return SkBlendMode::kLighten;
+    case doc::BlendMode::COLOR_DODGE:
+      return SkBlendMode::kColorDodge;
+    case doc::BlendMode::COLOR_BURN:
+      return SkBlendMode::kColorBurn;
+    case doc::BlendMode::HARD_LIGHT:
+      return SkBlendMode::kHardLight;
+    case doc::BlendMode::SOFT_LIGHT:
+      return SkBlendMode::kSoftLight;
+    case doc::BlendMode::DIFFERENCE:
+      return SkBlendMode::kDifference;
+    case doc::BlendMode::EXCLUSION:
+      return SkBlendMode::kExclusion;
+    case doc::BlendMode::HSL_HUE:
+      return SkBlendMode::kHue;
+    case doc::BlendMode::HSL_SATURATION:
+      return SkBlendMode::kSaturation;
+    case doc::BlendMode::HSL_COLOR:
+      return SkBlendMode::kColor;
+    case doc::BlendMode::HSL_LUMINOSITY:
+      return SkBlendMode::kLuminosity;
+    case doc::BlendMode::ADDITION:
+      return SkBlendMode::kPlus;
+    case doc::BlendMode::SUBTRACT:
+      break;  // TODO
+    case doc::BlendMode::DIVIDE:
+      break;  // TODO
   }
   return SkBlendMode::kSrc;
 }
 
-} // anonymous namespace
+}  // anonymous namespace
 
 ShaderRenderer::ShaderRenderer()
 {
@@ -182,7 +203,7 @@ void ShaderRenderer::renderSprite(os::Surface* dstSurface,
   if (m_sprite->pixelFormat() == IMAGE_INDEXED) {
     const auto srcPal = m_sprite->palette(frame);
     m_palette.resize(256, 0);
-    for (int i=0; i<srcPal->size(); ++i)
+    for (int i = 0; i < srcPal->size(); ++i)
       m_palette.setEntry(i, srcPal->entry(i));
 
     m_bgLayer = sprite->backgroundLayer();
@@ -201,11 +222,11 @@ void ShaderRenderer::renderSprite(os::Surface* dstSurface,
     p.setStyle(SkPaint::kFill_Style);
     p.setColor(SK_ColorTRANSPARENT);
     p.setBlendMode(SkBlendMode::kSrc);
-    canvas->drawRect(SkRect::MakeXYWH(area.dst.x, area.dst.y, area.size.w, area.size.h), p);
+    canvas->drawRect(
+      SkRect::MakeXYWH(area.dst.x, area.dst.y, area.size.w, area.size.h), p);
 
     // Draw cels
-    canvas->translate(area.dst.x - area.src.x,
-                      area.dst.y - area.src.y);
+    canvas->translate(area.dst.x - area.src.x, area.dst.y - area.src.y);
     canvas->scale(m_proj.scaleX(), m_proj.scaleY());
 
     RenderPlan plan;
@@ -226,7 +247,6 @@ void ShaderRenderer::renderPlan(SkCanvas* canvas,
     const Layer* layer = item.layer;
 
     switch (layer->type()) {
-
       case doc::ObjectType::LayerImage: {
         auto imgLayer = static_cast<const LayerImage*>(layer);
 
@@ -235,8 +255,7 @@ void ShaderRenderer::renderPlan(SkCanvas* canvas,
           gfx::RectF celBounds;
 
           // Is the 'm_previewImage' set to be used with this layer?
-          if (m_previewImage &&
-              checkIfWeShouldUsePreview(cel)) {
+          if (m_previewImage && checkIfWeShouldUsePreview(cel)) {
             celImage = m_previewImage;
             celBounds = gfx::RectF(m_previewPos.x,
                                    m_previewPos.y,
@@ -281,8 +300,7 @@ void ShaderRenderer::renderPlan(SkCanvas* canvas,
 
         // Is the 'm_previewTileset' set to be used with this layer?
         const Tileset* tileset;
-        if (m_previewTileset && cel &&
-            checkIfWeShouldUsePreview(cel)) {
+        if (m_previewTileset && cel && checkIfWeShouldUsePreview(cel)) {
           tileset = m_previewTileset;
         }
         else {
@@ -293,26 +311,30 @@ void ShaderRenderer::renderPlan(SkCanvas* canvas,
         }
 
         const gfx::Clip iarea(area);
-        gfx::Rect tilesToDraw = grid.canvasToTile(
-          m_proj.remove(gfx::Rect(iarea.src, iarea.size)));
+        gfx::Rect tilesToDraw =
+          grid.canvasToTile(m_proj.remove(gfx::Rect(iarea.src, iarea.size)));
 
         int yPixelsPerTile = m_proj.applyY(grid.tileSize().h);
-        if (yPixelsPerTile > 0 && (iarea.size.h + iarea.src.y) % yPixelsPerTile > 0)
+        if (yPixelsPerTile > 0 &&
+            (iarea.size.h + iarea.src.y) % yPixelsPerTile > 0)
           tilesToDraw.h += 1;
         int xPixelsPerTile = m_proj.applyX(grid.tileSize().w);
-        if (xPixelsPerTile > 0 && (iarea.size.w + iarea.src.x) % xPixelsPerTile > 0)
+        if (xPixelsPerTile > 0 &&
+            (iarea.size.w + iarea.src.x) % xPixelsPerTile > 0)
           tilesToDraw.w += 1;
 
         // As area.size is not empty at this point, we have to draw at
         // least one tile (and the clipping will be performed for the
         // tile pixels later).
-        if (tilesToDraw.w < 1) tilesToDraw.w = 1;
-        if (tilesToDraw.h < 1) tilesToDraw.h = 1;
+        if (tilesToDraw.w < 1)
+          tilesToDraw.w = 1;
+        if (tilesToDraw.h < 1)
+          tilesToDraw.h = 1;
 
         tilesToDraw &= celImage->bounds();
 
-        for (int v=tilesToDraw.y; v<tilesToDraw.y2(); ++v) {
-          for (int u=tilesToDraw.x; u<tilesToDraw.x2(); ++u) {
+        for (int v = tilesToDraw.y; v < tilesToDraw.y2(); ++v) {
+          for (int u = tilesToDraw.x; u < tilesToDraw.x2(); ++u) {
             auto tileBoundsOnCanvas = grid.tileToCanvas(gfx::Rect(u, v, 1, 1));
             if (!celImage->bounds().contains(u, v))
               continue;
@@ -356,21 +378,16 @@ void ShaderRenderer::renderCheckeredBackground(os::Surface* dstSurface,
                                                const gfx::Clip& area)
 {
   SkRuntimeShaderBuilder builder(m_bgEffect);
-  builder.uniform("iBg1") = gfxColor_to_SkV4(
-    color_utils::color_for_ui(
-      app::Color::fromImage(m_bgOptions.colorPixelFormat,
-                            m_bgOptions.color1)));
-  builder.uniform("iBg2") = gfxColor_to_SkV4(
-    color_utils::color_for_ui(
-      app::Color::fromImage(m_bgOptions.colorPixelFormat,
-                            m_bgOptions.color2)));
+  builder.uniform("iBg1") = gfxColor_to_SkV4(color_utils::color_for_ui(
+    app::Color::fromImage(m_bgOptions.colorPixelFormat, m_bgOptions.color1)));
+  builder.uniform("iBg2") = gfxColor_to_SkV4(color_utils::color_for_ui(
+    app::Color::fromImage(m_bgOptions.colorPixelFormat, m_bgOptions.color2)));
 
-  float sx = (m_bgOptions.zoom ? m_proj.scaleX(): 1.0);
-  float sy = (m_bgOptions.zoom ? m_proj.scaleY(): 1.0);
+  float sx = (m_bgOptions.zoom ? m_proj.scaleX() : 1.0);
+  float sy = (m_bgOptions.zoom ? m_proj.scaleY() : 1.0);
 
-  builder.uniform("iStripeSize") = SkV2{
-    float(m_bgOptions.stripeSize.w) * sx,
-    float(m_bgOptions.stripeSize.h) * sy};
+  builder.uniform("iStripeSize") = SkV2{ float(m_bgOptions.stripeSize.w) * sx,
+                                         float(m_bgOptions.stripeSize.h) * sy };
 
   SkCanvas* canvas = &static_cast<os::SkiaSurface*>(dstSurface)->canvas();
   canvas->save();
@@ -379,9 +396,8 @@ void ShaderRenderer::renderCheckeredBackground(os::Surface* dstSurface,
     p.setStyle(SkPaint::kFill_Style);
     p.setShader(builder.makeShader());
 
-    canvas->translate(
-      SkIntToScalar(area.dst.x - area.src.x),
-      SkIntToScalar(area.dst.y - area.src.y));
+    canvas->translate(SkIntToScalar(area.dst.x - area.src.x),
+                      SkIntToScalar(area.dst.y - area.src.y));
     canvas->drawRect(
       SkRect::MakeXYWH(area.src.x, area.src.y, area.size.w, area.size.h), p);
   }
@@ -409,7 +425,6 @@ void ShaderRenderer::drawImage(SkCanvas* canvas,
   auto skImg = make_skimage_for_docimage(srcImage);
 
   switch (srcImage->colorMode()) {
-
     case doc::ColorMode::RGB: {
       SkPaint p;
       p.setAlpha(opacity);
@@ -424,7 +439,8 @@ void ShaderRenderer::drawImage(SkCanvas* canvas,
 
     case doc::ColorMode::GRAYSCALE: {
       SkRuntimeShaderBuilder builder(m_grayscaleEffect);
-      builder.child("iImg") = skImg->makeRawShader(SkSamplingOptions(SkFilterMode::kNearest));
+      builder.child("iImg") =
+        skImg->makeRawShader(SkSamplingOptions(SkFilterMode::kNearest));
 
       SkPaint p;
       p.setAlpha(opacity);
@@ -433,10 +449,9 @@ void ShaderRenderer::drawImage(SkCanvas* canvas,
       p.setShader(builder.makeShader());
 
       canvas->save();
-      canvas->translate(
-        SkIntToScalar(x),
-        SkIntToScalar(y));
-      canvas->drawRect(SkRect::MakeXYWH(0, 0, srcImage->width(), srcImage->height()), p);
+      canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
+      canvas->drawRect(
+        SkRect::MakeXYWH(0, 0, srcImage->width(), srcImage->height()), p);
       canvas->restore();
       break;
     }
@@ -446,18 +461,18 @@ void ShaderRenderer::drawImage(SkCanvas* canvas,
       // width=number of palette colors, and height=1
       const size_t palSize = sizeof(color_t) * m_palette.size();
       auto skPalData = SkData::MakeWithoutCopy(
-        (const void*)m_palette.rawColorsData(),
-        palSize);
+        (const void*)m_palette.rawColorsData(), palSize);
       auto skPal = SkImage::MakeRasterData(
-        SkImageInfo::Make(m_palette.size(), 1,
-                          kRGBA_8888_SkColorType,
-                          kUnpremul_SkAlphaType),
+        SkImageInfo::Make(
+          m_palette.size(), 1, kRGBA_8888_SkColorType, kUnpremul_SkAlphaType),
         skPalData,
         palSize);
 
       SkRuntimeShaderBuilder builder(m_indexedEffect);
-      builder.child("iImg") = skImg->makeRawShader(SkSamplingOptions(SkFilterMode::kNearest));
-      builder.child("iPal") = skPal->makeShader(SkSamplingOptions(SkFilterMode::kNearest));
+      builder.child("iImg") =
+        skImg->makeRawShader(SkSamplingOptions(SkFilterMode::kNearest));
+      builder.child("iPal") =
+        skPal->makeShader(SkSamplingOptions(SkFilterMode::kNearest));
 
       SkPaint p;
       p.setAlpha(opacity);
@@ -466,14 +481,12 @@ void ShaderRenderer::drawImage(SkCanvas* canvas,
       p.setShader(builder.makeShader());
 
       canvas->save();
-      canvas->translate(
-        SkIntToScalar(x),
-        SkIntToScalar(y));
-      canvas->drawRect(SkRect::MakeXYWH(0, 0, srcImage->width(), srcImage->height()), p);
+      canvas->translate(SkIntToScalar(x), SkIntToScalar(y));
+      canvas->drawRect(
+        SkRect::MakeXYWH(0, 0, srcImage->width(), srcImage->height()), p);
       canvas->restore();
       break;
     }
-
   }
 }
 
@@ -507,6 +520,6 @@ void ShaderRenderer::afterBackgroundLayerIsPainted()
   }
 }
 
-} // namespace app
+}  // namespace app
 
-#endif // SK_ENABLE_SKSL && ENABLE_DEVMODE
+#endif  // SK_ENABLE_SKSL && ENABLE_DEVMODE

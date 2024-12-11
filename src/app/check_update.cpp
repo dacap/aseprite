@@ -6,28 +6,28 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #ifdef ENABLE_UPDATER
 
-#include "app/check_update.h"
+  #include "app/check_update.h"
 
-#include "app/check_update_delegate.h"
-#include "app/pref/preferences.h"
-#include "base/convert_to.h"
-#include "base/launcher.h"
-#include "base/replace_string.h"
-#include "base/thread.h"
-#include "base/version.h"
-#include "ver/info.h"
+  #include "app/check_update_delegate.h"
+  #include "app/pref/preferences.h"
+  #include "base/convert_to.h"
+  #include "base/launcher.h"
+  #include "base/replace_string.h"
+  #include "base/thread.h"
+  #include "base/version.h"
+  #include "ver/info.h"
 
-#if ENABLE_SENTRY
-  #include "app/sentry_wrapper.h"
-#endif
+  #if ENABLE_SENTRY
+    #include "app/sentry_wrapper.h"
+  #endif
 
-#include <ctime>
-#include <sstream>
+  #include <ctime>
+  #include <sstream>
 
 static const int kMonitoringPeriod = 100;
 
@@ -36,26 +36,24 @@ namespace app {
 class CheckUpdateBackgroundJob : public updater::CheckUpdateDelegate {
 public:
   CheckUpdateBackgroundJob()
-    : m_received(false) { }
-
-  void abort() {
-    m_checker.abort();
+    : m_received(false)
+  {
   }
 
-  bool isReceived() const {
-    return m_received;
-  }
+  void abort() { m_checker.abort(); }
 
-  void sendRequest(const updater::Uuid& uuid, const std::string& extraParams) {
+  bool isReceived() const { return m_received; }
+
+  void sendRequest(const updater::Uuid& uuid, const std::string& extraParams)
+  {
     m_checker.checkNewVersion(uuid, extraParams, this);
   }
 
-  const updater::CheckUpdateResponse& getResponse() const {
-    return m_response;
-  }
+  const updater::CheckUpdateResponse& getResponse() const { return m_response; }
 
 private:
-  void onResponse(updater::CheckUpdateResponse& data) override {
+  void onResponse(updater::CheckUpdateResponse& data) override
+  {
     m_response = data;
     m_received = true;
   }
@@ -65,18 +63,19 @@ private:
   updater::CheckUpdateResponse m_response;
 };
 
-CheckUpdateThreadLauncher::CheckUpdateThreadLauncher(CheckUpdateDelegate* delegate)
+CheckUpdateThreadLauncher::CheckUpdateThreadLauncher(
+  CheckUpdateDelegate* delegate)
   : m_delegate(delegate)
   , m_preferences(Preferences::instance())
   , m_doCheck(true)
   , m_received(false)
   , m_inits(m_preferences.updater.inits())
   , m_exits(m_preferences.updater.exits())
-#ifdef _DEBUG
+  #ifdef _DEBUG
   , m_isDeveloper(true)
-#else
+  #else
   , m_isDeveloper(m_preferences.updater.isDeveloper())
-#endif
+  #endif
   , m_timer(kMonitoringPeriod, NULL)
 {
   // Get how many days we have to wait for the next "check for update"
@@ -87,15 +86,15 @@ CheckUpdateThreadLauncher::CheckUpdateThreadLauncher(CheckUpdateDelegate* delega
     time_t now = std::time(NULL);
 
     // Verify if we are in the "WaitDays" period...
-    if (now < lastCheck+int(double(60*60*24*waitDays)) &&
-        now > lastCheck) {                               // <- Avoid broken clocks
+    if (now < lastCheck + int(double(60 * 60 * 24 * waitDays)) &&
+        now > lastCheck) {  // <- Avoid broken clocks
       // So we do not check for updates.
       m_doCheck = false;
     }
   }
 
   // Minimal stats: number of initializations
-  m_preferences.updater.inits(m_inits+1);
+  m_preferences.updater.inits(m_inits + 1);
   m_preferences.save();
 }
 
@@ -112,7 +111,7 @@ CheckUpdateThreadLauncher::~CheckUpdateThreadLauncher()
   }
 
   // Minimal stats: number of exits
-  m_preferences.updater.exits(m_exits+1);
+  m_preferences.updater.exits(m_exits + 1);
   m_preferences.save();
 }
 
@@ -122,9 +121,9 @@ void CheckUpdateThreadLauncher::launch()
     m_uuid = m_preferences.updater.uuid();
 
   if (!m_uuid.empty()) {
-#if ENABLE_SENTRY
+  #if ENABLE_SENTRY
     Sentry::setUserID(m_uuid);
-#endif
+  #endif
     LOG(VERBOSE, "APP: Saved UUID %s\n", m_uuid.c_str());
   }
 
@@ -138,7 +137,7 @@ void CheckUpdateThreadLauncher::launch()
   m_delegate->onCheckingUpdates();
 
   m_bgJob.reset(new CheckUpdateBackgroundJob);
-  m_thread.reset(new std::thread([this]{ checkForUpdates(); }));
+  m_thread.reset(new std::thread([this] { checkForUpdates(); }));
 
   // Start a timer to monitoring the progress of the background job
   // executed in "m_thread". The "onMonitoringTick" method will be
@@ -156,11 +155,10 @@ void CheckUpdateThreadLauncher::onMonitoringTick()
 {
   // If we do not receive a response yet...
   if (!m_received)
-    return;                     // Skip and wait the next call.
+    return;  // Skip and wait the next call.
 
   // Depending on the type of update received
   switch (m_response.getUpdateType()) {
-
     case updater::CheckUpdateResponse::NoUpdate:
       // Clear
       m_preferences.updater.newVersion("");
@@ -182,9 +180,9 @@ void CheckUpdateThreadLauncher::onMonitoringTick()
     m_preferences.updater.uuid(m_uuid);
 
     if (!m_uuid.empty()) {
-#if ENABLE_SENTRY
+  #if ENABLE_SENTRY
       Sentry::setUserID(m_uuid);
-#endif
+  #endif
       LOG(VERBOSE, "APP: New UUID %s\n", m_uuid.c_str());
     }
   }
@@ -207,8 +205,7 @@ void CheckUpdateThreadLauncher::checkForUpdates()
 
   // Add mini-stats in the request
   std::stringstream extraParams;
-  extraParams << "inits=" << m_inits
-              << "&exits=" << m_exits;
+  extraParams << "inits=" << m_inits << "&exits=" << m_exits;
 
   if (m_isDeveloper)
     extraParams << "&dev=1";
@@ -249,6 +246,6 @@ void CheckUpdateThreadLauncher::showUI()
   }
 }
 
-}
+}  // namespace app
 
-#endif // ENABLE_UPDATER
+#endif  // ENABLE_UPDATER

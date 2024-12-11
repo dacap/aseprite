@@ -12,8 +12,8 @@
 
 namespace doc {
 
-  typedef gfx::Size PixelRatio;
+typedef gfx::Size PixelRatio;
 
-} // namespace doc
+}  // namespace doc
 
 #endif

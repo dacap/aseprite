@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/util/layer_boundaries.h"
@@ -46,7 +46,6 @@ void select_layer_boundaries(Layer* layer,
         auto maskEnd = maskBits.end();
 
         switch (image->pixelFormat()) {
-
           case IMAGE_RGB: {
             LockImageBits<RgbTraits> rgbBits(image);
             auto rgbIt = rgbBits.begin();
@@ -56,7 +55,7 @@ void select_layer_boundaries(Layer* layer,
             for (; maskIt != maskEnd; ++maskIt, ++rgbIt) {
               ASSERT(rgbIt != rgbEnd);
               color_t c = *rgbIt;
-              *maskIt = (rgba_geta(c) >= 128); // TODO configurable threshold
+              *maskIt = (rgba_geta(c) >= 128);  // TODO configurable threshold
             }
             break;
           }
@@ -70,7 +69,7 @@ void select_layer_boundaries(Layer* layer,
             for (; maskIt != maskEnd; ++maskIt, ++grayIt) {
               ASSERT(grayIt != grayEnd);
               color_t c = *grayIt;
-              *maskIt = (graya_geta(c) >= 128); // TODO configurable threshold
+              *maskIt = (graya_geta(c) >= 128);  // TODO configurable threshold
             }
             break;
           }
@@ -89,7 +88,6 @@ void select_layer_boundaries(Layer* layer,
             }
             break;
           }
-
         }
       }
       newMask.unfreeze();
@@ -112,7 +110,7 @@ void select_layer_boundaries(Layer* layer,
         case SelectLayerBoundariesOp::SUBTRACT: {
           Mask oldMask(*doc->mask());
           oldMask.subtract(newMask);
-          newMask.copyFrom(&oldMask); // TODO use something like std::swap()
+          newMask.copyFrom(&oldMask);  // TODO use something like std::swap()
           break;
         }
         case SelectLayerBoundariesOp::INTERSECT:
@@ -132,4 +130,4 @@ void select_layer_boundaries(Layer* layer,
   }
 }
 
-} // namespace app
+}  // namespace app

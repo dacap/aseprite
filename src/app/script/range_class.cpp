@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -28,12 +28,11 @@
 #include <set>
 #include <vector>
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 namespace {
 
-struct RangeObj { // This is like DocRange but referencing objects with IDs
+struct RangeObj {  // This is like DocRange but referencing objects with IDs
   DocRange::Type type;
   ObjectId spriteId;
   doc::SelectedObjects layers;
@@ -43,13 +42,12 @@ struct RangeObj { // This is like DocRange but referencing objects with IDs
   std::vector<color_t> colors;
   std::vector<tile_index> tiles;
 
-  RangeObj(Site& site) {
-    updateFromSite(site);
-  }
+  RangeObj(Site& site) { updateFromSite(site); }
   RangeObj(const RangeObj&) = delete;
   RangeObj& operator=(const RangeObj&) = delete;
 
-  void updateFromSite(const Site& site) {
+  void updateFromSite(const Site& site)
+  {
     if (!site.sprite()) {
       type = DocRange::kNone;
       spriteId = NullId;
@@ -83,8 +81,10 @@ struct RangeObj { // This is like DocRange but referencing objects with IDs
     else {
       // Put the active frame/layer/cel information in the range
       frames.push_back(site.frame());
-      if (site.layer()) layers.insert(site.layer()->id());
-      if (site.cel()) cels.insert(site.cel()->id());
+      if (site.layer())
+        layers.insert(site.layer()->id());
+      if (site.cel())
+        cels.insert(site.cel()->id());
     }
 
     if (site.selectedColors().picks() > 0)
@@ -96,24 +96,30 @@ struct RangeObj { // This is like DocRange but referencing objects with IDs
     slices = site.selectedSlices();
   }
 
-  Sprite* sprite(lua_State* L) { return check_docobj(L, doc::get<Sprite>(spriteId)); }
+  Sprite* sprite(lua_State* L)
+  {
+    return check_docobj(L, doc::get<Sprite>(spriteId));
+  }
 
-  bool contains(const Layer* layer) const {
+  bool contains(const Layer* layer) const
+  {
     return layers.contains(layer->id());
   }
-  bool contains(const frame_t frame) const {
+  bool contains(const frame_t frame) const
+  {
     return std::find(frames.begin(), frames.end(), frame) != frames.end();
   }
-  bool contains(const Cel* cel) const {
-    return cels.contains(cel->id());
-  }
-  bool contains(const Slice* slice) const {
+  bool contains(const Cel* cel) const { return cels.contains(cel->id()); }
+  bool contains(const Slice* slice) const
+  {
     return slices.contains(slice->id());
   }
-  bool containsColor(const color_t color) const {
+  bool containsColor(const color_t color) const
+  {
     return (std::find(colors.begin(), colors.end(), color) != colors.end());
   }
-  bool containsTile(const tile_t tile) const {
+  bool containsTile(const tile_t tile) const
+  {
     return (std::find(tiles.begin(), tiles.end(), tile) != tiles.end());
   }
 };
@@ -358,7 +364,7 @@ int Range_set_colors(lua_State* L)
     while (lua_next(L, 2) != 0) {
       int i = lua_tointeger(L, -1);
       if (i >= picks.size())
-        picks.resize(i+1);
+        picks.resize(i + 1);
       picks[i] = true;
       lua_pop(L, 1);
     }
@@ -379,7 +385,7 @@ int Range_set_tiles(lua_State* L)
     while (lua_next(L, 2) != 0) {
       int i = lua_tointeger(L, -1);
       if (i >= picks.size())
-        picks.resize(i+1);
+        picks.resize(i + 1);
       picks[i] = true;
       lua_pop(L, 1);
     }
@@ -409,14 +415,12 @@ int Range_set_slices(lua_State* L)
   return 0;
 }
 
-const luaL_Reg Range_methods[] = {
-  { "__gc", Range_gc },
-  { "contains", Range_contains },
-  { "containsColor", Range_containsColor },
-  { "containsTile", Range_containsTile },
-  { "clear", Range_clear },
-  { nullptr, nullptr }
-};
+const luaL_Reg Range_methods[] = { { "__gc", Range_gc },
+                                   { "contains", Range_contains },
+                                   { "containsColor", Range_containsColor },
+                                   { "containsTile", Range_containsTile },
+                                   { "clear", Range_clear },
+                                   { nullptr, nullptr } };
 
 const Property Range_properties[] = {
   { "sprite", Range_get_sprite, nullptr },
@@ -433,7 +437,7 @@ const Property Range_properties[] = {
   { nullptr, nullptr, nullptr }
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(RangeObj);
 
@@ -449,5 +453,4 @@ void push_doc_range(lua_State* L, Site& site)
   push_new<RangeObj>(L, site);
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

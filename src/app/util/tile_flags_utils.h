@@ -14,9 +14,8 @@
 
 namespace app {
 
-  void build_tile_flags_string(const doc::tile_flags tf,
-                               std::string& result);
+void build_tile_flags_string(const doc::tile_flags tf, std::string& result);
 
-} // namespace app
+}  // namespace app
 
 #endif

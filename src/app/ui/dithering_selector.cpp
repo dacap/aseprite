@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/dithering_selector.h"
@@ -41,7 +41,6 @@ namespace {
 
 class DitherItem : public ListItem {
 public:
-
   DitherItem(render::DitheringAlgorithm algo,
              const render::DitheringMatrix& matrix,
              const std::string& text)
@@ -54,8 +53,7 @@ public:
   {
   }
 
-  DitherItem(const render::DitheringMatrix& matrix,
-             const std::string& text)
+  DitherItem(const render::DitheringMatrix& matrix, const std::string& text)
     : ListItem(text)
     , m_matrixOnly(true)
     , m_dithering(render::DitheringAlgorithm::None, matrix)
@@ -65,23 +63,19 @@ public:
   {
   }
 
-  render::DitheringAlgorithm algo() const {
-    return m_dithering.algorithm();
-  }
+  render::DitheringAlgorithm algo() const { return m_dithering.algorithm(); }
 
-  render::DitheringMatrix matrix() const {
-    return m_dithering.matrix();
-  }
+  render::DitheringMatrix matrix() const { return m_dithering.matrix(); }
 
 private:
-  os::Surface* preview() {
+  os::Surface* preview()
+  {
     const doc::Palette* palette = get_current_palette();
     ASSERT(palette);
 
     if (m_preview) {
       // Reuse the preview in case that the palette is exactly the same
-      if (palette->id() == m_palId &&
-          palette->getModifications() == m_palMods)
+      if (palette->id() == m_palId && palette->getModifications() == m_palMods)
         return m_preview.get();
 
       // In other case regenerate the preview for the current palette
@@ -94,11 +88,10 @@ private:
       image1.get(),
       gfx::Point(0, 0),
       gfx::Point(0, 0),
-      gfx::Point(w-1, 0),
+      gfx::Point(w - 1, 0),
       doc::rgba(0, 0, 0, 255),
       doc::rgba(255, 255, 255, 255),
-      (m_matrixOnly ? m_dithering.matrix():
-                      render::DitheringMatrix()));
+      (m_matrixOnly ? m_dithering.matrix() : render::DitheringMatrix()));
 
     doc::ImageRef image2;
     if (m_matrixOnly) {
@@ -107,30 +100,38 @@ private:
     else {
       image2.reset(doc::Image::create(doc::IMAGE_INDEXED, w, h));
       doc::clear_image(image2.get(), 0);
-      render::convert_pixel_format(
-        image1.get(), image2.get(), IMAGE_INDEXED,
-        m_dithering, nullptr, palette, true, -1, nullptr);
+      render::convert_pixel_format(image1.get(),
+                                   image2.get(),
+                                   IMAGE_INDEXED,
+                                   m_dithering,
+                                   nullptr,
+                                   palette,
+                                   true,
+                                   -1,
+                                   nullptr);
     }
 
     m_preview = os::instance()->makeRgbaSurface(w, h);
-    convert_image_to_surface(image2.get(), palette, m_preview.get(),
-                             0, 0, 0, 0, w, h);
+    convert_image_to_surface(
+      image2.get(), palette, m_preview.get(), 0, 0, 0, 0, w, h);
 
     m_palId = palette->id();
     m_palMods = palette->getModifications();
     return m_preview.get();
   }
 
-  void onSizeHint(SizeHintEvent& ev) override {
+  void onSizeHint(SizeHintEvent& ev) override
+  {
     gfx::Size sz = textSize();
 
-    sz.w = std::max(sz.w, preview()->width()*guiscale()) + 4*guiscale();
-    sz.h += 6*guiscale() + preview()->height()*guiscale();
+    sz.w = std::max(sz.w, preview()->width() * guiscale()) + 4 * guiscale();
+    sz.h += 6 * guiscale() + preview()->height() * guiscale();
 
     ev.setSizeHint(sz);
   }
 
-  void onPaint(PaintEvent& ev) override {
+  void onPaint(PaintEvent& ev) override
+  {
     Graphics* g = ev.graphics();
     auto theme = skin::SkinTheme::get(this);
 
@@ -148,23 +149,20 @@ private:
     g->fillRect(bg, rc);
 
     gfx::Size textsz = textSize();
-    g->drawText(text(), fg, bg,
-                gfx::Point(rc.x+2*guiscale(),
-                           rc.y+2*guiscale()));
+    g->drawText(
+      text(), fg, bg, gfx::Point(rc.x + 2 * guiscale(), rc.y + 2 * guiscale()));
 
     ui::Paint paint;
     paint.blendMode(os::BlendMode::SrcOver);
 
-    g->drawSurface(
-      preview(),
-      preview()->bounds(),
-      gfx::Rect(
-        rc.x+2*guiscale(),
-        rc.y+4*guiscale()+textsz.h,
-        preview()->width()*guiscale(),
-        preview()->height()*guiscale()),
-      os::Sampling(),
-      &paint);
+    g->drawSurface(preview(),
+                   preview()->bounds(),
+                   gfx::Rect(rc.x + 2 * guiscale(),
+                             rc.y + 4 * guiscale() + textsz.h,
+                             preview()->width() * guiscale(),
+                             preview()->height() * guiscale()),
+                   os::Sampling(),
+                   &paint);
   }
 
   bool m_matrixOnly;
@@ -174,7 +172,7 @@ private:
   int m_palMods;
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DitheringSelector::DitheringSelector(Type type)
   : m_type(type)
@@ -184,8 +182,7 @@ DitheringSelector::DitheringSelector(Type type)
   // If an extension with "ditheringMatrices" is disable/enable, we
   // regenerate this DitheringSelector
   m_extChanges =
-    extensions.DitheringMatricesChange.connect(
-      [this]{ regenerate(); });
+    extensions.DitheringMatricesChange.connect([this] { regenerate(); });
 
   setUseCustomWidget(true);
   regenerate();
@@ -231,22 +228,19 @@ void DitheringSelector::regenerate(int selectedItemIndex)
       }
       for (const auto* it : ditheringMatrices) {
         try {
-          addItem(
-            new DitherItem(
-              render::DitheringAlgorithm::Old,
-              it->matrix(),
-              Strings::dithering_selector_old_dithering() + it->name()));
+          addItem(new DitherItem(render::DitheringAlgorithm::Old,
+                                 it->matrix(),
+                                 Strings::dithering_selector_old_dithering() +
+                                   it->name()));
         }
         catch (const std::exception& e) {
           LOG(ERROR, "%s\n", e.what());
           Console::showException(e);
         }
       }
-      addItem(
-        new DitherItem(
-          render::DitheringAlgorithm::ErrorDiffusion,
-          render::DitheringMatrix(),
-          Strings::dithering_selector_floyd_steinberg()));
+      addItem(new DitherItem(render::DitheringAlgorithm::ErrorDiffusion,
+                             render::DitheringMatrix(),
+                             Strings::dithering_selector_floyd_steinberg()));
       break;
     case SelectMatrix:
       addItem(new DitherItem(render::DitheringMatrix(),
@@ -262,7 +256,8 @@ void DitheringSelector::regenerate(int selectedItemIndex)
       }
       break;
   }
-  selectedItemIndex = std::clamp(selectedItemIndex, 0, std::max(0, getItemCount()-1));
+  selectedItemIndex =
+    std::clamp(selectedItemIndex, 0, std::max(0, getItemCount() - 1));
   setSelectedItemIndex(selectedItemIndex);
   setSizeHint(calcItemSizeHint(selectedItemIndex));
 }
@@ -289,14 +284,13 @@ gfx::Size DitheringSelector::calcItemSizeHint(int index)
 {
   auto item = getItem(index);
   if (item) {
-    return
-      item->sizeHint()
-      // Added offset to prevent unnecessary scrollbar in X dimension
-      + gfx::Size(6*guiscale(), 0);
+    return item->sizeHint()
+           // Added offset to prevent unnecessary scrollbar in X dimension
+           + gfx::Size(6 * guiscale(), 0);
   }
   else {
     return gfx::Size(0, 0);
   }
 }
 
-} // namespace app
+}  // namespace app

@@ -5,13 +5,12 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/keys.h"
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 // Same order that os::KeyScancode
 // Based on code values of the KeyboardEvent on web code:
@@ -88,7 +87,7 @@ static const char* vkcode_to_code_table[] = {
   "Semicolon",
   "Quote",
   "Backslash",
-  nullptr, // kKeyBackslash2,
+  nullptr,  // kKeyBackslash2,
   "Comma",
   "Period",
   "Slash",
@@ -111,26 +110,26 @@ static const char* vkcode_to_code_table[] = {
   "NumpadEnter",
   "PrintScreen",
   "Pause",
-  nullptr, // kKeyAbntC1
+  nullptr,  // kKeyAbntC1
   "IntlYen",
   "KanaMode",
   "Convert",
   "NonConvert",
-  nullptr, // kKeyAt
-  nullptr, // kKeyCircumflex
-  nullptr, // kKeyColon2
-  nullptr, // kKeyKanji
-  "NumpadEqual", // kKeyEqualsPad
+  nullptr,        // kKeyAt
+  nullptr,        // kKeyCircumflex
+  nullptr,        // kKeyColon2
+  nullptr,        // kKeyKanji
+  "NumpadEqual",  // kKeyEqualsPad
   "Backquote",
-  nullptr, // kKeySemicolon
-  nullptr, // kKeyUnknown1
-  nullptr, // kKeyUnknown2
-  nullptr, // kKeyUnknown3
-  nullptr, // kKeyUnknown4
-  nullptr, // kKeyUnknown5
-  nullptr, // kKeyUnknown6
-  nullptr, // kKeyUnknown7
-  nullptr, // kKeyUnknown8
+  nullptr,  // kKeySemicolon
+  nullptr,  // kKeyUnknown1
+  nullptr,  // kKeyUnknown2
+  nullptr,  // kKeyUnknown3
+  nullptr,  // kKeyUnknown4
+  nullptr,  // kKeyUnknown5
+  nullptr,  // kKeyUnknown6
+  nullptr,  // kKeyUnknown7
+  nullptr,  // kKeyUnknown8
   "ShiftLeft",
   "ShiftRight",
   "ControlLeft",
@@ -140,7 +139,7 @@ static const char* vkcode_to_code_table[] = {
   "MetaLeft",
   "MetaRight",
   "ContextMenu",
-  "MetaLeft", // kKeyCommand
+  "MetaLeft",  // kKeyCommand
   "ScrollLock",
   "NumLock",
   "CapsLock",
@@ -151,8 +150,7 @@ static int vkcode_to_code_table_size =
 
 const char* vkcode_to_code(const ui::KeyScancode vkcode)
 {
-  if (vkcode >= 0 &&
-      vkcode < vkcode_to_code_table_size &&
+  if (vkcode >= 0 && vkcode < vkcode_to_code_table_size &&
       vkcode_to_code_table[vkcode]) {
     return vkcode_to_code_table[vkcode];
   }
@@ -161,5 +159,4 @@ const char* vkcode_to_code(const ui::KeyScancode vkcode)
   }
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

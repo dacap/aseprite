@@ -5,15 +5,14 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/with_slice.h"
 
 #include "doc/slice.h"
 
-namespace app {
-namespace cmd {
+namespace app { namespace cmd {
 
 using namespace doc;
 
@@ -27,5 +26,4 @@ Slice* WithSlice::slice()
   return get<Slice>(m_sliceId);
 }
 
-} // namespace cmd
-} // namespace app
+}}  // namespace app::cmd

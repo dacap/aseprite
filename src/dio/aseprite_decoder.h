@@ -22,14 +22,14 @@
 #include <vector>
 
 namespace doc {
-  class Cel;
-  class Layer;
-  class Layer;
-  class Mask;
-  class Palette;
-  class Sprite;
-  class UserData;
-}
+class Cel;
+class Layer;
+class Layer;
+class Mask;
+class Palette;
+class Sprite;
+class UserData;
+}  // namespace doc
 
 namespace dio {
 
@@ -51,7 +51,10 @@ private:
   doc::Palette* readColorChunk(doc::Palette* prevPal, doc::frame_t frame);
   doc::Palette* readColor2Chunk(doc::Palette* prevPal, doc::frame_t frame);
   doc::Palette* readPaletteChunk(doc::Palette* prevPal, doc::frame_t frame);
-  doc::Layer* readLayerChunk(AsepriteHeader* header, doc::Sprite* sprite, doc::Layer** previous_layer, int* current_level);
+  doc::Layer* readLayerChunk(AsepriteHeader* header,
+                             doc::Sprite* sprite,
+                             doc::Layer** previous_layer,
+                             int* current_level);
   doc::Cel* readCelChunk(doc::Sprite* sprite,
                          doc::frame_t frame,
                          doc::PixelFormat pixelFormat,
@@ -72,12 +75,13 @@ private:
   void readPropertiesMaps(doc::UserData::PropertiesMaps& propertiesMaps,
                           const AsepriteExternalFiles& extFiles);
   const doc::UserData::Variant readPropertyValue(uint16_t type);
-  void readTilesData(doc::Tileset* tileset, const AsepriteExternalFiles& extFiles);
+  void readTilesData(doc::Tileset* tileset,
+                     const AsepriteExternalFiles& extFiles);
 
   doc::LayerList m_allLayers;
   std::vector<uint32_t> m_tilesetFlags;
 };
 
-} // namespace dio
+}  // namespace dio
 
 #endif

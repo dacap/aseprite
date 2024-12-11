@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/editor/dragging_value_state.h"
@@ -28,7 +28,8 @@ using namespace ui;
 DraggingValueState::DraggingValueState(Editor* editor, const Keys& keys)
   : m_editor(editor)
   , m_keys(keys)
-  , m_initialPos(editor->display()->nativeWindow()->pointFromScreen(ui::get_mouse_position()))
+  , m_initialPos(editor->display()->nativeWindow()->pointFromScreen(
+      ui::get_mouse_position()))
   , m_initialPosSameGroup(m_initialPos)
   , m_initialFgColor(StateWithWheelBehavior::initialFgColor())
   , m_initialBgColor(StateWithWheelBehavior::initialBgColor())
@@ -57,9 +58,8 @@ DraggingValueState::DraggingValueState(Editor* editor, const Keys& keys)
       break;
     }
   }
-  m_beforeCmdConn =
-    UIContext::instance()->BeforeCommandExecution.connect(
-      &DraggingValueState::onBeforeCommandExecution, this);
+  m_beforeCmdConn = UIContext::instance()->BeforeCommandExecution.connect(
+    &DraggingValueState::onBeforeCommandExecution, this);
 }
 
 void DraggingValueState::onBeforePopState(Editor* editor)
@@ -93,8 +93,7 @@ bool DraggingValueState::onMouseMove(Editor* editor, MouseMessage* msg)
 
     const gfx::Point delta = (msg->position() - initialPos);
     const DragVector deltaV(delta.x, delta.y);
-    const DragVector invDragVector(key->dragVector().x,
-                                   -key->dragVector().y);
+    const DragVector invDragVector(key->dragVector().x, -key->dragVector().y);
     const double threshold = invDragVector.magnitude();
 
     DragVector v = deltaV.projectOn(invDragVector);
@@ -110,8 +109,8 @@ bool DraggingValueState::onMouseMove(Editor* editor, MouseMessage* msg)
           key->wheelAction() == WheelAction::Frame ||
           key->wheelAction() == WheelAction::Layer) {
         preciseWheel = PreciseWheel::Off;
-        dz = -dz; // Invert value for zoom only so the vector is
-                  // pointing to the direction to increase zoom
+        dz = -dz;  // Invert value for zoom only so the vector is
+                   // pointing to the direction to increase zoom
 
         // TODO we should change the direction of the wheel
         //      information from the laf layer
@@ -137,7 +136,8 @@ bool DraggingValueState::onMouseMove(Editor* editor, MouseMessage* msg)
   return true;
 }
 
-bool DraggingValueState::onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos)
+bool DraggingValueState::onSetCursor(Editor* editor,
+                                     const gfx::Point& mouseScreenPos)
 {
   return StateWithWheelBehavior::onSetCursor(editor, mouseScreenPos);
 }
@@ -194,9 +194,9 @@ void DraggingValueState::onToolGroupChange(Editor* editor,
     // the same time. This special position is needed to avoid jumping
     // "randomly" to other tools when we change to another group (as
     // the delta from the m_initialPos is accumulated).
-    m_initialPosSameGroup = editor->display()->nativeWindow()
-      ->pointFromScreen(ui::get_mouse_position());
+    m_initialPosSameGroup = editor->display()->nativeWindow()->pointFromScreen(
+      ui::get_mouse_position());
   }
 }
 
-} // namespace app
+}  // namespace app

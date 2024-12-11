@@ -13,7 +13,7 @@
 #include <string>
 
 namespace doc {
-  class Document;
+class Document;
 }
 
 namespace app {
@@ -22,9 +22,10 @@ void load_aseprite_data_file(const std::string& dataFilename,
                              doc::Document* doc,
                              app::Color& defaultSliceColor);
 #ifdef ENABLE_SAVE
-void save_aseprite_data_file(const std::string& dataFilename, const doc::Document* doc);
+void save_aseprite_data_file(const std::string& dataFilename,
+                             const doc::Document* doc);
 #endif
 
-} // namespace app
+}  // namespace app
 
 #endif

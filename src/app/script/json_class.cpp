@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/script/luacpp.h"
@@ -15,8 +15,7 @@
 
 #include "json11.hpp"
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 namespace {
 
@@ -50,13 +49,12 @@ void push_json_value(lua_State* L, const JsonObj& value)
 JsonObj get_json_value(lua_State* L, int index)
 {
   switch (lua_type(L, index)) {
-
     case LUA_TNONE:
     case LUA_TNIL:
       return JsonObj();
 
     case LUA_TBOOLEAN:
-      return JsonObj(lua_toboolean(L, index) ? true: false);
+      return JsonObj(lua_toboolean(L, index) ? true : false);
 
     case LUA_TNUMBER:
       return JsonObj(lua_tonumber(L, index));
@@ -72,7 +70,8 @@ JsonObj get_json_value(lua_State* L, int index)
         lua_pushnil(L);
         while (lua_next(L, index) != 0) {
           items.push_back(get_json_value(L, -1));
-          lua_pop(L, 1);          // pop the value lua_next(), leave the key in the stack
+          lua_pop(L,
+                  1);  // pop the value lua_next(), leave the key in the stack
         }
         return JsonObj(items);
       }
@@ -85,7 +84,8 @@ JsonObj get_json_value(lua_State* L, int index)
           if (const char* k = lua_tostring(L, -2)) {
             items[k] = get_json_value(L, -1);
           }
-          lua_pop(L, 1);          // pop the value lua_next(), leave the key in the stack
+          lua_pop(L,
+                  1);  // pop the value lua_next(), leave the key in the stack
         }
         return JsonObj(items);
       }
@@ -94,7 +94,6 @@ JsonObj get_json_value(lua_State* L, int index)
     case LUA_TUSERDATA:
       // TODO convert rectangles, point, size, uuids?
       break;
-
   }
   return JsonObj();
 }
@@ -147,7 +146,7 @@ int JsonObj_index(lua_State* L)
     }
   }
   else if (obj->type() == json11::Json::ARRAY) {
-    auto i = lua_tointeger(L, 2) - 1; // Adjust to 0-based index
+    auto i = lua_tointeger(L, 2) - 1;  // Adjust to 0-based index
     push_json_value(L, (*obj)[i]);
     return 1;
   }
@@ -166,7 +165,7 @@ int JsonObj_newindex(lua_State* L)
     auto i = lua_tointeger(L, 2);
     // Adjust to 0-based index
     if (i > 0)
-      obj->set_array_item(i-1, get_json_value(L, 3));
+      obj->set_array_item(i - 1, get_json_value(L, 3));
   }
   return 0;
 }
@@ -201,13 +200,13 @@ int JsonObj_pairs(lua_State* L)
   if (obj->type() == json11::Json::OBJECT) {
     push_obj(L, obj->object_items().begin());
     lua_pushcclosure(L, JsonObj_pairs_next, 1);
-    lua_pushvalue(L, 1); // Copy the same obj as the second return value
+    lua_pushvalue(L, 1);  // Copy the same obj as the second return value
     return 2;
   }
   else if (obj->type() == json11::Json::ARRAY) {
     push_obj(L, obj->array_items().begin());
     lua_pushcclosure(L, JsonObj_ipairs_next, 1);
-    lua_pushvalue(L, 1); // Copy the same obj as the second return value
+    lua_pushvalue(L, 1);  // Copy the same obj as the second return value
     return 2;
   }
   return 0;
@@ -260,34 +259,27 @@ int Json_encode(lua_State* L)
   return 0;
 }
 
-const luaL_Reg JsonObj_methods[] = {
-  { "__gc",       JsonObj_gc },
-  { "__eq",       JsonObj_eq },
-  { "__len",      JsonObj_len },
-  { "__index",    JsonObj_index },
-  { "__newindex", JsonObj_newindex },
-  { "__pairs",    JsonObj_pairs },
-  { "__tostring", JsonObj_tostring },
-  { nullptr,      nullptr }
-};
+const luaL_Reg JsonObj_methods[] = { { "__gc", JsonObj_gc },
+                                     { "__eq", JsonObj_eq },
+                                     { "__len", JsonObj_len },
+                                     { "__index", JsonObj_index },
+                                     { "__newindex", JsonObj_newindex },
+                                     { "__pairs", JsonObj_pairs },
+                                     { "__tostring", JsonObj_tostring },
+                                     { nullptr, nullptr } };
 
 const luaL_Reg JsonObjectIterator_methods[] = {
-  { "__gc",       JsonObjectIterator_gc },
-  { nullptr,      nullptr }
+  { "__gc", JsonObjectIterator_gc }, { nullptr, nullptr }
 };
 
-const luaL_Reg JsonArrayIterator_methods[] = {
-  { "__gc",       JsonArrayIterator_gc },
-  { nullptr,      nullptr }
-};
+const luaL_Reg JsonArrayIterator_methods[] = { { "__gc", JsonArrayIterator_gc },
+                                               { nullptr, nullptr } };
 
-const luaL_Reg Json_methods[] = {
-  { "decode",     Json_decode },
-  { "encode",     Json_encode },
-  { nullptr,      nullptr }
-};
+const luaL_Reg Json_methods[] = { { "decode", Json_decode },
+                                  { "encode", Json_encode },
+                                  { nullptr, nullptr } };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(Json);
 DEF_MTNAME(JsonObj);
@@ -301,13 +293,12 @@ void register_json_object(lua_State* L)
   REG_CLASS(L, JsonArrayIterator);
   REG_CLASS(L, Json);
 
-  lua_newtable(L);              // Create a table which will be the "json" object
+  lua_newtable(L);  // Create a table which will be the "json" object
   lua_pushvalue(L, -1);
   luaL_getmetatable(L, get_mtname<Json>());
   lua_setmetatable(L, -2);
   lua_setglobal(L, "json");
-  lua_pop(L, 1);                // Pop json table
+  lua_pop(L, 1);  // Pop json table
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

@@ -5,15 +5,14 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/with_cel.h"
 
 #include "doc/cel.h"
 
-namespace app {
-namespace cmd {
+namespace app { namespace cmd {
 
 using namespace doc;
 
@@ -27,5 +26,4 @@ Cel* WithCel::cel()
   return get<Cel>(m_celId);
 }
 
-} // namespace cmd
-} // namespace app
+}}  // namespace app::cmd

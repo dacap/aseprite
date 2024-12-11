@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/gui_xml.h"
@@ -48,4 +48,4 @@ GuiXml::GuiXml()
   m_doc = app::open_xml(rf.filename());
 }
 
-} // namespace app
+}  // namespace app

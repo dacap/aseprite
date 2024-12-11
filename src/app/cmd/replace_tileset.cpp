@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/replace_tileset.h"
@@ -13,13 +13,11 @@
 #include "doc/layer.h"
 #include "doc/layer_tilemap.h"
 #include "doc/sprite.h"
-#include "doc/sprite.h"
 #include "doc/tileset.h"
 #include "doc/tileset_io.h"
 #include "doc/tilesets.h"
 
-namespace app {
-namespace cmd {
+namespace app { namespace cmd {
 
 using namespace doc;
 
@@ -70,5 +68,4 @@ void ReplaceTileset::replaceTileset(Tileset* newTileset)
   spr->incrementVersion();
 }
 
-} // namespace cmd
-} // namespace app
+}}  // namespace app::cmd

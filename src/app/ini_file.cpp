@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ini_file.h"
@@ -19,8 +19,8 @@
 #include "fmt/format.h"
 
 #ifdef __APPLE__
-#include "os/logger.h"
-#include "os/system.h"
+  #include "os/logger.h"
+  #include "os/system.h"
 #endif
 
 #ifndef _WIN32
@@ -142,7 +142,9 @@ std::string main_config_filename()
   return g_configFilename;
 }
 
-const char* get_config_string(const char* section, const char* name, const char* value)
+const char* get_config_string(const char* section,
+                              const char* name,
+                              const char* value)
 {
   return g_configs.back()->getValue(section, name, value);
 }
@@ -192,7 +194,9 @@ void set_config_bool(const char* section, const char* name, bool value)
   g_configs.back()->setBoolValue(section, name, value);
 }
 
-Point get_config_point(const char* section, const char* name, const Point& point)
+Point get_config_point(const char* section,
+                       const char* name,
+                       const Point& point)
 {
   Point point2(point);
   const char* value = get_config_string(section, name, "");
@@ -257,12 +261,17 @@ void set_config_rect(const char* section, const char* name, const Rect& rect)
   set_config_string(section, name, buf.c_str());
 }
 
-app::Color get_config_color(const char* section, const char* name, const app::Color& value)
+app::Color get_config_color(const char* section,
+                            const char* name,
+                            const app::Color& value)
 {
-  return app::Color::fromString(get_config_string(section, name, value.toString().c_str()));
+  return app::Color::fromString(
+    get_config_string(section, name, value.toString().c_str()));
 }
 
-void set_config_color(const char* section, const char* name, const app::Color& value)
+void set_config_color(const char* section,
+                      const char* name,
+                      const app::Color& value)
 {
   set_config_string(section, name, value.toString().c_str());
 }
@@ -284,4 +293,4 @@ base::paths enum_config_keys(const char* section)
   return keys;
 }
 
-} // namespace app
+}  // namespace app

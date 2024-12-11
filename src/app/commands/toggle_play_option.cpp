@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/commands/command.h"
@@ -22,7 +22,8 @@ public:
                           Option<bool>* preview);
 
 protected:
-  DocView* docView(Context* ctx) {
+  DocView* docView(Context* ctx)
+  {
     if (ctx->isUIAvailable())
       return static_cast<UIContext*>(ctx)->activeView();
     else
@@ -37,10 +38,9 @@ protected:
   Option<bool>* m_preview;
 };
 
-TogglePlayOptionCommand::TogglePlayOptionCommand(
-  const char* id,
-  Option<bool>* general,
-  Option<bool>* preview)
+TogglePlayOptionCommand::TogglePlayOptionCommand(const char* id,
+                                                 Option<bool>* general,
+                                                 Option<bool>* preview)
   : Command(id, CmdUIOnlyFlag)
   , m_general(general)
   , m_preview(preview)
@@ -59,7 +59,8 @@ bool TogglePlayOptionCommand::onEnabled(Context* ctx)
 bool TogglePlayOptionCommand::onChecked(Context* ctx)
 {
   if (auto docView = this->docView(ctx))
-    return (docView->isPreview() && m_preview ? (*m_preview)(): (*m_general)());
+    return (docView->isPreview() && m_preview ? (*m_preview)() :
+                                                (*m_general)());
   else
     return false;
 }
@@ -81,36 +82,30 @@ Command* CommandFactory::createTogglePlayOnceCommand()
 {
   auto& pref = Preferences::instance();
   return new TogglePlayOptionCommand(
-    CommandId::TogglePlayOnce(),
-    &pref.editor.playOnce,
-    &pref.preview.playOnce);
+    CommandId::TogglePlayOnce(), &pref.editor.playOnce, &pref.preview.playOnce);
 }
 
 Command* CommandFactory::createTogglePlayAllCommand()
 {
   auto& pref = Preferences::instance();
   return new TogglePlayOptionCommand(
-    CommandId::TogglePlayAll(),
-    &pref.editor.playAll,
-    &pref.preview.playAll);
+    CommandId::TogglePlayAll(), &pref.editor.playAll, &pref.preview.playAll);
 }
 
 Command* CommandFactory::createTogglePlaySubtagsCommand()
 {
   auto& pref = Preferences::instance();
-  return new TogglePlayOptionCommand(
-    CommandId::TogglePlaySubtags(),
-    &pref.editor.playSubtags,
-    &pref.preview.playSubtags);
+  return new TogglePlayOptionCommand(CommandId::TogglePlaySubtags(),
+                                     &pref.editor.playSubtags,
+                                     &pref.preview.playSubtags);
 }
 
 Command* CommandFactory::createToggleRewindOnStopCommand()
 {
   auto& pref = Preferences::instance();
-  return new TogglePlayOptionCommand(
-    CommandId::ToggleRewindOnStop(),
-    &pref.general.rewindOnStop,
-    nullptr); // No option for preview
+  return new TogglePlayOptionCommand(CommandId::ToggleRewindOnStop(),
+                                     &pref.general.rewindOnStop,
+                                     nullptr);  // No option for preview
 }
 
-} // namespace app
+}  // namespace app

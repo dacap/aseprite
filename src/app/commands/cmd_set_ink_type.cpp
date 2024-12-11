@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -20,7 +20,7 @@
 namespace app {
 
 struct SetInkTypeParams : public NewParams {
-  Param<app::tools::InkType> type { this, app::tools::InkType::DEFAULT, "type" };
+  Param<app::tools::InkType> type{ this, app::tools::InkType::DEFAULT, "type" };
 };
 
 class SetInkTypeCommand : public CommandWithNewParams<SetInkTypeParams> {
@@ -79,4 +79,4 @@ Command* CommandFactory::createSetInkTypeCommand()
   return new SetInkTypeCommand;
 }
 
-} // namespace app
+}  // namespace app

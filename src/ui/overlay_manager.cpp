@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/overlay_manager.h"
@@ -18,7 +18,8 @@
 
 namespace ui {
 
-static bool zorder_less_than(const OverlayRef& a, const OverlayRef& b) {
+static bool zorder_less_than(const OverlayRef& a, const OverlayRef& b)
+{
   return *a < *b;
 }
 
@@ -82,4 +83,4 @@ void OverlayManager::drawOverlays()
     overlay->drawOverlay();
 }
 
-} // namespace ui
+}  // namespace ui

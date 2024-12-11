@@ -13,15 +13,15 @@
 
 namespace doc {
 
-  class Palette;
+class Palette;
 
-  namespace file {
+namespace file {
 
-    std::unique_ptr<Palette> load_col_file(const char* filename);
-    bool save_col_file(const Palette* pal, const char* filename);
+std::unique_ptr<Palette> load_col_file(const char* filename);
+bool save_col_file(const Palette* pal, const char* filename);
 
-  } // namespace file
+}  // namespace file
 
-} // namespace doc
+}  // namespace doc
 
 #endif

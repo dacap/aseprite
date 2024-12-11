@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -40,11 +40,7 @@ protected:
   std::string onGetFriendlyName() const override;
 
 private:
-  enum Target {
-    ALL_FRAMES = -1,
-    CURRENT_RANGE = 0,
-    SPECIFIC_FRAME = 1
-  };
+  enum Target { ALL_FRAMES = -1, CURRENT_RANGE = 0, SPECIFIC_FRAME = 1 };
 
   // Frame to be shown. It can be ALL_FRAMES, CURRENT_RANGE, or a
   // number indicating a specific frame (1 is the first frame).
@@ -87,7 +83,6 @@ void FramePropertiesCommand::onExecute(Context* context)
   SelectedFrames selFrames;
 
   switch (m_target) {
-
     case ALL_FRAMES:
       selFrames.insert(0, sprite->lastFrame());
       break;
@@ -104,7 +99,7 @@ void FramePropertiesCommand::onExecute(Context* context)
     }
 
     case SPECIFIC_FRAME:
-      selFrames.insert(m_frame-base);
+      selFrames.insert(m_frame - base);
       break;
   }
 
@@ -113,17 +108,15 @@ void FramePropertiesCommand::onExecute(Context* context)
     return;
 
   if (selFrames.size() == 1)
-    window.frame()->setTextf("%d", selFrames.firstFrame()+base);
+    window.frame()->setTextf("%d", selFrames.firstFrame() + base);
   else if (selFrames.ranges() == 1) {
-    window.frame()->setTextf("[%d...%d]",
-                             selFrames.firstFrame()+base,
-                             selFrames.lastFrame()+base);
+    window.frame()->setTextf(
+      "[%d...%d]", selFrames.firstFrame() + base, selFrames.lastFrame() + base);
   }
   else
     window.frame()->setTextf("Multiple Frames");
 
-  window.frlen()->setTextf(
-    "%d", sprite->frameDuration(selFrames.firstFrame()));
+  window.frlen()->setTextf("%d", sprite->frameDuration(selFrames.firstFrame()));
 
   window.openWindowInForeground();
   if (window.closer() == window.ok()) {
@@ -144,7 +137,7 @@ std::string FramePropertiesCommand::onGetFriendlyName() const
 {
   switch (m_target) {
     case CURRENT_RANGE:
-      return Strings::commands_FrameProperties_Current() ;
+      return Strings::commands_FrameProperties_Current();
     case ALL_FRAMES:
       return Strings::commands_FrameProperties_All();
   }
@@ -156,4 +149,4 @@ Command* CommandFactory::createFramePropertiesCommand()
   return new FramePropertiesCommand;
 }
 
-} // namespace app
+}  // namespace app

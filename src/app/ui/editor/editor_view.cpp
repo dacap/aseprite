@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/editor/editor_view.h"
@@ -41,22 +41,20 @@ EditorView::EditorView(EditorView::Type type)
 {
   m_scrollSettingsConn =
     Preferences::instance().editor.showScrollbars.AfterChange.connect(
-      [this]{ setupScrollbars(); });
+      [this] { setupScrollbars(); });
 
-  InitTheme.connect(
-    [this]{
-      auto theme = SkinTheme::get(this);
-      setBgColor(gfx::rgba(0, 0, 0)); // TODO Move this color to theme.xml
-      setStyle(theme->styles.editorView());
-      setupScrollbars();
-    });
+  InitTheme.connect([this] {
+    auto theme = SkinTheme::get(this);
+    setBgColor(gfx::rgba(0, 0, 0));  // TODO Move this color to theme.xml
+    setStyle(theme->styles.editorView());
+    setupScrollbars();
+  });
   initTheme();
 }
 
 void EditorView::onPaint(PaintEvent& ev)
 {
   switch (m_type) {
-
     // Only show the view selected if it is the current editor
     case CurrentEditorMode:
       if (editor()->isActive())
@@ -69,7 +67,6 @@ void EditorView::onPaint(PaintEvent& ev)
     case AlwaysSelected:
       enableFlags(SELECTED);
       break;
-
   }
 
   View::onPaint(ev);
@@ -167,4 +164,4 @@ Editor* EditorView::editor()
   return static_cast<Editor*>(attachedWidget());
 }
 
-} // namespace app
+}  // namespace app

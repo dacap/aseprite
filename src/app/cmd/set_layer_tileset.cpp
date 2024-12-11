@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/set_layer_tileset.h"
@@ -15,8 +15,7 @@
 #include "doc/layer_tilemap.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace cmd {
+namespace app { namespace cmd {
 
 SetLayerTileset::SetLayerTileset(doc::LayerTilemap* layer,
                                  doc::tileset_index newTsi)
@@ -47,5 +46,4 @@ void SetLayerTileset::onFireNotifications()
   doc->notifyTilesetChanged(layer->tileset());
 }
 
-} // namespace cmd
-} // namespace app
+}}  // namespace app::cmd

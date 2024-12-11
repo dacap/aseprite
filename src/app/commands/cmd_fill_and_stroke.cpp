@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -29,16 +29,18 @@ class FillCommand : public Command {
 public:
   enum Type { Fill, Stroke };
   FillCommand(Type type);
+
 protected:
   bool onEnabled(Context* ctx) override;
   void onExecute(Context* ctx) override;
+
 private:
   Type m_type;
 };
 
 FillCommand::FillCommand(Type type)
-  : Command(type == Stroke ? CommandId::Stroke():
-                             CommandId::Fill(), CmdUIOnlyFlag)
+  : Command(type == Stroke ? CommandId::Stroke() : CommandId::Fill(),
+            CmdUIOnlyFlag)
   , m_type(type)
 {
 }
@@ -66,9 +68,8 @@ void FillCommand::onExecute(Context* ctx)
   Sprite* sprite = site.sprite();
   Layer* layer = site.layer();
   Mask* mask = doc->mask();
-  if (!doc || !sprite ||
-      !layer || !layer->isImage() ||
-      !mask || !doc->isMaskVisible())
+  if (!doc || !sprite || !layer || !layer->isImage() || !mask ||
+      !doc->isMaskVisible())
     return;
 
   Preferences& pref = Preferences::instance();
@@ -82,12 +83,9 @@ void FillCommand::onExecute(Context* ctx)
     Tx tx(writer, "Fill Selection with Foreground Color");
     {
       ExpandCelCanvas expand(
-        site, layer,
-        TiledMode::NONE, tx,
-        ExpandCelCanvas::None);
+        site, layer, TiledMode::NONE, tx, ExpandCelCanvas::None);
 
-      gfx::Region rgn(sprite->bounds() |
-                      mask->bounds());
+      gfx::Region rgn(sprite->bounds() | mask->bounds());
       expand.validateDestCanvas(rgn);
 
       gfx::Rect imageBounds(expand.getCel()->position(),
@@ -103,7 +101,7 @@ void FillCommand::onExecute(Context* ctx)
           imageBounds,
           mask,
           color,
-          (site.tilemapMode() == TilemapMode::Tiles ? &grid: nullptr));
+          (site.tilemapMode() == TilemapMode::Tiles ? &grid : nullptr));
       }
       else {
         doc::algorithm::fill_selection(
@@ -111,7 +109,7 @@ void FillCommand::onExecute(Context* ctx)
           imageBounds,
           mask,
           color,
-          (site.tilemapMode() == TilemapMode::Tiles ? &grid: nullptr));
+          (site.tilemapMode() == TilemapMode::Tiles ? &grid : nullptr));
       }
 
       expand.commit();
@@ -138,4 +136,4 @@ Command* CommandFactory::createStrokeCommand()
   return new FillCommand(FillCommand::Stroke);
 }
 
-} // namespace app
+}  // namespace app

@@ -33,6 +33,6 @@ private:
   DISABLE_COPYING(HttpRequest);
 };
 
-} // namespace net
+}  // namespace net
 
 #endif

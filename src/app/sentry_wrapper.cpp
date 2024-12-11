@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/sentry_wrapper.h"
@@ -109,13 +109,17 @@ bool Sentry::areThereCrashesToReport()
 
   // At least one .dmp file in the completed/ directory means that
   // there was at least one crash in the past (this is for macOS).
-  if (!base::list_files(base::join_path(m_dbdir, "completed"), base::ItemType::Files, "*.dmp").empty())
+  if (!base::list_files(
+         base::join_path(m_dbdir, "completed"), base::ItemType::Files, "*.dmp")
+         .empty())
     return true;
 
   // In case that "last_crash" doesn't exist we can check for some
   // .dmp file in the reports/ directory (it looks like the completed/
   // directory is not generated on Windows).
-  if (!base::list_files(base::join_path(m_dbdir, "reports"), base::ItemType::Files, "*.dmp").empty())
+  if (!base::list_files(
+         base::join_path(m_dbdir, "reports"), base::ItemType::Files, "*.dmp")
+         .empty())
     return true;
 
   return false;
@@ -146,9 +150,8 @@ void Sentry::addBreadcrumb(const std::string& message,
   sentry_value_t d = sentry_value_new_object();
   for (const auto& kv : data) {
     LOG(VERBOSE, " - [%s]=%s\n", kv.first.c_str(), kv.second.c_str());
-    sentry_value_set_by_key(d,
-                            kv.first.c_str(),
-                            sentry_value_new_string(kv.second.c_str()));
+    sentry_value_set_by_key(
+      d, kv.first.c_str(), sentry_value_new_string(kv.second.c_str()));
   }
   sentry_value_set_by_key(c, "data", d);
   sentry_add_breadcrumb(c);
@@ -163,7 +166,7 @@ void Sentry::setupDirs(sentry_options_t* options)
 #if LAF_WINDOWS
                     ".exe"
 #endif
-                    );
+    );
 
   // The crash database will be located in the user directory as the
   // "crashdb" directory (along with "sessions", "extensions", etc.)
@@ -182,4 +185,4 @@ void Sentry::setupDirs(sentry_options_t* options)
   m_dbdir = dir;
 }
 
-} // namespace app
+}  // namespace app

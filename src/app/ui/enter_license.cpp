@@ -5,9 +5,8 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
-
 
 #include "app/i18n/strings.h"
 #include "app/resource_finder.h"
@@ -21,7 +20,9 @@
 
 namespace app {
 
-EnterLicense::EnterLicense() : m_timer(500, this), m_activationInProgress(false)
+EnterLicense::EnterLicense()
+  : m_timer(500, this)
+  , m_activationInProgress(false)
 {
   for (auto& layer : message()->style()->layers()) {
     layer.setAlign(layer.align() | ui::WORDWRAP);
@@ -33,10 +34,7 @@ EnterLicense::EnterLicense() : m_timer(500, this), m_activationInProgress(false)
   });
 
   okButton()->setEnabled(false);
-  okButton()->Click.connect([this]() {
-    startActivation();
-  });
-
+  okButton()->Click.connect([this]() { startActivation(); });
 
   m_timer.start();
 }
@@ -48,26 +46,24 @@ void EnterLicense::onBeforeClose(ui::CloseEvent& ev)
   }
 }
 
-void EnterLicense::onActivationFailed(drm::LicenseManager::ActivationException& e)
+void EnterLicense::onActivationFailed(
+  drm::LicenseManager::ActivationException& e)
 {
-  ui::execute_from_ui_thread([this, e]() {
-    showError(e.what());
-  });
+  ui::execute_from_ui_thread([this, e]() { showError(e.what()); });
 }
 
 void EnterLicense::onActivated(std::string token)
 {
   drm::LicenseManager::instance()->saveToken(token);
 
-  ui::execute_from_ui_thread([this]() {
-    showSuccess();
-  });
+  ui::execute_from_ui_thread([this]() { showSuccess(); });
 }
 
 void EnterLicense::startActivation()
 {
   icon()->setVisible(false);
-  message()->setText(app::Strings::instance()->enter_license_activating_message());
+  message()->setText(
+    app::Strings::instance()->enter_license_activating_message());
   layout();
   setEnabled(false);
   std::string key = licenseKey()->text();
@@ -83,7 +79,6 @@ void EnterLicense::startActivation()
     }
   });
 }
-
 
 void EnterLicense::showError(const std::string& msg)
 {
@@ -104,10 +99,11 @@ void EnterLicense::showSuccess()
 
   setEnabled(true);
   icon()->setVisible(false);
-  message()->setText(app::Strings::instance()->enter_license_activated_message());
+  message()->setText(
+    app::Strings::instance()->enter_license_activated_message());
   layout();
   okButton()->setEnabled(false);
   m_activationInProgress = false;
 }
 
-}
+}  // namespace app

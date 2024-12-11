@@ -12,11 +12,11 @@
 
 namespace doc {
 
-  class Grid;
+class Grid;
 
-  bool write_grid(std::ostream& os, const Grid& grid);
-  Grid read_grid(std::istream& is);
+bool write_grid(std::ostream& os, const Grid& grid);
+Grid read_grid(std::istream& is);
 
-} // namespace doc
+}  // namespace doc
 
 #endif

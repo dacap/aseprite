@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/i18n/strings.h"
@@ -30,8 +30,7 @@ static Strings* singleton = nullptr;
 const char* Strings::kDefLanguage = "en";
 
 // static
-void Strings::createInstance(Preferences& pref,
-                             Extensions& exts)
+void Strings::createInstance(Preferences& pref, Extensions& exts)
 {
   ASSERT(!singleton);
   singleton = new Strings(pref, exts);
@@ -43,8 +42,7 @@ Strings* Strings::instance()
   return singleton;
 }
 
-Strings::Strings(Preferences& pref,
-                 Extensions& exts)
+Strings::Strings(Preferences& pref, Extensions& exts)
   : m_pref(pref)
   , m_exts(exts)
 {
@@ -64,7 +62,8 @@ std::set<LangInfo> Strings::availableLanguages() const
     if (!base::is_directory(stringsPath))
       continue;
 
-    for (const auto& fn : base::list_files(stringsPath, base::ItemType::Files, "*.ini")) {
+    for (const auto& fn :
+         base::list_files(stringsPath, base::ItemType::Files, "*.ini")) {
       const std::string langId = base::get_file_title(fn);
       std::string path = base::join_path(stringsPath, fn);
       std::string displayName = langId;
@@ -80,18 +79,16 @@ std::set<LangInfo> Strings::availableLanguages() const
 
   // Add languages in extensions
   for (const auto& ext : m_exts) {
-    if (ext->isEnabled() &&
-        ext->hasLanguages()) {
+    if (ext->isEnabled() && ext->hasLanguages()) {
       for (const auto& lang : ext->languages())
         result.insert(lang.second);
     }
   }
 
   // Check that the default language exists.
-  ASSERT(std::find_if(result.begin(), result.end(),
-                      [](const LangInfo& li){
-                        return li.id == kDefLanguage;
-                      }) != result.end());
+  ASSERT(std::find_if(result.begin(), result.end(), [](const LangInfo& li) {
+           return li.id == kDefLanguage;
+         }) != result.end());
 
   return result;
 }
@@ -115,8 +112,13 @@ void Strings::setCurrentLanguage(const std::string& langId)
 
 void Strings::logError(const char* id, const char* error) const
 {
-  LOG(ERROR, "I18N: Error in \"%s.ini\" file, string id \"%s\" is \"%s\", threw \"%s\" error\n",
-      currentLanguage().c_str(), id, translate(id).c_str(), error);
+  LOG(
+    ERROR,
+    "I18N: Error in \"%s.ini\" file, string id \"%s\" is \"%s\", threw \"%s\" error\n",
+    currentLanguage().c_str(),
+    id,
+    translate(id).c_str(),
+    error);
 }
 
 // static
@@ -205,17 +207,25 @@ void Strings::loadStringsFromFile(const std::string& fn)
       value = cfg.getValue(section.c_str(), key.c_str(), "");
 
       // Process escaped chars (\\, \n, \s, \t, etc.)
-      for (int i=0; i<int(value.size()); ) {
+      for (int i = 0; i < int(value.size());) {
         if (value[i] == '\\') {
           value.erase(i, 1);
           if (i == int(value.size()))
             break;
           int chr = value[i];
           switch (chr) {
-            case '\\': chr = '\\'; break;
-            case 'n': chr = '\n'; break;
-            case 't': chr = '\t'; break;
-            case 's': chr = ' '; break;
+            case '\\':
+              chr = '\\';
+              break;
+            case 'n':
+              chr = '\n';
+              break;
+            case 't':
+              chr = '\t';
+              break;
+            case 's':
+              chr = ' ';
+              break;
           }
           value[i] = chr;
         }
@@ -227,7 +237,7 @@ void Strings::loadStringsFromFile(const std::string& fn)
 
       //TRACE("I18N: Reading string %s -> %s\n", textId.c_str(), m_strings[textId].c_str());
 
-      textId.erase(section.size()+1);
+      textId.erase(section.size() + 1);
     }
   }
 }
@@ -248,4 +258,4 @@ const std::string& Strings::defaultString(const char* id) const
   return m_default[id] = id;
 }
 
-} // namespace app
+}  // namespace app

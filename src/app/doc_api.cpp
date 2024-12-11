@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/doc_api.h"
@@ -63,17 +63,18 @@
 #include <set>
 #include <vector>
 
-#include "gfx/rect_io.h"
 #include "gfx/point_io.h"
+#include "gfx/rect_io.h"
 
 #define TRACE_DOCAPI(...)
 
 namespace app {
 
-DocApi::HandleLinkedCels::HandleLinkedCels(
-  DocApi& api,
-  doc::LayerImage* srcLayer, const doc::frame_t srcFrame,
-  doc::LayerImage* dstLayer, const doc::frame_t dstFrame)
+DocApi::HandleLinkedCels::HandleLinkedCels(DocApi& api,
+                                           doc::LayerImage* srcLayer,
+                                           const doc::frame_t srcFrame,
+                                           doc::LayerImage* dstLayer,
+                                           const doc::frame_t dstFrame)
   : m_api(api)
   , m_srcDataId(doc::NullId)
   , m_dstLayer(dstLayer)
@@ -86,10 +87,8 @@ DocApi::HandleLinkedCels::HandleLinkedCels(
       Cel* dstRelated = it->second;
       if (dstRelated && dstRelated->layer() == dstLayer) {
         // Create a link
-        m_api.m_transaction.execute(
-          new cmd::CopyCel(
-            dstRelated->layer(), dstRelated->frame(),
-            dstLayer, dstFrame, true));
+        m_api.m_transaction.execute(new cmd::CopyCel(
+          dstRelated->layer(), dstRelated->frame(), dstLayer, dstFrame, true));
 
         // Copy data that belongs to the original Cel itself (no the
         // shared CelData) like the z-index.
@@ -147,15 +146,14 @@ void DocApi::cropSprite(Sprite* sprite,
 
   // Update mask position
   if (!m_document->mask()->isEmpty())
-    setMaskPosition(m_document->mask()->bounds().x-bounds.x,
-                    m_document->mask()->bounds().y-bounds.y);
+    setMaskPosition(m_document->mask()->bounds().x - bounds.x,
+                    m_document->mask()->bounds().y - bounds.y);
 
   // Update slice positions
   if (bounds.origin() != gfx::Point(0, 0)) {
     for (auto& slice : m_document->sprite()->slices()) {
       Slice::List::List keys;
-      std::copy(slice->begin(), slice->end(),
-                std::back_inserter(keys));
+      std::copy(slice->begin(), slice->end(), std::back_inserter(keys));
 
       for (auto& k : keys) {
         const SliceKey& key = *k.value();
@@ -172,7 +170,7 @@ void DocApi::cropSprite(Sprite* sprite,
         if (trimOutside) {
           newSliceBounds &= gfx::Rect(bounds.size());
           if (newSliceBounds.isEmpty())
-            newKey = SliceKey(); // An empty key (so we remove this key)
+            newKey = SliceKey();  // An empty key (so we remove this key)
         }
 
         if (!newKey.isEmpty())
@@ -181,8 +179,7 @@ void DocApi::cropSprite(Sprite* sprite,
         // As SliceKey::center() and pivot() properties are relative
         // to the bounds(), we don't need to adjust them.
 
-        m_transaction.execute(
-          new cmd::SetSliceKey(slice, k.frame(), newKey));
+        m_transaction.execute(new cmd::SetSliceKey(slice, k.frame(), newKey));
       }
     }
   }
@@ -222,15 +219,14 @@ bool DocApi::cropCel(LayerImage* layer,
       ASSERT(cel->x() == 0);
       ASSERT(cel->y() == 0);
 
-      ImageRef newImage(
-        crop_image(image,
-                   bounds.x, bounds.y,
-                   bounds.w, bounds.h,
-                   m_document->bgColor(layer)));
+      ImageRef newImage(crop_image(image,
+                                   bounds.x,
+                                   bounds.y,
+                                   bounds.w,
+                                   bounds.h,
+                                   m_document->bgColor(layer)));
 
-      replaceImage(cel->sprite(),
-                   cel->imageRef(),
-                   newImage);
+      replaceImage(cel->sprite(), cel->imageRef(), newImage);
     }
     return true;
   }
@@ -288,26 +284,24 @@ bool DocApi::cropCel(LayerImage* layer,
       }
 
       // crop the image
-      ImageRef newImage(
-        crop_image(image,
-                   paintPos.x, paintPos.y,
-                   newCelBounds.w, newCelBounds.h,
-                   bg));
+      ImageRef newImage(crop_image(
+        image, paintPos.x, paintPos.y, newCelBounds.w, newCelBounds.h, bg));
 
       // Try to shrink the image ignoring transparent borders
       gfx::Rect frameBounds;
-      if (doc::algorithm::shrink_bounds(newImage.get(),
-                                        newImage->maskColor(),
-                                        layer, frameBounds)) {
+      if (doc::algorithm::shrink_bounds(
+            newImage.get(), newImage->maskColor(), layer, frameBounds)) {
         // In this case the new cel image can be even smaller
         if (frameBounds != newImage->bounds()) {
-          newImage = ImageRef(
-            crop_image(newImage.get(),
-                       frameBounds.x, frameBounds.y,
-                       frameBounds.w, frameBounds.h,
-                       bg));
+          newImage = ImageRef(crop_image(newImage.get(),
+                                         frameBounds.x,
+                                         frameBounds.y,
+                                         frameBounds.w,
+                                         frameBounds.h,
+                                         bg));
           if (layer->isTilemap())
-            newCelPos += grid.tileToCanvas(frameBounds.origin()) - grid.origin();
+            newCelPos +=
+              grid.tileToCanvas(frameBounds.origin()) - grid.origin();
           else
             newCelPos += frameBounds.origin();
         }
@@ -320,18 +314,13 @@ bool DocApi::cropCel(LayerImage* layer,
       // If it's the same image, we can re-use the cel image and just
       // move the cel position.
       if (!is_same_image(cel->image(), newImage.get())) {
-        replaceImage(cel->sprite(),
-                     cel->imageRef(),
-                     newImage);
+        replaceImage(cel->sprite(), cel->imageRef(), newImage);
       }
     }
   }
 
   // Update the cel's position
-  setCelPosition(
-    cel->sprite(), cel,
-    newCelPos.x,
-    newCelPos.y);
+  setCelPosition(cel->sprite(), cel, newCelPos.x, newCelPos.y);
   return true;
 }
 
@@ -344,17 +333,14 @@ void DocApi::trimSprite(Sprite* sprite, const bool byGrid)
 
 void DocApi::addFrame(Sprite* sprite, frame_t newFrame)
 {
-  copyFrame(sprite, newFrame-1, newFrame,
-            kDropBeforeFrame,
-            kDefaultTagsAdjustment);
+  copyFrame(
+    sprite, newFrame - 1, newFrame, kDropBeforeFrame, kDefaultTagsAdjustment);
 }
 
 void DocApi::addEmptyFrame(Sprite* sprite, frame_t newFrame)
 {
   m_transaction.execute(new cmd::AddFrame(sprite, newFrame));
-  adjustTags(sprite, newFrame, +1,
-             kDropBeforeFrame,
-             kDefaultTagsAdjustment);
+  adjustTags(sprite, newFrame, +1, kDropBeforeFrame, kDefaultTagsAdjustment);
 }
 
 void DocApi::addEmptyFramesTo(Sprite* sprite, frame_t newFrame)
@@ -372,36 +358,30 @@ void DocApi::copyFrame(Sprite* sprite,
   ASSERT(sprite);
 
   frame_t newFrame =
-    (dropFramePlace == kDropBeforeFrame ? newFrame0:
-                                          newFrame0+1);
+    (dropFramePlace == kDropBeforeFrame ? newFrame0 : newFrame0 + 1);
 
-  m_transaction.execute(
-    new cmd::CopyFrame(
-      sprite, fromFrame, newFrame));
+  m_transaction.execute(new cmd::CopyFrame(sprite, fromFrame, newFrame));
 
   if (fromFrame >= newFrame)
     ++fromFrame;
 
   for (Layer* layer : sprite->allLayers()) {
     if (layer->isImage()) {
-      copyCel(
-        static_cast<LayerImage*>(layer), fromFrame,
-        static_cast<LayerImage*>(layer), newFrame);
+      copyCel(static_cast<LayerImage*>(layer),
+              fromFrame,
+              static_cast<LayerImage*>(layer),
+              newFrame);
     }
   }
 
-  adjustTags(sprite, newFrame0, +1,
-             dropFramePlace,
-             tagsHandling);
+  adjustTags(sprite, newFrame0, +1, dropFramePlace, tagsHandling);
 }
 
 void DocApi::removeFrame(Sprite* sprite, frame_t frame)
 {
   ASSERT(frame >= 0);
   m_transaction.execute(new cmd::RemoveFrame(sprite, frame));
-  adjustTags(sprite, frame, -1,
-             kDropBeforeFrame,
-             kDefaultTagsAdjustment);
+  adjustTags(sprite, frame, -1, kDropBeforeFrame, kDefaultTagsAdjustment);
 }
 
 void DocApi::setTotalFrames(Sprite* sprite, frame_t frames)
@@ -415,43 +395,45 @@ void DocApi::setFrameDuration(Sprite* sprite, frame_t frame, int msecs)
   m_transaction.execute(new cmd::SetFrameDuration(sprite, frame, msecs));
 }
 
-void DocApi::setFrameRangeDuration(Sprite* sprite, frame_t from, frame_t to, int msecs)
+void DocApi::setFrameRangeDuration(Sprite* sprite,
+                                   frame_t from,
+                                   frame_t to,
+                                   int msecs)
 {
   ASSERT(from >= frame_t(0));
   ASSERT(from < to);
   ASSERT(to <= sprite->lastFrame());
 
-  for (frame_t fr=from; fr<=to; ++fr)
+  for (frame_t fr = from; fr <= to; ++fr)
     m_transaction.execute(new cmd::SetFrameDuration(sprite, fr, msecs));
 }
 
 void DocApi::moveFrame(Sprite* sprite,
-                            const frame_t frame,
-                            frame_t targetFrame,
-                            const DropFramePlace dropFramePlace,
-                            const TagsHandling tagsHandling)
+                       const frame_t frame,
+                       frame_t targetFrame,
+                       const DropFramePlace dropFramePlace,
+                       const TagsHandling tagsHandling)
 {
   const frame_t beforeFrame =
-    (dropFramePlace == kDropBeforeFrame ? targetFrame: targetFrame+1);
+    (dropFramePlace == kDropBeforeFrame ? targetFrame : targetFrame + 1);
 
-  if (frame       >= 0 && frame       <= sprite->lastFrame()   &&
-      beforeFrame >= 0 && beforeFrame <= sprite->lastFrame()+1 &&
+  if (frame >= 0 && frame <= sprite->lastFrame() && beforeFrame >= 0 &&
+      beforeFrame <= sprite->lastFrame() + 1 &&
       ((frame != beforeFrame) ||
-       (!sprite->tags().empty() &&
-        tagsHandling != kDontAdjustTags))) {
+       (!sprite->tags().empty() && tagsHandling != kDontAdjustTags))) {
     // Change the frame-lengths.
     int frlen_aux = sprite->frameDuration(frame);
 
     // Moving the frame to the future.
     if (frame < beforeFrame) {
-      for (frame_t c=frame; c<beforeFrame-1; ++c)
-        setFrameDuration(sprite, c, sprite->frameDuration(c+1));
-      setFrameDuration(sprite, beforeFrame-1, frlen_aux);
+      for (frame_t c = frame; c < beforeFrame - 1; ++c)
+        setFrameDuration(sprite, c, sprite->frameDuration(c + 1));
+      setFrameDuration(sprite, beforeFrame - 1, frlen_aux);
     }
     // Moving the frame to the past.
     else if (beforeFrame < frame) {
-      for (frame_t c=frame; c>beforeFrame; --c)
-        setFrameDuration(sprite, c, sprite->frameDuration(c-1));
+      for (frame_t c = frame; c > beforeFrame; --c)
+        setFrameDuration(sprite, c, sprite->frameDuration(c - 1));
       setFrameDuration(sprite, beforeFrame, frlen_aux);
     }
 
@@ -473,7 +455,6 @@ void DocApi::moveFrameLayer(Layer* layer, frame_t frame, frame_t beforeFrame)
   ASSERT(layer);
 
   switch (layer->type()) {
-
     case ObjectType::LayerImage:
     case ObjectType::LayerTilemap: {
       LayerImage* imglayer = static_cast<LayerImage*>(layer);
@@ -492,10 +473,9 @@ void DocApi::moveFrameLayer(Layer* layer, frame_t frame, frame_t beforeFrame)
         // moving the frame to the future
         if (frame < beforeFrame) {
           if (celFrame == frame) {
-            newFrame = beforeFrame-1;
+            newFrame = beforeFrame - 1;
           }
-          else if (celFrame > frame &&
-                   celFrame < beforeFrame) {
+          else if (celFrame > frame && celFrame < beforeFrame) {
             --newFrame;
           }
         }
@@ -504,8 +484,7 @@ void DocApi::moveFrameLayer(Layer* layer, frame_t frame, frame_t beforeFrame)
           if (celFrame == frame) {
             newFrame = beforeFrame;
           }
-          else if (celFrame >= beforeFrame &&
-                   celFrame < frame) {
+          else if (celFrame >= beforeFrame && celFrame < frame) {
             ++newFrame;
           }
         }
@@ -521,7 +500,6 @@ void DocApi::moveFrameLayer(Layer* layer, frame_t frame, frame_t beforeFrame)
         moveFrameLayer(child, frame, beforeFrame);
       break;
     }
-
   }
 }
 
@@ -584,13 +562,14 @@ void DocApi::clearCelAndAllLinks(Cel* cel)
   }
 }
 
-void DocApi::moveCel(
-  LayerImage* srcLayer, frame_t srcFrame,
-  LayerImage* dstLayer, frame_t dstFrame)
+void DocApi::moveCel(LayerImage* srcLayer,
+                     frame_t srcFrame,
+                     LayerImage* dstLayer,
+                     frame_t dstFrame)
 {
   ASSERT(srcLayer != dstLayer || srcFrame != dstFrame);
   if (srcLayer == dstLayer && srcFrame == dstFrame)
-    return;                     // Nothing to be done
+    return;  // Nothing to be done
 
   HandleLinkedCels handleLinkedCels(
     *this, srcLayer, srcFrame, dstLayer, dstFrame);
@@ -601,34 +580,33 @@ void DocApi::moveCel(
   }
 
   m_transaction.execute(new cmd::MoveCel(
-      srcLayer, srcFrame,
-      dstLayer, dstFrame, dstLayer->isContinuous()));
+    srcLayer, srcFrame, dstLayer, dstFrame, dstLayer->isContinuous()));
 }
 
-void DocApi::copyCel(
-  LayerImage* srcLayer, frame_t srcFrame,
-  LayerImage* dstLayer, frame_t dstFrame,
-  const bool* forceContinuous)
+void DocApi::copyCel(LayerImage* srcLayer,
+                     frame_t srcFrame,
+                     LayerImage* dstLayer,
+                     frame_t dstFrame,
+                     const bool* forceContinuous)
 {
   ASSERT(srcLayer != dstLayer || srcFrame != dstFrame);
   if (srcLayer == dstLayer && srcFrame == dstFrame)
-    return;                     // Nothing to be done
+    return;  // Nothing to be done
 
   HandleLinkedCels handleLinkedCels(
     *this, srcLayer, srcFrame, dstLayer, dstFrame);
   if (handleLinkedCels.linkWasCreated())
     return;
 
-  m_transaction.execute(
-    new cmd::CopyCel(
-      srcLayer, srcFrame,
-      dstLayer, dstFrame,
-      (forceContinuous ? *forceContinuous:
-                         dstLayer->isContinuous())));
+  m_transaction.execute(new cmd::CopyCel(
+    srcLayer,
+    srcFrame,
+    dstLayer,
+    dstFrame,
+    (forceContinuous ? *forceContinuous : dstLayer->isContinuous())));
 }
 
-void DocApi::swapCel(
-  LayerImage* layer, frame_t frame1, frame_t frame2)
+void DocApi::swapCel(LayerImage* layer, frame_t frame1, frame_t frame2)
 {
   ASSERT(frame1 != frame2);
 
@@ -636,13 +614,15 @@ void DocApi::swapCel(
   ASSERT(sprite != NULL);
   ASSERT(frame1 >= 0 && frame1 < sprite->totalFrames());
   ASSERT(frame2 >= 0 && frame2 < sprite->totalFrames());
-  (void)sprite;              // To avoid unused variable warning on Release mode
+  (void)sprite;  // To avoid unused variable warning on Release mode
 
   Cel* cel1 = layer->cel(frame1);
   Cel* cel2 = layer->cel(frame2);
 
-  if (cel1) setCelFramePosition(cel1, frame2);
-  if (cel2) setCelFramePosition(cel2, frame1);
+  if (cel1)
+    setCelFramePosition(cel1, frame2);
+  if (cel2)
+    setCelFramePosition(cel2, frame1);
 }
 
 LayerImage* DocApi::newLayer(LayerGroup* parent, const std::string& name)
@@ -675,7 +655,9 @@ void DocApi::removeLayer(Layer* layer)
   m_transaction.execute(new cmd::RemoveLayer(layer));
 }
 
-void DocApi::restackLayerAfter(Layer* layer, LayerGroup* parent, Layer* afterThis)
+void DocApi::restackLayerAfter(Layer* layer,
+                               LayerGroup* parent,
+                               Layer* afterThis)
 {
   ASSERT(parent);
 
@@ -685,7 +667,9 @@ void DocApi::restackLayerAfter(Layer* layer, LayerGroup* parent, Layer* afterThi
   m_transaction.execute(new cmd::MoveLayer(layer, parent, afterThis));
 }
 
-void DocApi::restackLayerBefore(Layer* layer, LayerGroup* parent, Layer* beforeThis)
+void DocApi::restackLayerBefore(Layer* layer,
+                                LayerGroup* parent,
+                                Layer* beforeThis)
 {
   ASSERT(parent);
 
@@ -701,14 +685,17 @@ void DocApi::restackLayerBefore(Layer* layer, LayerGroup* parent, Layer* beforeT
   restackLayerAfter(layer, parent, afterThis);
 }
 
-Layer* DocApi::duplicateLayerAfter(Layer* sourceLayer, LayerGroup* parent, Layer* afterLayer)
+Layer* DocApi::duplicateLayerAfter(Layer* sourceLayer,
+                                   LayerGroup* parent,
+                                   Layer* afterLayer)
 {
   ASSERT(parent);
   std::unique_ptr<Layer> newLayerPtr;
 
   if (sourceLayer->isTilemap()) {
-    newLayerPtr.reset(new LayerTilemap(sourceLayer->sprite(),
-                                       static_cast<LayerTilemap*>(sourceLayer)->tilesetIndex()));
+    newLayerPtr.reset(new LayerTilemap(
+      sourceLayer->sprite(),
+      static_cast<LayerTilemap*>(sourceLayer)->tilesetIndex()));
   }
   else if (sourceLayer->isImage())
     newLayerPtr.reset(new LayerImage(sourceLayer->sprite()));
@@ -727,17 +714,22 @@ Layer* DocApi::duplicateLayerAfter(Layer* sourceLayer, LayerGroup* parent, Layer
   return newLayerPtr.release();
 }
 
-Layer* DocApi::duplicateLayerBefore(Layer* sourceLayer, LayerGroup* parent, Layer* beforeLayer)
+Layer* DocApi::duplicateLayerBefore(Layer* sourceLayer,
+                                    LayerGroup* parent,
+                                    Layer* beforeLayer)
 {
   ASSERT(parent);
-  Layer* afterThis = (beforeLayer ? beforeLayer->getPreviousBrowsable(): nullptr);
+  Layer* afterThis =
+    (beforeLayer ? beforeLayer->getPreviousBrowsable() : nullptr);
   Layer* newLayer = duplicateLayerAfter(sourceLayer, parent, afterThis);
   if (newLayer)
     restackLayerBefore(newLayer, parent, beforeLayer);
   return newLayer;
 }
 
-Cel* DocApi::addCel(LayerImage* layer, frame_t frameNumber, const ImageRef& image)
+Cel* DocApi::addCel(LayerImage* layer,
+                    frame_t frameNumber,
+                    const ImageRef& image)
 {
   ASSERT(layer->cel(frameNumber) == NULL);
 
@@ -747,18 +739,20 @@ Cel* DocApi::addCel(LayerImage* layer, frame_t frameNumber, const ImageRef& imag
   return cel.release();
 }
 
-void DocApi::replaceImage(Sprite* sprite, const ImageRef& oldImage, const ImageRef& newImage)
+void DocApi::replaceImage(Sprite* sprite,
+                          const ImageRef& oldImage,
+                          const ImageRef& newImage)
 {
   ASSERT(oldImage);
   ASSERT(newImage);
   ASSERT(oldImage->maskColor() == newImage->maskColor());
 
-  m_transaction.execute(new cmd::ReplaceImage(
-      sprite, oldImage, newImage));
+  m_transaction.execute(new cmd::ReplaceImage(sprite, oldImage, newImage));
 }
 
-void DocApi::flipImage(Image* image, const gfx::Rect& bounds,
-  doc::algorithm::FlipType flipType)
+void DocApi::flipImage(Image* image,
+                       const gfx::Rect& bounds,
+                       doc::algorithm::FlipType flipType)
 {
   m_transaction.execute(new cmd::FlipImage(image, bounds, flipType));
 }
@@ -778,9 +772,11 @@ void DocApi::setMaskPosition(int x, int y)
   m_transaction.execute(new cmd::SetMaskPosition(m_document, gfx::Point(x, y)));
 }
 
-void DocApi::setPalette(Sprite* sprite, frame_t frame, const Palette* newPalette)
+void DocApi::setPalette(Sprite* sprite,
+                        frame_t frame,
+                        const Palette* newPalette)
 {
-  Palette* currentSpritePalette = sprite->palette(frame); // Sprite current pal
+  Palette* currentSpritePalette = sprite->palette(frame);  // Sprite current pal
   int from, to;
 
   // Check differences between current sprite palette and current system palette
@@ -788,8 +784,7 @@ void DocApi::setPalette(Sprite* sprite, frame_t frame, const Palette* newPalette
   currentSpritePalette->countDiff(newPalette, &from, &to);
 
   if (from >= 0 && to >= from) {
-    m_transaction.execute(new cmd::SetPalette(
-        sprite, frame, newPalette));
+    m_transaction.execute(new cmd::SetPalette(sprite, frame, newPalette));
   }
 }
 
@@ -799,13 +794,13 @@ void DocApi::adjustTags(Sprite* sprite,
                         const DropFramePlace dropFramePlace,
                         const TagsHandling tagsHandling)
 {
-  TRACE_DOCAPI(
-    "\n  adjustTags %s frame %d delta=%d tags=%s:\n",
-    (dropFramePlace == kDropBeforeFrame ? "before": "after"),
-    frame, delta,
-    (tagsHandling == kDefaultTagsAdjustment ? "default":
-     tagsHandling == kFitInsideTags ? "fit-inside":
-                                      "fit-outside"));
+  TRACE_DOCAPI("\n  adjustTags %s frame %d delta=%d tags=%s:\n",
+               (dropFramePlace == kDropBeforeFrame ? "before" : "after"),
+               frame,
+               delta,
+               (tagsHandling == kDefaultTagsAdjustment ? "default" :
+                tagsHandling == kFitInsideTags         ? "fit-inside" :
+                                                         "fit-outside"));
   ASSERT(tagsHandling != kDontAdjustTags);
 
   // As FrameTag::setFrameRange() changes m_frameTags, we need to use
@@ -822,36 +817,45 @@ void DocApi::adjustTags(Sprite* sprite,
     if (delta == +1) {
       switch (tagsHandling) {
         case kDefaultTagsAdjustment:
-          if (frame <= from) { ++from; }
-          if (frame <= to+1) { ++to; }
+          if (frame <= from) {
+            ++from;
+          }
+          if (frame <= to + 1) {
+            ++to;
+          }
           break;
         case kFitInsideTags:
-          if (frame < from) { ++from; }
-          if (frame <= to) { ++to; }
+          if (frame < from) {
+            ++from;
+          }
+          if (frame <= to) {
+            ++to;
+          }
           break;
         case kFitOutsideTags:
           if ((frame < from) ||
-              (frame == from &&
-               dropFramePlace == kDropBeforeFrame)) {
+              (frame == from && dropFramePlace == kDropBeforeFrame)) {
             ++from;
           }
           if ((frame < to) ||
-              (frame == to &&
-               dropFramePlace == kDropBeforeFrame)) {
+              (frame == to && dropFramePlace == kDropBeforeFrame)) {
             ++to;
           }
           break;
       }
     }
     else if (delta == -1) {
-      if (frame < from) { --from; }
-      if (frame <= to) { --to; }
+      if (frame < from) {
+        --from;
+      }
+      if (frame <= to) {
+        --to;
+      }
     }
 
     TRACE_DOCAPI(" [%d %d]\n", from, to);
 
-    if (from != tag->fromFrame() ||
-        to != tag->toFrame()) {
+    if (from != tag->fromFrame() || to != tag->toFrame()) {
       if (from > to)
         m_transaction.execute(new cmd::RemoveTag(sprite, tag));
       else
@@ -860,4 +864,4 @@ void DocApi::adjustTags(Sprite* sprite,
   }
 }
 
-} // namespace app
+}  // namespace app

@@ -14,11 +14,12 @@ using namespace doc;
 
 namespace doc {
 
-  std::ostream& operator<<(std::ostream& os, ColorMode mode) {
-    return os << (int)mode;
-  }
+std::ostream& operator<<(std::ostream& os, ColorMode mode)
+{
+  return os << (int)mode;
+}
 
-} // namespace doc
+}  // namespace doc
 
 TEST(Context, AddDocument)
 {
@@ -28,7 +29,7 @@ TEST(Context, AddDocument)
 
   EXPECT_EQ(32, doc->width());
   EXPECT_EQ(28, doc->height());
-  EXPECT_EQ(ColorMode::RGB, doc->colorMode()); // Default color mode is RGB
+  EXPECT_EQ(ColorMode::RGB, doc->colorMode());  // Default color mode is RGB
 }
 
 TEST(Context, DeleteDocuments)

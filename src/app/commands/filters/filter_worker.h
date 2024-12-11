@@ -10,10 +10,10 @@
 
 namespace app {
 
-  class FilterManagerImpl;
+class FilterManagerImpl;
 
-  void start_filter_worker(FilterManagerImpl* filterMgr);
+void start_filter_worker(FilterManagerImpl* filterMgr);
 
-} // namespace app
+}  // namespace app
 
 #endif

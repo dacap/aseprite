@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/commands/cmd_open_file.h"
@@ -34,7 +34,8 @@
 
 namespace app {
 
-class OpenFileJob : public Job, public IFileOpProgress {
+class OpenFileJob : public Job,
+                    public IFileOpProgress {
 public:
   OpenFileJob(FileOp* fop, const bool showProgress)
     : Job(Strings::open_file_loading(), showProgress)
@@ -42,7 +43,8 @@ public:
   {
   }
 
-  void showProgressWindow() {
+  void showProgressWindow()
+  {
     startJob();
 
     if (isCanceled())
@@ -53,7 +55,8 @@ public:
 
 private:
   // Thread to do the hard work: load the file from the disk.
-  virtual void onJob() override {
+  virtual void onJob() override
+  {
     try {
       m_fop->operate(this);
     }
@@ -67,7 +70,8 @@ private:
     m_fop->done();
   }
 
-  virtual void ackFileOpProgress(double progress) override {
+  virtual void ackFileOpProgress(double progress) override
+  {
     jobProgress(progress);
   }
 
@@ -86,7 +90,7 @@ OpenFileCommand::OpenFileCommand()
 void OpenFileCommand::onLoadParams(const Params& params)
 {
   m_filename = params.get("filename");
-  m_folder = params.get("folder"); // Initial folder
+  m_folder = params.get("folder");  // Initial folder
 
   if (params.has_param("ui"))
     m_ui = params.get_as<bool>("ui");
@@ -97,13 +101,10 @@ void OpenFileCommand::onLoadParams(const Params& params)
   m_oneFrame = params.get_as<bool>("oneframe");
 
   std::string sequence = params.get("sequence");
-  if (m_oneFrame ||
-      sequence == "skip" ||
-      sequence == "no") {
+  if (m_oneFrame || sequence == "skip" || sequence == "no") {
     m_seqDecision = gen::SequenceDecision::NO;
   }
-  else if (sequence == "agree" ||
-           sequence == "yes") {
+  else if (sequence == "agree" || sequence == "yes") {
     m_seqDecision = gen::SequenceDecision::YES;
   }
   else {
@@ -125,10 +126,13 @@ void OpenFileCommand::onExecute(Context* context)
 
     // Add backslash as show_file_selector() expected a filename as
     // initial path (and the file part is removed from the path).
-    if (!m_folder.empty() && !base::is_path_separator(m_folder[m_folder.size()-1]))
+    if (!m_folder.empty() &&
+        !base::is_path_separator(m_folder[m_folder.size() - 1]))
       m_folder.push_back(base::path_separator);
 
-    if (!app::show_file_selector(Strings::open_file_title(), m_folder, exts,
+    if (!app::show_file_selector(Strings::open_file_title(),
+                                 m_folder,
+                                 exts,
                                  FileSelectorType::OpenMultiple,
                                  filenames)) {
       // The user cancelled the operation through UI
@@ -148,14 +152,12 @@ void OpenFileCommand::onExecute(Context* context)
   if (filenames.empty())
     return;
 
-  int flags =
-    FILE_LOAD_DATA_FILE |
-    FILE_LOAD_CREATE_PALETTE |
-    (m_repeatCheckbox ? FILE_LOAD_SEQUENCE_ASK_CHECKBOX: 0);
+  int flags = FILE_LOAD_DATA_FILE | FILE_LOAD_CREATE_PALETTE |
+              (m_repeatCheckbox ? FILE_LOAD_SEQUENCE_ASK_CHECKBOX : 0);
 
-  if (context->isUIAvailable() &&
-      m_seqDecision == gen::SequenceDecision::ASK) {
-    if (Preferences::instance().openFile.openSequence() == gen::SequenceDecision::ASK) {
+  if (context->isUIAvailable() && m_seqDecision == gen::SequenceDecision::ASK) {
+    if (Preferences::instance().openFile.openSequence() ==
+        gen::SequenceDecision::ASK) {
       // Do nothing (ask by default, or whatever the command params
       // specified)
     }
@@ -185,8 +187,7 @@ void OpenFileCommand::onExecute(Context* context)
     filenames.erase(filenames.begin());
 
     std::unique_ptr<FileOp> fop(
-      FileOp::createLoadDocumentOperation(
-        context, filename, flags));
+      FileOp::createLoadDocumentOperation(context, filename, flags));
     bool unrecent = false;
 
     // Do nothing (the user cancelled or something like that)
@@ -237,7 +238,8 @@ void OpenFileCommand::onExecute(Context* context)
       Doc* doc = fop->document();
       if (doc) {
         if (context->isUIAvailable()) {
-          App::instance()->recentFiles()->addRecentFile(fop->filename().c_str());
+          App::instance()->recentFiles()->addRecentFile(
+            fop->filename().c_str());
           auto& docPref = Preferences::instance().document(doc);
 
           if (fop->hasEmbeddedGridBounds() &&
@@ -278,10 +280,10 @@ std::string OpenFileCommand::onGetFriendlyName() const
   int pos(68.0 / double(uiScale) / double(scScale));
   return Command::onGetFriendlyName().append(
     (m_filename.empty() ?
-      "" :
-      (": " + (m_filename.size() >= pos ?
-                 m_filename.substr(m_filename.size() - pos, pos) :
-                 m_filename))));
+       "" :
+       (": " + (m_filename.size() >= pos ?
+                  m_filename.substr(m_filename.size() - pos, pos) :
+                  m_filename))));
 }
 
 Command* CommandFactory::createOpenFileCommand()
@@ -289,4 +291,4 @@ Command* CommandFactory::createOpenFileCommand()
   return new OpenFileCommand;
 }
 
-} // namespace app
+}  // namespace app

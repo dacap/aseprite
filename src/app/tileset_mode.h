@@ -10,14 +10,14 @@
 
 namespace app {
 
-  // These modes are available edition modes for the tileset when an
-  // tilemap is edited.
-  enum class TilesetMode {
-    Manual,   // Modify existent tiles (don't create new ones)
-    Auto,     // Add/remove tiles automatically when needed
-    Stack,    // Stack modified tiles as new ones
-  };
+// These modes are available edition modes for the tileset when an
+// tilemap is edited.
+enum class TilesetMode {
+  Manual,  // Modify existent tiles (don't create new ones)
+  Auto,    // Add/remove tiles automatically when needed
+  Stack,   // Stack modified tiles as new ones
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/layer_frame_comboboxes.h"
@@ -63,8 +63,8 @@ std::string LayerListItem::buildName(const doc::Layer* layer)
     layer = layer->parent();
   }
   const std::string namePrefix =
-    (isGroup ? Strings::layer_combo_group() :
-               Strings::layer_combo_layer()) + " ";
+    (isGroup ? Strings::layer_combo_group() : Strings::layer_combo_layer()) +
+    " ";
   name.insert(0, namePrefix);
   return name;
 }
@@ -76,7 +76,9 @@ FrameListItem::FrameListItem(doc::Tag* tag)
   setValue(m_tag->name());
 }
 
-void fill_area_combobox(const doc::Sprite* sprite, ui::ComboBox* area, const std::string& defArea)
+void fill_area_combobox(const doc::Sprite* sprite,
+                        ui::ComboBox* area,
+                        const std::string& defArea)
 {
   int i = area->addItem("Canvas");
   dynamic_cast<ui::ListItem*>(area->getItem(i))->setValue(kWholeCanvas);
@@ -86,8 +88,7 @@ void fill_area_combobox(const doc::Sprite* sprite, ui::ComboBox* area, const std
   if (defArea == kSelectedCanvas)
     area->setSelectedItemIndex(i);
 
-  for (auto* slice : sort_slices_by_name(sprite->slices(),
-                                         MatchWords())) {
+  for (auto* slice : sort_slices_by_name(sprite->slices(), MatchWords())) {
     if (slice->name().empty())
       continue;
 
@@ -97,7 +98,10 @@ void fill_area_combobox(const doc::Sprite* sprite, ui::ComboBox* area, const std
   }
 }
 
-void fill_layers_combobox(const doc::Sprite* sprite, ui::ComboBox* layers, const std::string& defLayer, const int defLayerIndex)
+void fill_layers_combobox(const doc::Sprite* sprite,
+                          ui::ComboBox* layers,
+                          const std::string& defLayer,
+                          const int defLayerIndex)
 {
   int i = layers->addItem(Strings::layer_combo_visible_layers());
   dynamic_cast<ui::ListItem*>(layers->getItem(i))->setValue(kAllLayers);
@@ -108,20 +112,25 @@ void fill_layers_combobox(const doc::Sprite* sprite, ui::ComboBox* layers, const
     layers->setSelectedItemIndex(i);
 
   assert(layers->getItemCount() == kLayersComboboxExtraInitialItems);
-  static_assert(kLayersComboboxExtraInitialItems == 2,
-                "Update kLayersComboboxExtraInitialItems value to match the number of initial items in layers combobox");
+  static_assert(
+    kLayersComboboxExtraInitialItems == 2,
+    "Update kLayersComboboxExtraInitialItems value to match the number of initial items in layers combobox");
 
   doc::LayerList layersList = sprite->allLayers();
-  for (auto it=layersList.rbegin(), end=layersList.rend(); it!=end; ++it) {
+  for (auto it = layersList.rbegin(), end = layersList.rend(); it != end;
+       ++it) {
     doc::Layer* layer = *it;
     i = layers->addItem(new LayerListItem(layer));
-    if (defLayer == layer->name() && (defLayerIndex == -1 ||
-                                      defLayerIndex == i-kLayersComboboxExtraInitialItems))
+    if (defLayer == layer->name() &&
+        (defLayerIndex == -1 ||
+         defLayerIndex == i - kLayersComboboxExtraInitialItems))
       layers->setSelectedItemIndex(i);
   }
 }
 
-void fill_frames_combobox(const doc::Sprite* sprite, ui::ComboBox* frames, const std::string& defFrame)
+void fill_frames_combobox(const doc::Sprite* sprite,
+                          ui::ComboBox* frames,
+                          const std::string& defFrame)
 {
   int i = frames->addItem(Strings::frame_combo_all_frames());
   dynamic_cast<ui::ListItem*>(frames->getItem(i))->setValue(kAllFrames);
@@ -144,11 +153,11 @@ void fill_frames_combobox(const doc::Sprite* sprite, ui::ComboBox* frames, const
 
 void fill_anidir_combobox(ui::ComboBox* anidir, doc::AniDir defAnidir)
 {
-  static_assert(
-    int(doc::AniDir::FORWARD) == 0 &&
-    int(doc::AniDir::REVERSE) == 1 &&
-    int(doc::AniDir::PING_PONG) == 2 &&
-    int(doc::AniDir::PING_PONG_REVERSE) == 3, "doc::AniDir has changed");
+  static_assert(int(doc::AniDir::FORWARD) == 0 &&
+                  int(doc::AniDir::REVERSE) == 1 &&
+                  int(doc::AniDir::PING_PONG) == 2 &&
+                  int(doc::AniDir::PING_PONG_REVERSE) == 3,
+                "doc::AniDir has changed");
 
   anidir->addItem(Strings::anidir_combo_forward());
   anidir->addItem(Strings::anidir_combo_reverse());
@@ -164,9 +173,8 @@ void calculate_visible_layers(const Site& site,
 {
   if (layersValue == kSelectedLayers) {
     if (!site.selectedLayers().empty()) {
-      layersVisibility.showSelectedLayers(
-        const_cast<Sprite*>(site.sprite()),
-        site.selectedLayers());
+      layersVisibility.showSelectedLayers(const_cast<Sprite*>(site.sprite()),
+                                          site.selectedLayers());
     }
     else {
       layersVisibility.showLayer(const_cast<Layer*>(site.layer()));
@@ -177,8 +185,8 @@ void calculate_visible_layers(const Site& site,
     // TODO add a getLayerByName
     for (doc::Layer* layer : site.sprite()->allLayers()) {
       i--;
-      if (layer->name() == layersValue && (layersIndex == -1 ||
-                                           layersIndex == i)) {
+      if (layer->name() == layersValue &&
+          (layersIndex == -1 || layersIndex == i)) {
         layersVisibility.showLayer(layer);
         break;
       }
@@ -217,7 +225,8 @@ doc::Tag* calculate_frames_sequence(const Site& site,
     int forward = 1;
     if (framesValue == kAllFrames) {
       tag = nullptr;
-      forward = (aniDir == AniDir::FORWARD || aniDir == AniDir::PING_PONG ? 1 : -1);
+      forward =
+        (aniDir == AniDir::FORWARD || aniDir == AniDir::PING_PONG ? 1 : -1);
       if (forward < 0)
         start = site.sprite()->lastFrame();
 
@@ -226,11 +235,11 @@ doc::Tag* calculate_frames_sequence(const Site& site,
       auto startTag = site.sprite()->tags().innerTag(start);
       if (startTag) {
         int startTagForward = (startTag->aniDir() == AniDir::FORWARD ||
-                               startTag->aniDir() == AniDir::PING_PONG
-                               ? 1 : -1);
-        start = forward * startTagForward > 0
-                ? startTag->fromFrame()
-                : startTag->toFrame();
+                                   startTag->aniDir() == AniDir::PING_PONG ?
+                                 1 :
+                                 -1);
+        start = forward * startTagForward > 0 ? startTag->fromFrame() :
+                                                startTag->toFrame();
       }
     }
     else {
@@ -240,22 +249,22 @@ doc::Tag* calculate_frames_sequence(const Site& site,
       if (tag) {
         origAniDir = tag->aniDir();
         tag->setAniDir(aniDir);
-        start = (aniDir == AniDir::FORWARD || aniDir == AniDir::PING_PONG
-                 ? tag->fromFrame()
-                 : tag->toFrame());
+        start = (aniDir == AniDir::FORWARD || aniDir == AniDir::PING_PONG ?
+                   tag->fromFrame() :
+                   tag->toFrame());
       }
     }
 
-    auto playback = doc::Playback(
-      site.document()->sprite(),
-      site.document()->sprite()->tags().getInternalList(),
-      start,
-      doc::Playback::PlayAll,
-      tag,
-      forward);
+    auto playback =
+      doc::Playback(site.document()->sprite(),
+                    site.document()->sprite()->tags().getInternalList(),
+                    start,
+                    doc::Playback::PlayAll,
+                    tag,
+                    forward);
     framesSeq.insert(playback.frame());
     auto frame = playback.nextFrame();
-    while(!playback.isStopped()) {
+    while (!playback.isStopped()) {
       framesSeq.insert(frame);
       frame = playback.nextFrame();
     }
@@ -272,7 +281,7 @@ doc::Tag* calculate_frames_sequence(const Site& site,
       if (aniDir == AniDir::PING_PONG || aniDir == AniDir::PING_PONG_REVERSE) {
         doc::FramesSequence newSeq;
         int i = 0;
-        int frames = framesSeq.size()-1;
+        int frames = framesSeq.size() - 1;
         for (auto f : framesSeq) {
           if (i < frames)
             newSeq.insert(f);
@@ -305,8 +314,7 @@ doc::Tag* calculate_selected_frames(const Site& site,
   else if (framesValue != kAllFrames) {
     tag = site.sprite()->tags().getByName(framesValue);
     if (tag)
-      selFrames.insert(tag->fromFrame(),
-                       tag->toFrame());
+      selFrames.insert(tag->fromFrame(), tag->toFrame());
     else
       selFrames.insert(0, site.sprite()->lastFrame());
   }
@@ -324,12 +332,11 @@ std::vector<doc::Slice*> sort_slices_by_name(const doc::Slices& slices,
     if (match(slice->name()))
       result.push_back(slice);
   }
-  std::sort(result.begin(),
-            result.end(),
-            [](const doc::Slice* a, const doc::Slice* b) {
-              return (base::compare_filenames(a->name(), b->name()) < 0);
-            });
+  std::sort(
+    result.begin(), result.end(), [](const doc::Slice* a, const doc::Slice* b) {
+      return (base::compare_filenames(a->name(), b->name()) < 0);
+    });
   return result;
 }
 
-} // namespace app
+}  // namespace app

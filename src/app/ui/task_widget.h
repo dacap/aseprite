@@ -26,10 +26,11 @@ public:
     kCancelAndProgress = 3,
   };
 
-  TaskWidget(const Type type,
-             base::task::func_t&& func);
+  TaskWidget(const Type type, base::task::func_t&& func);
   TaskWidget(base::task::func_t&& func)
-    : TaskWidget(kCancelAndProgress, std::move(func)) { }
+    : TaskWidget(kCancelAndProgress, std::move(func))
+  {
+  }
 
 protected:
   virtual void onComplete();
@@ -41,6 +42,6 @@ private:
   Task m_task;
 };
 
-} // namespace app
+}  // namespace app
 
 #endif

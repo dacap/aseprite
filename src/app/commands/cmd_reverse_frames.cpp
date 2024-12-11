@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -34,17 +34,16 @@ ReverseFramesCommand::ReverseFramesCommand()
 bool ReverseFramesCommand::onEnabled(Context* context)
 {
   auto range = App::instance()->timeline()->range();
-  return
-    context->checkFlags(ContextFlags::ActiveDocumentIsWritable) &&
-    range.enabled() &&
-    range.frames() >= 2;         // We need at least 2 frames to reverse
+  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable) &&
+         range.enabled() &&
+         range.frames() >= 2;  // We need at least 2 frames to reverse
 }
 
 void ReverseFramesCommand::onExecute(Context* context)
 {
   auto range = App::instance()->timeline()->range();
   if (!range.enabled())
-    return;                     // Nothing to do
+    return;  // Nothing to do
 
   Doc* doc = context->activeDocument();
 
@@ -58,4 +57,4 @@ Command* CommandFactory::createReverseFramesCommand()
   return new ReverseFramesCommand;
 }
 
-} // namespace app
+}  // namespace app

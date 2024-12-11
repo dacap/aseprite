@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -34,7 +34,7 @@ SwitchColorsCommand::SwitchColorsCommand()
 
 bool SwitchColorsCommand::onEnabled(Context* context)
 {
-  return (Editor::activeEditor() ? true: false);
+  return (Editor::activeEditor() ? true : false);
 }
 
 void SwitchColorsCommand::onExecute(Context* context)
@@ -79,4 +79,4 @@ Command* CommandFactory::createSwitchColorsCommand()
   return new SwitchColorsCommand;
 }
 
-} // namespace app
+}  // namespace app

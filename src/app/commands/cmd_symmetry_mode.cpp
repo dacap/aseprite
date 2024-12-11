@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -15,10 +15,10 @@
 #include "app/context.h"
 #include "app/doc.h"
 #include "app/i18n/strings.h"
-#include "app/pref/preferences.h"
-#include "app/ui_context.h"
-#include "app/ui/context_bar.h"
 #include "app/modules/gui.h"
+#include "app/pref/preferences.h"
+#include "app/ui/context_bar.h"
+#include "app/ui_context.h"
 
 namespace app {
 
@@ -34,7 +34,7 @@ protected:
   std::string onGetFriendlyName() const override;
 
 private:
-    app::gen::SymmetryMode m_mode = app::gen::SymmetryMode::NONE;
+  app::gen::SymmetryMode m_mode = app::gen::SymmetryMode::NONE;
 };
 
 SymmetryModeCommand::SymmetryModeCommand()
@@ -57,9 +57,12 @@ std::string SymmetryModeCommand::onGetFriendlyName() const
 void SymmetryModeCommand::onLoadParams(const Params& params)
 {
   std::string mode = params.get("orientation");
-  if (mode == "vertical") m_mode = app::gen::SymmetryMode::VERTICAL;
-  else if (mode == "horizontal") m_mode = app::gen::SymmetryMode::HORIZONTAL;
-  else m_mode = app::gen::SymmetryMode::NONE;
+  if (mode == "vertical")
+    m_mode = app::gen::SymmetryMode::VERTICAL;
+  else if (mode == "horizontal")
+    m_mode = app::gen::SymmetryMode::HORIZONTAL;
+  else
+    m_mode = app::gen::SymmetryMode::NONE;
 }
 
 bool SymmetryModeCommand::onEnabled(Context* ctx)
@@ -125,4 +128,4 @@ Command* CommandFactory::createSymmetryModeCommand()
   return new SymmetryModeCommand;
 }
 
-} // namespace app
+}  // namespace app

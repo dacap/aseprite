@@ -39,7 +39,7 @@ uint16_t Decoder::read16()
   int b2 = m_f->read8();
 
   if (m_f->ok()) {
-    return ((b2 << 8) | b1); // Little endian
+    return ((b2 << 8) | b1);  // Little endian
   }
   else
     return 0;
@@ -73,14 +73,10 @@ uint64_t Decoder::read64()
 
   if (m_f->ok()) {
     // Little endian
-    return (((long long)b8 << 56) |
-            ((long long)b7 << 48) |
-            ((long long)b6 << 40) |
-            ((long long)b5 << 32) |
-            ((long long)b4 << 24) |
-            ((long long)b3 << 16) |
-            ((long long)b2 << 8) |
-            (long long)b1);
+    return (((long long)b8 << 56) | ((long long)b7 << 48) |
+            ((long long)b6 << 40) | ((long long)b5 << 32) |
+            ((long long)b4 << 24) | ((long long)b3 << 16) |
+            ((long long)b2 << 8) | (long long)b1);
   }
   else
     return 0;
@@ -91,4 +87,4 @@ size_t Decoder::readBytes(uint8_t* buf, size_t n)
   return m_f->readBytes(buf, n);
 }
 
-} // namespace dio
+}  // namespace dio

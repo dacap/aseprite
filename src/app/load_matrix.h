@@ -12,15 +12,14 @@
 #include <string>
 
 namespace render {
-  class DitheringMatrix;
+class DitheringMatrix;
 };
 
 namespace app {
 
-  void load_dithering_matrix_from_sprite(
-    const std::string& filename,
-    render::DitheringMatrix& matrix);
+void load_dithering_matrix_from_sprite(const std::string& filename,
+                                       render::DitheringMatrix& matrix);
 
-} // namespace app
+}  // namespace app
 
 #endif

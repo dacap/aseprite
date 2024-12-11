@@ -13,7 +13,7 @@
 //#define TEST_BACKUP_INTEGRITY
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/crash/backup_observer.h"
@@ -33,30 +33,29 @@
 #include "ui/app_state.h"
 #include "ui/system.h"
 
-namespace app {
-namespace crash {
+namespace app { namespace crash {
 
 namespace {
 
 class SwitchBackupIcon {
 public:
-  SwitchBackupIcon() {
-    ui::execute_from_ui_thread(
-      []{
-        if (App* app = App::instance())
-          app->showBackupNotification(true);
-      });
+  SwitchBackupIcon()
+  {
+    ui::execute_from_ui_thread([] {
+      if (App* app = App::instance())
+        app->showBackupNotification(true);
+    });
   }
-  ~SwitchBackupIcon() {
-    ui::execute_from_ui_thread(
-      []{
-        if (App* app = App::instance())
-          app->showBackupNotification(false);
-      });
+  ~SwitchBackupIcon()
+  {
+    ui::execute_from_ui_thread([] {
+      if (App* app = App::instance())
+        app->showBackupNotification(false);
+    });
   }
 };
 
-}
+}  // namespace
 
 BackupObserver::BackupObserver(RecoveryConfig* config,
                                Session* session,
@@ -65,7 +64,7 @@ BackupObserver::BackupObserver(RecoveryConfig* config,
   , m_session(session)
   , m_ctx(ctx)
   , m_done(false)
-  , m_thread([this]{ backgroundThread(); })
+  , m_thread([this] { backgroundThread(); })
 {
   m_ctx->add_observer(this);
   m_ctx->documents().add_observer(this);
@@ -133,7 +132,7 @@ void BackupObserver::backgroundThread()
   std::unique_lock<std::mutex> lock(m_mutex);
   base::this_thread::set_name("backup");
 
-  int normalPeriod = int(60.0*m_config->dataRecoveryPeriod);
+  int normalPeriod = int(60.0 * m_config->dataRecoveryPeriod);
   int lockedPeriod = 5;
 #ifdef TEST_BACKUPS_WITH_A_SHORT_PERIOD
   normalPeriod = 5;
@@ -158,7 +157,7 @@ void BackupObserver::backgroundThread()
     }
 
     if (!m_closedDocs.empty()) {
-      for (auto it=m_closedDocs.begin(); it != m_closedDocs.end(); ) {
+      for (auto it = m_closedDocs.begin(); it != m_closedDocs.end();) {
         Doc* doc = *it;
 
         RECO_TRACE("RECO: Save backup data for %p...\n", doc);
@@ -176,7 +175,7 @@ void BackupObserver::backgroundThread()
       }
     }
 
-    waitFor = (somethingLocked ? lockedPeriod: normalPeriod);
+    waitFor = (somethingLocked ? lockedPeriod : normalPeriod);
 
     RECO_TRACE("RECO: Backup process done (%.16g)\n", chrono.elapsed());
   }
@@ -190,7 +189,8 @@ bool BackupObserver::saveDocData(Doc* doc)
       return true;
 
     if (doc->inhibitBackup()) {
-      RECO_TRACE("RECO: Document '%d' backup is temporarily inhibited\n", doc->id());
+      RECO_TRACE("RECO: Document '%d' backup is temporarily inhibited\n",
+                 doc->id());
     }
     else if (!m_session->saveDocumentChanges(doc)) {
       RECO_TRACE("RECO: Document '%d' backup was canceled by UI\n", doc->id());
@@ -203,23 +203,21 @@ bool BackupObserver::saveDocData(Doc* doc)
       DocDiff diff = compare_docs(doc, copy.get());
       if (diff.anything) {
         RECO_TRACE("RECO: Differences: %s %s %s %s %s %s %s %s %s %s %s\n",
-                   diff.canvas ? "canvas": "",
-                   diff.totalFrames ? "totalFrames": "",
-                   diff.frameDuration ? "frameDuration": "",
-                   diff.tags ? "tags": "",
-                   diff.palettes ? "palettes": "",
-                   diff.tilesets ? "tilesets": "",
-                   diff.layers ? "layers": "",
-                   diff.cels ? "cels": "",
-                   diff.images ? "images": "",
-                   diff.colorProfiles ? "colorProfiles": "",
-                   diff.gridBounds ? "gridBounds": "");
+                   diff.canvas ? "canvas" : "",
+                   diff.totalFrames ? "totalFrames" : "",
+                   diff.frameDuration ? "frameDuration" : "",
+                   diff.tags ? "tags" : "",
+                   diff.palettes ? "palettes" : "",
+                   diff.tilesets ? "tilesets" : "",
+                   diff.layers ? "layers" : "",
+                   diff.cels ? "cels" : "",
+                   diff.images ? "images" : "",
+                   diff.colorProfiles ? "colorProfiles" : "",
+                   diff.gridBounds ? "gridBounds" : "");
 
         Doc* copyDoc = copy.release();
         ui::execute_from_ui_thread(
-          [this, copyDoc] {
-            m_ctx->documents().add(copyDoc);
-          });
+          [this, copyDoc] { m_ctx->documents().add(copyDoc); });
       }
       else {
         RECO_TRACE("RECO: No differences\n");
@@ -234,5 +232,4 @@ bool BackupObserver::saveDocData(Doc* doc)
   return false;
 }
 
-} // namespace crash
-} // namespace app
+}}  // namespace app::crash

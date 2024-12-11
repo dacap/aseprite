@@ -10,15 +10,15 @@
 
 namespace app {
 
-  enum class SpriteSheetType {
-    None,
-    Horizontal,
-    Vertical,
-    Rows,
-    Columns,
-    Packed
-  };
+enum class SpriteSheetType {
+  None,
+  Horizontal,
+  Vertical,
+  Rows,
+  Columns,
+  Packed
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/editor/editor_observers.h"
@@ -55,4 +55,4 @@ void EditorObservers::notifyAfterLayerChanged(Editor* editor)
   notify_observers(&EditorObserver::onAfterLayerChanged, editor);
 }
 
-} // namespace app
+}  // namespace app

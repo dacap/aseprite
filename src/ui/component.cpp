@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/component.h"
@@ -52,4 +52,4 @@ const Component::Properties& Component::getProperties() const
   return m_properties;
 }
 
-} // namespace ui
+}  // namespace ui

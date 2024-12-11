@@ -12,9 +12,9 @@
 
 namespace app {
 
-  class WorkspaceView;
-  typedef std::vector<WorkspaceView*> WorkspaceViews;
+class WorkspaceView;
+typedef std::vector<WorkspaceView*> WorkspaceViews;
 
-} // namespace app
+}  // namespace app
 
 #endif

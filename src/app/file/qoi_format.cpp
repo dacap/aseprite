@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/file/file.h"
@@ -21,26 +21,23 @@ namespace app {
 using namespace base;
 
 class QoiFormat : public FileFormat {
-  const char* onGetName() const override {
-    return "qoi";
-  }
+  const char* onGetName() const override { return "qoi"; }
 
-  void onGetExtensions(base::paths& exts) const override {
+  void onGetExtensions(base::paths& exts) const override
+  {
     exts.push_back("qoi");
   }
 
-  dio::FileFormat onGetDioFormat() const override {
+  dio::FileFormat onGetDioFormat() const override
+  {
     return dio::FileFormat::QOI_IMAGE;
   }
 
-  int onGetFlags() const override {
-    return
-      FILE_SUPPORT_LOAD |
-      FILE_SUPPORT_SAVE |
-      FILE_SUPPORT_RGB |
-      FILE_SUPPORT_RGBA |
-      FILE_SUPPORT_SEQUENCES |
-      FILE_ENCODE_ABSTRACT_IMAGE;
+  int onGetFlags() const override
+  {
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB |
+           FILE_SUPPORT_RGBA | FILE_SUPPORT_SEQUENCES |
+           FILE_ENCODE_ABSTRACT_IMAGE;
   }
 
   bool onLoad(FileOp* fop) override;
@@ -76,25 +73,22 @@ bool QoiFormat::onLoad(FileOp* fop)
   if (!pixels)
     return false;
 
-  ImageRef image = fop->sequenceImageToLoad(
-    IMAGE_RGB,
-    desc.width,
-    desc.height);
+  ImageRef image = fop->sequenceImageToLoad(IMAGE_RGB, desc.width, desc.height);
   if (!image)
     return false;
 
   auto src = (const uint8_t*)pixels;
-  for (int y=0; y<desc.height; ++y) {
+  for (int y = 0; y < desc.height; ++y) {
     auto dst = (uint32_t*)image->getPixelAddress(0, y);
     switch (desc.channels) {
       case 4:
-        for (int x=0; x<desc.width; ++x, ++dst) {
+        for (int x = 0; x < desc.width; ++x, ++dst) {
           *dst = doc::rgba(src[0], src[1], src[2], src[3]);
           src += 4;
         }
         break;
       case 3:
-        for (int x=0; x<desc.width; ++x, ++dst) {
+        for (int x = 0; x < desc.width; ++x, ++dst) {
           *dst = doc::rgba(src[0], src[1], src[2], 255);
           src += 3;
         }
@@ -117,8 +111,8 @@ bool QoiFormat::onLoad(FileOp* fop)
       colorSpace = gfx::ColorSpace::MakeNone();
       break;
   }
-  if (colorSpace &&
-      fop->document()->sprite()->colorSpace()->type() == gfx::ColorSpace::None) {
+  if (colorSpace && fop->document()->sprite()->colorSpace()->type() ==
+                      gfx::ColorSpace::None) {
     fop->setEmbeddedColorProfile();
     fop->document()->sprite()->setColorSpace(colorSpace);
     fop->document()->notifyColorSpaceChanged();
@@ -138,17 +132,17 @@ bool QoiFormat::onLoad(FileOp* fop)
 bool QoiFormat::onSave(FileOp* fop)
 {
   const FileAbstractImage* img = fop->abstractImageToSave();
-  FileHandle handle(open_file_with_exception_sync_on_close(fop->filename(), "wb"));
+  FileHandle handle(
+    open_file_with_exception_sync_on_close(fop->filename(), "wb"));
   FILE* f = handle.get();
   doc::ImageRef image = img->getScaledImage();
 
   qoi_desc desc;
   desc.width = img->width();
   desc.height = img->height();
-  desc.channels = (img->needAlpha() ? 4: 3);
+  desc.channels = (img->needAlpha() ? 4 : 3);
 
-  if (img->osColorSpace() &&
-      img->osColorSpace()->isSRGB()) {
+  if (img->osColorSpace() && img->osColorSpace()->isSRGB()) {
     desc.colorspace = QOI_SRGB;
   }
   else {
@@ -161,11 +155,11 @@ bool QoiFormat::onSave(FileOp* fop)
     return false;
 
   auto dst = pixels;
-  for (int y=0; y<desc.height; ++y) {
+  for (int y = 0; y < desc.height; ++y) {
     auto src = (uint32_t*)image->getPixelAddress(0, y);
     switch (desc.channels) {
       case 4:
-        for (int x=0; x<desc.width; ++x, ++src) {
+        for (int x = 0; x < desc.width; ++x, ++src) {
           uint32_t c = *src;
           dst[0] = doc::rgba_getr(c);
           dst[1] = doc::rgba_getg(c);
@@ -175,7 +169,7 @@ bool QoiFormat::onSave(FileOp* fop)
         }
         break;
       case 3:
-        for (int x=0; x<desc.width; ++x, ++src) {
+        for (int x = 0; x < desc.width; ++x, ++src) {
           uint32_t c = *src;
           dst[0] = doc::rgba_getr(c);
           dst[1] = doc::rgba_getg(c);
@@ -206,4 +200,4 @@ bool QoiFormat::onSave(FileOp* fop)
 
 #endif  // ENABLE_SAVE
 
-} // namespace app
+}  // namespace app

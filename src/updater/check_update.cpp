@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "updater/check_update.h"
@@ -86,8 +86,7 @@ CheckUpdateResponse::CheckUpdateResponse(const std::string& responseBody)
     m_waitDays = base::convert_to<double>(std::string(waitdays_attr));
 }
 
-class CheckUpdate::CheckUpdateImpl
-{
+class CheckUpdate::CheckUpdateImpl {
 public:
   CheckUpdateImpl() { }
   ~CheckUpdateImpl() { }
@@ -98,7 +97,9 @@ public:
       m_request->abort();
   }
 
-  bool checkNewVersion(const Uuid& uuid, const std::string& extraParams, CheckUpdateDelegate* delegate)
+  bool checkNewVersion(const Uuid& uuid,
+                       const std::string& extraParams,
+                       CheckUpdateDelegate* delegate)
   {
     std::string url = get_app_update_url();
     if (!uuid.empty()) {
@@ -118,7 +119,9 @@ public:
     std::stringstream body;
     net::HttpResponse response(&body);
     if (m_request->send(response)) {
-      TRACE("Checking updates: %s (User-Agent: %s)\n", url.c_str(), getUserAgent().c_str());
+      TRACE("Checking updates: %s (User-Agent: %s)\n",
+            url.c_str(),
+            getUserAgent().c_str());
       TRACE("Response:\n--\n%s--\n", body.str().c_str());
 
       CheckUpdateResponse data(body.str());
@@ -148,9 +151,11 @@ void CheckUpdate::abort()
   m_impl->abort();
 }
 
-bool CheckUpdate::checkNewVersion(const Uuid& uuid, const std::string& extraParams, CheckUpdateDelegate* delegate)
+bool CheckUpdate::checkNewVersion(const Uuid& uuid,
+                                  const std::string& extraParams,
+                                  CheckUpdateDelegate* delegate)
 {
   return m_impl->checkNewVersion(uuid, extraParams, delegate);
 }
 
-} // namespace updater
+}  // namespace updater

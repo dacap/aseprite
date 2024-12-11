@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -37,8 +37,8 @@
 #include "app/ui/doc_view.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/tool_loop_impl.h"
-#include "app/ui/timeline/timeline.h"
 #include "app/ui/main_window.h"
+#include "app/ui/timeline/timeline.h"
 #include "app/ui_context.h"
 #include "base/fs.h"
 #include "base/replace_string.h"
@@ -54,22 +54,21 @@
 #include <cstring>
 #include <iostream>
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
-int load_sprite_from_file(lua_State* L, const char* filename,
+int load_sprite_from_file(lua_State* L,
+                          const char* filename,
                           const LoadSpriteFromFileParam param)
 {
   std::string absFn = base::get_absolute_path(filename);
   if (!ask_access(L, absFn.c_str(), FileAccessMode::Read, ResourceType::File))
-    return luaL_error(L, "script doesn't have access to open file %s",
-                      absFn.c_str());
+    return luaL_error(
+      L, "script doesn't have access to open file %s", absFn.c_str());
 
   app::Context* ctx = App::instance()->context();
   Doc* oldDoc = ctx->activeDocument();
 
-  Command* openCommand =
-    Commands::instance()->byId(CommandId::OpenFile());
+  Command* openCommand = Commands::instance()->byId(CommandId::OpenFile());
   Params params;
   params.set("filename", absFn.c_str());
   if (param == LoadSpriteFromFileParam::OneFrameAsSprite ||
@@ -125,8 +124,7 @@ int App_exit(lua_State* L)
 {
   app::Context* ctx = App::instance()->context();
   if (ctx && ctx->isUIAvailable()) {
-    Command* exitCommand =
-      Commands::instance()->byId(CommandId::Exit());
+    Command* exitCommand = Commands::instance()->byId(CommandId::Exit());
     ctx->executeCommand(exitCommand);
   }
   return 0;
@@ -168,11 +166,12 @@ int App_transaction(lua_State* L)
       if (lua_pcall(L, 0, LUA_MULTRET, 0) == LUA_OK)
         tx.commit();
       else
-        return lua_error(L); // pcall already put an error object on the stack
+        return lua_error(L);  // pcall already put an error object on the stack
       nresults = lua_gettop(L) - top;
     }
     catch (const LockedDocException& ex) {
-      return luaL_error(L, "cannot lock document for transaction\n%s", ex.what());
+      return luaL_error(
+        L, "cannot lock document for transaction\n%s", ex.what());
     }
   }
   return nresults;
@@ -202,7 +201,7 @@ int App_alert(lua_State* L)
 {
   app::Context* ctx = App::instance()->context();
   if (!ctx || !ctx->isUIAvailable())
-    return 0;                   // No UI to show the alert
+    return 0;  // No UI to show the alert
   // app.alert("text...")
   else if (lua_isstring(L, 1)) {
     ui::AlertPtr alert(new ui::Alert);
@@ -275,7 +274,8 @@ int App_useTool(lua_State* L)
 {
   // First argument must be a table
   if (!lua_istable(L, 1))
-    return luaL_error(L, "app.useTool() must be called with a table as its first argument");
+    return luaL_error(
+      L, "app.useTool() must be called with a table as its first argument");
 
   auto ctx = App::instance()->context();
   Site site = ctx->activeSite();
@@ -325,7 +325,7 @@ int App_useTool(lua_State* L)
   lua_pop(L, 1);
 
   // Select tool by name
-  const int buttonIdx = (params.button == tools::ToolLoop::Left ? 0: 1);
+  const int buttonIdx = (params.button == tools::ToolLoop::Left ? 0 : 1);
   auto activeToolMgr = App::instance()->activeToolManager();
   params.tool = activeToolMgr->activeTool();
   params.ink = params.tool->getInk(buttonIdx);
@@ -368,7 +368,7 @@ int App_useTool(lua_State* L)
     params.fg = convert_args_into_color(L, -1);
   else if (site.tilemapMode() == TilemapMode::Tiles)
     params.fg = Color::fromTile(Preferences::instance().colorBar.fgTile());
-  else // Default color is the active fgColor
+  else  // Default color is the active fgColor
     params.fg = Preferences::instance().colorBar.fgColor();
   lua_pop(L, 1);
 
@@ -394,11 +394,9 @@ int App_useTool(lua_State* L)
     params.brush = get_brush_from_arg(L, -1);
   else {
     // Default brush is the active brush in the context bar
-    if (App::instance()->isGui() &&
-        App::instance()->contextBar()) {
-      params.brush = App::instance()
-        ->contextBar()->activeBrush(params.tool,
-                                    params.ink);
+    if (App::instance()->isGui() && App::instance()->contextBar()) {
+      params.brush =
+        App::instance()->contextBar()->activeBrush(params.tool, params.ink);
     }
   }
   lua_pop(L, 1);
@@ -430,7 +428,8 @@ int App_useTool(lua_State* L)
 
   type = lua_getfield(L, 1, "freehandAlgorithm");
   if (type != LUA_TNIL)
-    params.freehandAlgorithm = get_value_from_lua<tools::FreehandAlgorithm>(L, -1);
+    params.freehandAlgorithm =
+      get_value_from_lua<tools::FreehandAlgorithm>(L, -1);
   lua_pop(L, 1);
 
   if (params.ink->isSelection()) {
@@ -482,13 +481,12 @@ int App_useTool(lua_State* L)
     while (lua_next(L, -2) != 0) {
       gfx::Point pt = convert_args_into_point(L, -1);
 
-      tools::Pointer pointer(
-        pt,
-        // TODO configurable params
-        tools::Vec2(0.0f, 0.0f),
-        button,
-        tools::Pointer::Type::Unknown,
-        0.0f);
+      tools::Pointer pointer(pt,
+                             // TODO configurable params
+                             tools::Vec2(0.0f, 0.0f),
+                             button,
+                             tools::Pointer::Type::Unknown,
+                             0.0f);
       if (first) {
         first = false;
         manager.prepareLoop(pointer);
@@ -694,7 +692,7 @@ int App_get_isUIAvailable(lua_State* L)
 int App_get_version(lua_State* L)
 {
   std::string ver = get_app_version();
-  base::replace_string(ver, "-x64", ""); // Remove "-x64" suffix
+  base::replace_string(ver, "-x64", "");  // Remove "-x64" suffix
   push_version(L, base::Version(ver));
   return 1;
 }
@@ -750,7 +748,7 @@ int App_set_sprite(lua_State* L)
 {
   auto sprite = may_get_docobj<Sprite>(L, 2);
   app::Context* ctx = App::instance()->context();
-  doc::Document* doc = (sprite ? sprite->document(): nullptr);
+  doc::Document* doc = (sprite ? sprite->document() : nullptr);
   ctx->setActiveDocument(static_cast<Doc*>(doc));
   return 0;
 }
@@ -816,59 +814,57 @@ int App_set_defaultPalette(lua_State* L)
   return 0;
 }
 
-const luaL_Reg App_methods[] = {
-  { "open",        App_open },
-  { "exit",        App_exit },
-  { "transaction", App_transaction },
-  { "undo",        App_undo },
-  { "redo",        App_redo },
-  { "alert",       App_alert },
-  { "refresh",     App_refresh },
-  { "useTool",     App_useTool },
-  { nullptr,       nullptr }
-};
+const luaL_Reg App_methods[] = { { "open", App_open },
+                                 { "exit", App_exit },
+                                 { "transaction", App_transaction },
+                                 { "undo", App_undo },
+                                 { "redo", App_redo },
+                                 { "alert", App_alert },
+                                 { "refresh", App_refresh },
+                                 { "useTool", App_useTool },
+                                 { nullptr, nullptr } };
 
 const Property App_properties[] = {
   // Deprecated longer fields
-  { "activeSprite",   App_get_sprite,   App_set_sprite },
-  { "activeLayer",    App_get_layer,    App_set_layer },
-  { "activeFrame",    App_get_frame,    App_set_frame },
-  { "activeCel",      App_get_cel,      App_set_cel },
-  { "activeImage",    App_get_image,    App_set_image },
-  { "activeTag",      App_get_tag,      nullptr },
-  { "activeTool",     App_get_tool,     App_set_tool },
-  { "activeBrush",    App_get_brush,    App_set_brush },
+  { "activeSprite", App_get_sprite, App_set_sprite },
+  { "activeLayer", App_get_layer, App_set_layer },
+  { "activeFrame", App_get_frame, App_set_frame },
+  { "activeCel", App_get_cel, App_set_cel },
+  { "activeImage", App_get_image, App_set_image },
+  { "activeTag", App_get_tag, nullptr },
+  { "activeTool", App_get_tool, App_set_tool },
+  { "activeBrush", App_get_brush, App_set_brush },
 
   // New shorter fields
-  { "sprite",         App_get_sprite,   App_set_sprite },
-  { "layer",          App_get_layer,    App_set_layer },
-  { "frame",          App_get_frame,    App_set_frame },
-  { "cel",            App_get_cel,      App_set_cel },
-  { "image",          App_get_image,    App_set_image },
-  { "tag",            App_get_tag,      nullptr },
-  { "tool",           App_get_tool,     App_set_tool },
-  { "brush",          App_get_brush,    App_set_brush },
+  { "sprite", App_get_sprite, App_set_sprite },
+  { "layer", App_get_layer, App_set_layer },
+  { "frame", App_get_frame, App_set_frame },
+  { "cel", App_get_cel, App_set_cel },
+  { "image", App_get_image, App_set_image },
+  { "tag", App_get_tag, nullptr },
+  { "tool", App_get_tool, App_set_tool },
+  { "brush", App_get_brush, App_set_brush },
 
-  { "sprites",        App_get_sprites,        nullptr },
-  { "fgColor",        App_get_fgColor,        App_set_fgColor },
-  { "bgColor",        App_get_bgColor,        App_set_bgColor },
-  { "fgTile",         App_get_fgTile,         App_set_fgTile },
-  { "bgTile",         App_get_bgTile,         App_set_bgTile },
-  { "version",        App_get_version,        nullptr },
-  { "apiVersion",     App_get_apiVersion,     nullptr },
-  { "site",           App_get_site,           nullptr },
-  { "range",          App_get_range,          nullptr },
-  { "isUIAvailable",  App_get_isUIAvailable,  nullptr },
+  { "sprites", App_get_sprites, nullptr },
+  { "fgColor", App_get_fgColor, App_set_fgColor },
+  { "bgColor", App_get_bgColor, App_set_bgColor },
+  { "fgTile", App_get_fgTile, App_set_fgTile },
+  { "bgTile", App_get_bgTile, App_set_bgTile },
+  { "version", App_get_version, nullptr },
+  { "apiVersion", App_get_apiVersion, nullptr },
+  { "site", App_get_site, nullptr },
+  { "range", App_get_range, nullptr },
+  { "isUIAvailable", App_get_isUIAvailable, nullptr },
   { "defaultPalette", App_get_defaultPalette, App_set_defaultPalette },
-  { "window",         App_get_window,         nullptr },
-  { "events",         App_get_events,         nullptr },
-  { "theme",          App_get_theme,          nullptr },
-  { "uiScale",        App_get_uiScale,        nullptr },
-  { "editor",         App_get_editor,         nullptr },
-  { nullptr,          nullptr,                nullptr }
+  { "window", App_get_window, nullptr },
+  { "events", App_get_events, nullptr },
+  { "theme", App_get_theme, nullptr },
+  { "uiScale", App_get_uiScale, nullptr },
+  { "editor", App_get_editor, nullptr },
+  { nullptr, nullptr, nullptr }
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(App);
 
@@ -877,12 +873,12 @@ void register_app_object(lua_State* L)
   REG_CLASS(L, App);
   REG_CLASS_PROPERTIES(L, App);
 
-  lua_newtable(L);              // Create a table which will be the "app" object
+  lua_newtable(L);  // Create a table which will be the "app" object
   lua_pushvalue(L, -1);
   luaL_getmetatable(L, get_mtname<App>());
   lua_setmetatable(L, -2);
   lua_setglobal(L, "app");
-  lua_pop(L, 1);                // Pop app table
+  lua_pop(L, 1);  // Pop app table
 }
 
 void set_app_params(lua_State* L, const Params& params)
@@ -897,5 +893,4 @@ void set_app_params(lua_State* L, const Params& params)
   lua_pop(L, 1);
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

@@ -46,6 +46,6 @@ private:
   static std::string m_dbdir;
 };
 
-} // namespace app
+}  // namespace app
 
 #endif  // APP_SENTRY_WRAPPER_H

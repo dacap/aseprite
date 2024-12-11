@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/file/split_filename.h"
@@ -44,7 +44,7 @@ int split_filename(const std::string& filename,
       if (num < 0)
         num = 0;
 
-      num += order*(chr-'0');
+      num += order * (chr - '0');
       order *= 10;
       ++width;
       ++it;
@@ -54,9 +54,9 @@ int split_filename(const std::string& filename,
   }
 
   if (width > 0)
-    left.erase(left.end()-width, left.end());
+    left.erase(left.end() - width, left.end());
 
   return num;
 }
 
-} // namespace app
+}  // namespace app

@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/user_data_view.h"
@@ -29,7 +29,8 @@ UserDataView::UserDataView(Option<bool>& visibility)
 {
 }
 
-void UserDataView::configureAndSet(const doc::UserData& userData, ui::Grid* parent)
+void UserDataView::configureAndSet(const doc::UserData& userData,
+                                   ui::Grid* parent)
 {
   base::ScopedValue switchSelf(m_selfUpdate, true);
 
@@ -47,7 +48,7 @@ void UserDataView::configureAndSet(const doc::UserData& userData, ui::Grid* pare
     std::vector<ui::Grid::Info> childrenInfo(parent->children().size());
     int i = 0;
     int columnCount = 0;
-    for(auto child : parent->children()) {
+    for (auto child : parent->children()) {
       childrenInfo[i] = parent->getChildInfo(child);
       if (columnCount < childrenInfo[i].col)
         columnCount = childrenInfo[i].col;
@@ -60,8 +61,8 @@ void UserDataView::configureAndSet(const doc::UserData& userData, ui::Grid* pare
     parent->addChildInCell(color(), hspan2, vspan, ui::HORIZONTAL);
     parent->addChildInCell(entryLabel(), hspan1, vspan, ui::LEFT);
     parent->addChildInCell(entry(), hspan2, vspan, ui::HORIZONTAL);
-    color()->Change.connect([this]{ onColorChange(); });
-    entry()->Change.connect([this]{ onEntryChange(); });
+    color()->Change.connect([this] { onColorChange(); });
+    entry()->Change.connect([this] { onEntryChange(); });
     m_isConfigured = true;
   }
   m_userData = userData;
@@ -96,7 +97,8 @@ void UserDataView::onEntryChange()
 
 void UserDataView::onColorChange()
 {
-  app::Color oldColor = app::Color::fromImage(doc::IMAGE_RGB, m_userData.color());
+  app::Color oldColor =
+    app::Color::fromImage(doc::IMAGE_RGB, m_userData.color());
   app::Color newColor = color()->getColor();
   if (newColor != oldColor) {
     m_userData.setColor(color_utils::color_for_image(newColor, doc::IMAGE_RGB));
@@ -105,4 +107,4 @@ void UserDataView::onColorChange()
   }
 }
 
-} // namespace app
+}  // namespace app

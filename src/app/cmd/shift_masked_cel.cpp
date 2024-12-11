@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/shift_masked_cel.h"
@@ -18,8 +18,7 @@
 #include "doc/layer.h"
 #include "doc/mask.h"
 
-namespace app {
-namespace cmd {
+namespace app { namespace cmd {
 
 ShiftMaskedCel::ShiftMaskedCel(Cel* cel, int dx, int dy)
   : WithCel(cel)
@@ -65,5 +64,4 @@ void ShiftMaskedCel::shift(int dx, int dy)
   cel->data()->incrementVersion();
 }
 
-} // namespace cmd
-} // namespace app
+}}  // namespace app::cmd

@@ -30,7 +30,7 @@
  */
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/alert.h"
@@ -82,11 +82,11 @@ Alert::Alert()
 
   addChild(box1);
 
-  box1->addChild(box4); // Filler
-  box1->addChild(box2); // Labels
+  box1->addChild(box4);  // Filler
+  box1->addChild(box2);  // Labels
   box1->addChild(m_progressPlaceholder);
-  box1->addChild(box5); // Filler
-  box1->addChild(grid); // Buttons
+  box1->addChild(box5);  // Filler
+  box1->addChild(grid);  // Buttons
 
   grid->addChildInCell(box3, 1, 1, CENTER | BOTTOM | HORIZONTAL);
 }
@@ -118,11 +118,11 @@ void Alert::addButton(const std::string& text)
   // modifiers.
   button->processMnemonicFromText('&', false);
 
-  button->setMinSize(gfx::Size(60*guiscale(), 0));
+  button->setMinSize(gfx::Size(60 * guiscale(), 0));
   m_buttons.push_back(button);
 
   button->setId(fmt::format("button-{}", m_buttons.size()).c_str());
-  button->Click.connect([this, button]{ closeWindow(button); });
+  button->Click.connect([this, button] { closeWindow(button); });
 
   m_buttonsPlaceholder->addChild(button);
 }
@@ -185,9 +185,9 @@ int Alert::show()
   // Check the closer
   int ret = 0;
   if (Widget* closer = this->closer()) {
-    for (int i=0; i<(int)m_buttons.size(); ++i) {
+    for (int i = 0; i < (int)m_buttons.size(); ++i) {
       if (closer == m_buttons[i]) {
-        ret = i+1;
+        ret = i + 1;
         break;
       }
     }
@@ -210,21 +210,16 @@ void Alert::processString(std::string& buf)
   int beg = 0;
   for (;;) {
     // Ignore characters
-    if (buf[c] == '\n' ||
-        buf[c] == '\r') {
+    if (buf[c] == '\n' || buf[c] == '\r') {
       buf.erase(c, 1);
       continue;
     }
 
-    if ((!buf[c]) ||
-        ((buf[c] == buf[c+1]) &&
-         ((buf[c] == '<') ||
-          (buf[c] == '=') ||
-          (buf[c] == '>') ||
-          (buf[c] == '-') ||
-          (buf[c] == '|')))) {
+    if ((!buf[c]) || ((buf[c] == buf[c + 1]) &&
+                      ((buf[c] == '<') || (buf[c] == '=') || (buf[c] == '>') ||
+                       (buf[c] == '-') || (buf[c] == '|')))) {
       if (title || label || separator || button) {
-        std::string item = buf.substr(beg, c-beg);
+        std::string item = buf.substr(beg, c - beg);
 
         if (title)
           setTitle(item);
@@ -242,15 +237,28 @@ void Alert::processString(std::string& buf)
       // Next widget
       else {
         title = label = separator = button = false;
-        beg = c+2;
+        beg = c + 2;
         align = 0;
 
         switch (buf[c]) {
-          case '<': label=true; align=LEFT; break;
-          case '=': label=true; align=CENTER; break;
-          case '>': label=true; align=RIGHT; break;
-          case '-': separator=true; break;
-          case '|': button=true; break;
+          case '<':
+            label = true;
+            align = LEFT;
+            break;
+          case '=':
+            label = true;
+            align = CENTER;
+            break;
+          case '>':
+            label = true;
+            align = RIGHT;
+            break;
+          case '-':
+            separator = true;
+            break;
+          case '|':
+            button = true;
+            break;
         }
         ++c;
       }
@@ -259,4 +267,4 @@ void Alert::processString(std::string& buf)
   }
 }
 
-} // namespace ui
+}  // namespace ui

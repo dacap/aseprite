@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/incompat_file_window.h"
@@ -16,14 +16,14 @@ namespace app {
 
 void IncompatFileWindow::show(std::string incompatibilities)
 {
-  base::trim_string(incompatibilities,
-                    incompatibilities);
+  base::trim_string(incompatibilities, incompatibilities);
   if (!incompatibilities.empty()) {
     errors()->setText(incompatibilities);
     errorsView()->setSizeHint(
-      errorsView()->border().size()
-      + gfx::Size(0, std::min(textHeight()*16, // 16 lines as max height
-                              errors()->sizeHint().h)));
+      errorsView()->border().size() +
+      gfx::Size(0,
+                std::min(textHeight() * 16,  // 16 lines as max height
+                         errors()->sizeHint().h)));
   }
   else {
     errorsPlaceholder()->setVisible(false);
@@ -33,4 +33,4 @@ void IncompatFileWindow::show(std::string incompatibilities)
   openWindowInForeground();
 }
 
-} // namespace app
+}  // namespace app

@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/configure_timeline_popup.h"
@@ -45,30 +45,32 @@ ConfigureTimelinePopup::ConfigureTimelinePopup()
   // TODO we should add a new hot region to automatically close the
   //      popup if the mouse is moved outside or find other kind of
   //      dialog/window
-  setHotRegion(gfx::Region(manager()->bounds())); // for the color selector
+  setHotRegion(gfx::Region(manager()->bounds()));  // for the color selector
 
   setAutoRemap(false);
-  setBorder(gfx::Border(4*guiscale()));
+  setBorder(gfx::Border(4 * guiscale()));
 
   m_box = new app::gen::TimelineConf();
   addChild(m_box);
 
-  m_box->position()->ItemChange.connect([this]{ onChangePosition(); });
-  m_box->firstFrame()->Change.connect([this]{ onChangeFirstFrame(); });
-  m_box->merge()->Click.connect([this]{ onChangeType(); });
-  m_box->tint()->Click.connect([this]{ onChangeType(); });
-  m_box->opacity()->Change.connect([this]{ onOpacity(); });
-  m_box->opacityStep()->Change.connect([this]{ onOpacityStep(); });
-  m_box->resetOnionskin()->Click.connect([this]{ onResetOnionskin(); });
-  m_box->loopTag()->Click.connect([this]{ onLoopTagChange(); });
-  m_box->currentLayer()->Click.connect([this]{ onCurrentLayerChange(); });
-  m_box->behind()->Click.connect([this]{ onPositionChange(); });
-  m_box->infront()->Click.connect([this]{ onPositionChange(); });
+  m_box->position()->ItemChange.connect([this] { onChangePosition(); });
+  m_box->firstFrame()->Change.connect([this] { onChangeFirstFrame(); });
+  m_box->merge()->Click.connect([this] { onChangeType(); });
+  m_box->tint()->Click.connect([this] { onChangeType(); });
+  m_box->opacity()->Change.connect([this] { onOpacity(); });
+  m_box->opacityStep()->Change.connect([this] { onOpacityStep(); });
+  m_box->resetOnionskin()->Click.connect([this] { onResetOnionskin(); });
+  m_box->loopTag()->Click.connect([this] { onLoopTagChange(); });
+  m_box->currentLayer()->Click.connect([this] { onCurrentLayerChange(); });
+  m_box->behind()->Click.connect([this] { onPositionChange(); });
+  m_box->infront()->Click.connect([this] { onPositionChange(); });
 
-  m_box->zoom()->Change.connect([this]{ onZoomChange(); });
-  m_box->thumbEnabled()->Click.connect([this]{ onThumbEnabledChange(); });
-  m_box->thumbOverlayEnabled()->Click.connect([this]{ onThumbOverlayEnabledChange(); });
-  m_box->thumbOverlaySize()->Change.connect([this]{ onThumbOverlaySizeChange(); });
+  m_box->zoom()->Change.connect([this] { onZoomChange(); });
+  m_box->thumbEnabled()->Click.connect([this] { onThumbEnabledChange(); });
+  m_box->thumbOverlayEnabled()->Click.connect(
+    [this] { onThumbOverlayEnabledChange(); });
+  m_box->thumbOverlaySize()->Change.connect(
+    [this] { onThumbOverlaySizeChange(); });
 
   const bool visibleThumb = docPref().thumbnails.enabled();
   m_box->thumbHSeparator()->setVisible(visibleThumb);
@@ -93,14 +95,19 @@ void ConfigureTimelinePopup::updateWidgetsFromCurrentSettings()
   auto position = Preferences::instance().general.timelinePosition();
   int selItem = 2;
   switch (position) {
-    case gen::TimelinePosition::LEFT: selItem = 0; break;
-    case gen::TimelinePosition::RIGHT: selItem = 1; break;
-    case gen::TimelinePosition::BOTTOM: selItem = 2; break;
+    case gen::TimelinePosition::LEFT:
+      selItem = 0;
+      break;
+    case gen::TimelinePosition::RIGHT:
+      selItem = 1;
+      break;
+    case gen::TimelinePosition::BOTTOM:
+      selItem = 2;
+      break;
   }
   m_box->position()->setSelectedItem(selItem, false);
 
-  m_box->firstFrame()->setTextf(
-    "%d", docPref.timeline.firstFrame());
+  m_box->firstFrame()->setTextf("%d", docPref.timeline.firstFrame());
 
   switch (docPref.onionskin.type()) {
     case app::gen::OnionskinType::MERGE:
@@ -135,11 +142,13 @@ void ConfigureTimelinePopup::updateWidgetsFromCurrentSettings()
 
   const bool visibleThumb = docPref.thumbnails.enabled();
 
-  m_box->zoom()->setValue(int(docPref.thumbnails.zoom())); // TODO add a slider for floating points
+  m_box->zoom()->setValue(
+    int(docPref.thumbnails.zoom()));  // TODO add a slider for floating points
   m_box->thumbEnabled()->setSelected(visibleThumb);
   m_box->thumbHSeparator()->setVisible(visibleThumb);
   m_box->thumbBox()->setVisible(visibleThumb);
-  m_box->thumbOverlayEnabled()->setSelected(docPref.thumbnails.overlayEnabled());
+  m_box->thumbOverlayEnabled()->setSelected(
+    docPref.thumbnails.overlayEnabled());
   m_box->thumbOverlaySize()->setValue(docPref.thumbnails.overlaySize());
 
   expandWindow(sizeHint());
@@ -148,7 +157,6 @@ void ConfigureTimelinePopup::updateWidgetsFromCurrentSettings()
 bool ConfigureTimelinePopup::onProcessMessage(ui::Message* msg)
 {
   switch (msg->type()) {
-
     case kOpenMessage: {
       updateWidgetsFromCurrentSettings();
       break;
@@ -159,22 +167,26 @@ bool ConfigureTimelinePopup::onProcessMessage(ui::Message* msg)
 
 void ConfigureTimelinePopup::onChangePosition()
 {
-  gen::TimelinePosition newTimelinePos =
-    gen::TimelinePosition::BOTTOM;
+  gen::TimelinePosition newTimelinePos = gen::TimelinePosition::BOTTOM;
 
   int selITem = m_box->position()->selectedItem();
   switch (selITem) {
-    case 0: newTimelinePos = gen::TimelinePosition::LEFT; break;
-    case 1: newTimelinePos = gen::TimelinePosition::RIGHT; break;
-    case 2: newTimelinePos = gen::TimelinePosition::BOTTOM; break;
+    case 0:
+      newTimelinePos = gen::TimelinePosition::LEFT;
+      break;
+    case 1:
+      newTimelinePos = gen::TimelinePosition::RIGHT;
+      break;
+    case 2:
+      newTimelinePos = gen::TimelinePosition::BOTTOM;
+      break;
   }
   Preferences::instance().general.timelinePosition(newTimelinePos);
 }
 
 void ConfigureTimelinePopup::onChangeFirstFrame()
 {
-  docPref().timeline.firstFrame(
-    m_box->firstFrame()->textInt());
+  docPref().timeline.firstFrame(m_box->firstFrame()->textInt());
 }
 
 void ConfigureTimelinePopup::onChangeType()
@@ -183,8 +195,8 @@ void ConfigureTimelinePopup::onChangeType()
     return;
 
   docPref().onionskin.type(m_box->merge()->isSelected() ?
-    app::gen::OnionskinType::MERGE:
-    app::gen::OnionskinType::RED_BLUE_TINT);
+                             app::gen::OnionskinType::MERGE :
+                             app::gen::OnionskinType::RED_BLUE_TINT);
 }
 
 void ConfigureTimelinePopup::onOpacity()
@@ -230,8 +242,8 @@ void ConfigureTimelinePopup::onCurrentLayerChange()
 void ConfigureTimelinePopup::onPositionChange()
 {
   docPref().onionskin.position(m_box->behind()->isSelected() ?
-                               render::OnionskinPosition::BEHIND:
-                               render::OnionskinPosition::INFRONT);
+                                 render::OnionskinPosition::BEHIND :
+                                 render::OnionskinPosition::INFRONT);
 }
 
 void ConfigureTimelinePopup::onZoomChange()
@@ -247,7 +259,8 @@ void ConfigureTimelinePopup::onThumbEnabledChange()
 
 void ConfigureTimelinePopup::onThumbOverlayEnabledChange()
 {
-  docPref().thumbnails.overlayEnabled(m_box->thumbOverlayEnabled()->isSelected());
+  docPref().thumbnails.overlayEnabled(
+    m_box->thumbOverlayEnabled()->isSelected());
 }
 
 void ConfigureTimelinePopup::onThumbOverlaySizeChange()
@@ -255,4 +268,4 @@ void ConfigureTimelinePopup::onThumbOverlaySizeChange()
   docPref().thumbnails.overlaySize(m_box->thumbOverlaySize()->getValue());
 }
 
-} // namespace app
+}  // namespace app

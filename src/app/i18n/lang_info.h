@@ -23,14 +23,13 @@ struct LangInfo {
            const std::string& displayName)
     : id(id)
     , path(path)
-    , displayName(displayName.empty() ? id: displayName) {
+    , displayName(displayName.empty() ? id : displayName)
+  {
   }
 
-  bool operator<(const LangInfo& other) const {
-    return id < other.id;
-  }
+  bool operator<(const LangInfo& other) const { return id < other.id; }
 };
 
-} // namespace app
+}  // namespace app
 
 #endif

@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "ui/size_hint_event.h"
@@ -74,4 +74,4 @@ void SizeHintEvent::setSizeHint(int w, int h)
   m_sizeHint.h = h;
 }
 
-} // namespace ui
+}  // namespace ui

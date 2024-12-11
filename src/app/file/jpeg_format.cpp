@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -31,8 +31,8 @@
 
 #include "jpeg_options.xml.h"
 
-#include "jpeglib.h"
 #include "TinyEXIF.h"
+#include "jpeglib.h"
 
 namespace app {
 
@@ -42,39 +42,39 @@ class JpegFormat : public FileFormat {
   // Data for JPEG files
   class JpegOptions : public FormatOptions {
   public:
-    JpegOptions() : quality(1.0f) { }    // 1.0 maximum quality.
+    JpegOptions()
+      : quality(1.0f)
+    {
+    }  // 1.0 maximum quality.
     float quality;
   };
 
-  const char* onGetName() const override {
-    return "jpeg";
-  }
+  const char* onGetName() const override { return "jpeg"; }
 
-  void onGetExtensions(base::paths& exts) const override {
+  void onGetExtensions(base::paths& exts) const override
+  {
     exts.push_back("jpeg");
     exts.push_back("jpg");
   }
 
-  dio::FileFormat onGetDioFormat() const override {
+  dio::FileFormat onGetDioFormat() const override
+  {
     return dio::FileFormat::JPEG_IMAGE;
   }
 
-  int onGetFlags() const override {
-    return
-      FILE_SUPPORT_LOAD |
-      FILE_SUPPORT_SAVE |
-      FILE_SUPPORT_RGB |
-      FILE_SUPPORT_GRAY |
-      FILE_SUPPORT_SEQUENCES |
-      FILE_SUPPORT_GET_FORMAT_OPTIONS |
-      FILE_ENCODE_ABSTRACT_IMAGE;
+  int onGetFlags() const override
+  {
+    return FILE_SUPPORT_LOAD | FILE_SUPPORT_SAVE | FILE_SUPPORT_RGB |
+           FILE_SUPPORT_GRAY | FILE_SUPPORT_SEQUENCES |
+           FILE_SUPPORT_GET_FORMAT_OPTIONS | FILE_ENCODE_ABSTRACT_IMAGE;
   }
 
   bool onLoad(FileOp* fop) override;
   gfx::ColorSpaceRef loadColorSpace(FileOp* fop, jpeg_decompress_struct* dinfo);
 #ifdef ENABLE_SAVE
   bool onSave(FileOp* fop) override;
-  void saveColorSpace(FileOp* fop, jpeg_compress_struct* cinfo,
+  void saveColorSpace(FileOp* fop,
+                      jpeg_compress_struct* cinfo,
                       const gfx::ColorSpace* colorSpace);
 #endif
 
@@ -98,7 +98,7 @@ static void error_exit(j_common_ptr cinfo)
   (*cinfo->err->output_message)(cinfo);
 
   // Return control to the setjmp point.
-  longjmp(((struct error_mgr *)cinfo->err)->setjmp_buffer, 1);
+  longjmp(((struct error_mgr*)cinfo->err)->setjmp_buffer, 1);
 }
 
 static void output_message(j_common_ptr cinfo)
@@ -112,7 +112,7 @@ static void output_message(j_common_ptr cinfo)
   LOG(ERROR, "JPEG: \"%s\"\n", buffer);
 
   // Leave the message for the application.
-  ((struct error_mgr *)cinfo->err)->fop->setError("%s\n", buffer);
+  ((struct error_mgr*)cinfo->err)->fop->setError("%s\n", buffer);
 }
 
 // Some code to read color spaces from jpeg files is from Skia
@@ -120,8 +120,10 @@ static void output_message(j_common_ptr cinfo)
 static constexpr uint32_t kMarkerMaxSize = 65533;
 static constexpr uint32_t kICCMarker = JPEG_APP0 + 2;
 static constexpr uint32_t kICCMarkerHeaderSize = 14;
-static constexpr uint32_t kICCAvailDataPerMarker = (kMarkerMaxSize - kICCMarkerHeaderSize);
-static constexpr uint8_t kICCSig[] = { 'I', 'C', 'C', '_', 'P', 'R', 'O', 'F', 'I', 'L', 'E', '\0' };
+static constexpr uint32_t kICCAvailDataPerMarker =
+  (kMarkerMaxSize - kICCMarkerHeaderSize);
+static constexpr uint8_t kICCSig[] = { 'I', 'C', 'C', '_', 'P', 'R',
+                                       'O', 'F', 'I', 'L', 'E', '\0' };
 
 static bool is_icc_marker(jpeg_marker_struct* marker)
 {
@@ -183,18 +185,20 @@ bool JpegFormat::onLoad(FileOp* fop)
   TinyEXIF::EXIFInfo info;
   int orientation = 0;
   {
-    std::ifstream istream(fop->filename(), std::ifstream::in | std::ifstream::binary);
+    std::ifstream istream(fop->filename(),
+                          std::ifstream::in | std::ifstream::binary);
     // Get EXIF information:
     TinyEXIF::EXIFInfo info(istream);
     if (info.Fields != 0)
       orientation = info.Orientation;
   }
-  const int outputW = (orientation < 5 ? dinfo.output_width : dinfo.output_height);
-  const int outputH = (orientation < 5 ? dinfo.output_height : dinfo.output_width);
+  const int outputW =
+    (orientation < 5 ? dinfo.output_width : dinfo.output_height);
+  const int outputH =
+    (orientation < 5 ? dinfo.output_height : dinfo.output_width);
   // Create the image.
   ImageRef image = fop->sequenceImageToLoad(
-    (dinfo.out_color_space == JCS_RGB ? IMAGE_RGB:
-                                        IMAGE_GRAYSCALE),
+    (dinfo.out_color_space == JCS_RGB ? IMAGE_RGB : IMAGE_GRAYSCALE),
     outputW,
     outputH);
   if (!image) {
@@ -210,11 +214,11 @@ bool JpegFormat::onLoad(FileOp* fop)
     return false;
   }
 
-  for (c=0; c<(int)buffer_height; c++) {
-    buffer[c] = (JSAMPROW)base_malloc(sizeof(JSAMPLE) *
-                                      dinfo.output_width * dinfo.output_components);
+  for (c = 0; c < (int)buffer_height; c++) {
+    buffer[c] = (JSAMPROW)base_malloc(sizeof(JSAMPLE) * dinfo.output_width *
+                                      dinfo.output_components);
     if (!buffer[c]) {
-      for (c--; c>=0; c--)
+      for (c--; c >= 0; c--)
         base_free(buffer[c]);
       base_free(buffer);
       jpeg_destroy_decompress(&dinfo);
@@ -224,7 +228,7 @@ bool JpegFormat::onLoad(FileOp* fop)
 
   // Generate a grayscale palette if is necessary.
   if (image->pixelFormat() == IMAGE_GRAYSCALE)
-    for (c=0; c<256; c++)
+    for (c = 0; c < 256; c++)
       fop->sequenceSetColor(c, c, c, c);
 
   // Read each scan line.
@@ -238,50 +242,50 @@ bool JpegFormat::onLoad(FileOp* fop)
     switch (orientation) {
       case 2:
         start_dst_x = [image](int) { return image->width() - 1; };
-        start_dst_y = [dinfo](int y) {
-          return dinfo.output_scanline - 1 + y; };
+        start_dst_y = [dinfo](int y) { return dinfo.output_scanline - 1 + y; };
         next_addr_increment = -1;
         break;
       case 3:
         start_dst_x = [image](int) { return image->width() - 1; };
         start_dst_y = [image, dinfo](int y) {
-          return image->height() - dinfo.output_scanline + y; };
+          return image->height() - dinfo.output_scanline + y;
+        };
         next_addr_increment = -1;
         break;
       case 4:
         start_dst_x = [](int) { return 0; };
         start_dst_y = [image, dinfo](int y) {
-          return image->height() - dinfo.output_scanline - y; };
+          return image->height() - dinfo.output_scanline - y;
+        };
         next_addr_increment = 1;
         break;
       case 5:
-        start_dst_x = [dinfo](int y) {
-          return dinfo.output_scanline - 1 + y; };
+        start_dst_x = [dinfo](int y) { return dinfo.output_scanline - 1 + y; };
         start_dst_y = [](int) { return 0; };
         next_addr_increment = image->width();
         break;
       case 6:
         start_dst_x = [image, dinfo](int y) {
-          return image->width() - dinfo.output_scanline - y; };
+          return image->width() - dinfo.output_scanline - y;
+        };
         start_dst_y = [](int) { return 0; };
         next_addr_increment = image->width();
         break;
       case 7:
         start_dst_x = [image, dinfo](int y) {
-          return image->width() - dinfo.output_scanline - y; };
+          return image->width() - dinfo.output_scanline - y;
+        };
         start_dst_y = [image](int) { return image->height() - 1; };
         next_addr_increment = -image->width();
         break;
       case 8:
-        start_dst_x = [dinfo](int y) {
-          return dinfo.output_scanline - 1 + y; };
+        start_dst_x = [dinfo](int y) { return dinfo.output_scanline - 1 + y; };
         start_dst_y = [image](int) { return image->height() - 1; };
         next_addr_increment = -image->width();
         break;
       default:
         start_dst_x = [](int) { return 0; };
-        start_dst_y = [dinfo](int y) {
-          return dinfo.output_scanline - 1 + y; };
+        start_dst_y = [dinfo](int y) { return dinfo.output_scanline - 1 + y; };
         next_addr_increment = 1;
         break;
     }
@@ -292,11 +296,12 @@ bool JpegFormat::onLoad(FileOp* fop)
       uint32_t* dst_address;
       int x, y, r, g, b;
 
-      for (y=0; y<(int)num_scanlines; y++) {
+      for (y = 0; y < (int)num_scanlines; y++) {
         src_address = ((uint8_t**)buffer)[y];
-        dst_address = (uint32_t*)image->getPixelAddress(start_dst_x(y), start_dst_y(y));
+        dst_address =
+          (uint32_t*)image->getPixelAddress(start_dst_x(y), start_dst_y(y));
 
-        for (x=0; x<dinfo.output_width; x++) {
+        for (x = 0; x < dinfo.output_width; x++) {
           r = *(src_address++);
           g = *(src_address++);
           b = *(src_address++);
@@ -311,18 +316,20 @@ bool JpegFormat::onLoad(FileOp* fop)
       uint16_t* dst_address;
       int x, y;
 
-      for (y=0; y<(int)num_scanlines; y++) {
+      for (y = 0; y < (int)num_scanlines; y++) {
         src_address = ((uint8_t**)buffer)[y];
-        dst_address = (uint16_t*)image->getPixelAddress(start_dst_x(y), start_dst_y(y));
+        dst_address =
+          (uint16_t*)image->getPixelAddress(start_dst_x(y), start_dst_y(y));
 
-        for (x=0; x<dinfo.output_width; x++) {
+        for (x = 0; x < dinfo.output_width; x++) {
           *dst_address = graya(*(src_address++), 255);
           dst_address += next_addr_increment;
         }
       }
     }
 
-    fop->setProgress((float)(dinfo.output_scanline+1) / (float)(dinfo.output_height));
+    fop->setProgress((float)(dinfo.output_scanline + 1) /
+                     (float)(dinfo.output_height));
     if (fop->isStop())
       break;
   }
@@ -331,16 +338,16 @@ bool JpegFormat::onLoad(FileOp* fop)
   gfx::ColorSpaceRef colorSpace = loadColorSpace(fop, &dinfo);
   if (colorSpace)
     fop->setEmbeddedColorProfile();
-  else { // sRGB is the default JPG color space.
+  else {  // sRGB is the default JPG color space.
     colorSpace = gfx::ColorSpace::MakeSRGB();
   }
-  if (colorSpace &&
-      fop->document()->sprite()->colorSpace()->type() == gfx::ColorSpace::None) {
+  if (colorSpace && fop->document()->sprite()->colorSpace()->type() ==
+                      gfx::ColorSpace::None) {
     fop->document()->sprite()->setColorSpace(colorSpace);
     fop->document()->notifyColorSpaceChanged();
   }
 
-  for (c=0; c<(int)buffer_height; c++)
+  for (c = 0; c < (int)buffer_height; c++)
     base_free(buffer[c]);
   base_free(buffer);
 
@@ -354,7 +361,8 @@ bool JpegFormat::onLoad(FileOp* fop)
 // in two steps:
 //   (1) Discover all ICC profile markers and verify that they are numbered properly.
 //   (2) Copy the data from each marker into a contiguous ICC profile.
-gfx::ColorSpaceRef JpegFormat::loadColorSpace(FileOp* fop, jpeg_decompress_struct* dinfo)
+gfx::ColorSpaceRef JpegFormat::loadColorSpace(FileOp* fop,
+                                              jpeg_decompress_struct* dinfo)
 {
   // Note that 256 will be enough storage space since each markerIndex is stored in 8-bits.
   jpeg_marker_struct* markerSequence[256];
@@ -363,13 +371,15 @@ gfx::ColorSpaceRef JpegFormat::loadColorSpace(FileOp* fop, jpeg_decompress_struc
   size_t totalBytes = 0;
 
   // Discover any ICC markers and verify that they are numbered properly.
-  for (jpeg_marker_struct* marker = dinfo->marker_list; marker; marker = marker->next) {
+  for (jpeg_marker_struct* marker = dinfo->marker_list; marker;
+       marker = marker->next) {
     if (is_icc_marker(marker)) {
       // Verify that numMarkers is valid and consistent.
       if (0 == numMarkers) {
         numMarkers = marker->data[13];
         if (0 == numMarkers) {
-          fop->setError("ICC Profile Error: numMarkers must be greater than zero.\n");
+          fop->setError(
+            "ICC Profile Error: numMarkers must be greater than zero.\n");
           return nullptr;
         }
       }
@@ -406,7 +416,8 @@ gfx::ColorSpaceRef JpegFormat::loadColorSpace(FileOp* fop, jpeg_decompress_struc
   for (uint32_t i = 1; i <= numMarkers; i++) {
     jpeg_marker_struct* marker = markerSequence[i];
     if (!marker) {
-      fop->setError("ICC Profile Error: Missing marker %d of %d.\n", i, numMarkers);
+      fop->setError(
+        "ICC Profile Error: Missing marker %d of %d.\n", i, numMarkers);
       return nullptr;
     }
 
@@ -429,17 +440,20 @@ bool JpegFormat::onSave(FileOp* fop)
   const ImageSpec spec = img->spec();
   JSAMPARRAY buffer;
   JDIMENSION buffer_height;
-  const auto jpeg_options = std::static_pointer_cast<JpegOptions>(fop->formatOptions());
+  const auto jpeg_options =
+    std::static_pointer_cast<JpegOptions>(fop->formatOptions());
   const int qualityValue =
-    (jpeg_options ? (int)std::clamp(100.0f * jpeg_options->quality, 0.f, 100.f):
-                    100);
+    (jpeg_options ?
+       (int)std::clamp(100.0f * jpeg_options->quality, 0.f, 100.f) :
+       100);
 
   int c;
 
   LOG("JPEG: Saving with options: quality=%d\n", qualityValue);
 
   // Open the file for write in it.
-  FileHandle handle(open_file_with_exception_sync_on_close(fop->filename(), "wb"));
+  FileHandle handle(
+    open_file_with_exception_sync_on_close(fop->filename(), "wb"));
   FILE* file = handle.get();
 
   // Allocate and initialize JPEG compression object.
@@ -472,8 +486,7 @@ bool JpegFormat::onSave(FileOp* fop)
   jpeg_start_compress(&cinfo, true);
 
   // Save color space
-  if (fop->preserveColorProfile() &&
-      fop->document()->sprite()->colorSpace())
+  if (fop->preserveColorProfile() && fop->document()->sprite()->colorSpace())
     saveColorSpace(fop, &cinfo, fop->document()->sprite()->colorSpace().get());
 
   // CREATE the buffer.
@@ -485,12 +498,12 @@ bool JpegFormat::onSave(FileOp* fop)
     return false;
   }
 
-  for (c=0; c<(int)buffer_height; c++) {
-    buffer[c] = (JSAMPROW)base_malloc(sizeof(JSAMPLE) *
-                                      cinfo.image_width * cinfo.num_components);
+  for (c = 0; c < (int)buffer_height; c++) {
+    buffer[c] = (JSAMPROW)base_malloc(sizeof(JSAMPLE) * cinfo.image_width *
+                                      cinfo.num_components);
     if (!buffer[c]) {
       fop->setError("Not enough memory for buffer scanlines.\n");
-      for (c--; c>=0; c--)
+      for (c--; c >= 0; c--)
         base_free(buffer[c]);
       base_free(buffer);
       jpeg_destroy_compress(&cinfo);
@@ -505,11 +518,11 @@ bool JpegFormat::onSave(FileOp* fop)
       uint32_t* src_address;
       uint8_t* dst_address;
       int x, y;
-      for (y=0; y<(int)buffer_height; y++) {
-        src_address = (uint32_t*)img->getScanline(cinfo.next_scanline+y);
+      for (y = 0; y < (int)buffer_height; y++) {
+        src_address = (uint32_t*)img->getScanline(cinfo.next_scanline + y);
         dst_address = ((uint8_t**)buffer)[y];
 
-        for (x=0; x<spec.width(); ++x) {
+        for (x = 0; x < spec.width(); ++x) {
           c = *(src_address++);
           *(dst_address++) = rgba_getr(c);
           *(dst_address++) = rgba_getg(c);
@@ -522,20 +535,21 @@ bool JpegFormat::onSave(FileOp* fop)
       uint16_t* src_address;
       uint8_t* dst_address;
       int x, y;
-      for (y=0; y<(int)buffer_height; y++) {
-        src_address = (uint16_t*)img->getScanline(cinfo.next_scanline+y);
+      for (y = 0; y < (int)buffer_height; y++) {
+        src_address = (uint16_t*)img->getScanline(cinfo.next_scanline + y);
         dst_address = ((uint8_t**)buffer)[y];
-        for (x=0; x<spec.width(); ++x)
+        for (x = 0; x < spec.width(); ++x)
           *(dst_address++) = graya_getv(*(src_address++));
       }
     }
     jpeg_write_scanlines(&cinfo, buffer, buffer_height);
 
-    fop->setProgress((float)(cinfo.next_scanline+1) / (float)(cinfo.image_height));
+    fop->setProgress((float)(cinfo.next_scanline + 1) /
+                     (float)(cinfo.image_height));
   }
 
   // Destroy all data.
-  for (c=0; c<(int)buffer_height; c++)
+  for (c = 0; c < (int)buffer_height; c++)
     base_free(buffer[c]);
   base_free(buffer);
 
@@ -549,7 +563,8 @@ bool JpegFormat::onSave(FileOp* fop)
   return true;
 }
 
-void JpegFormat::saveColorSpace(FileOp* fop, jpeg_compress_struct* cinfo,
+void JpegFormat::saveColorSpace(FileOp* fop,
+                                jpeg_compress_struct* cinfo,
                                 const gfx::ColorSpace* colorSpace)
 {
   if (!colorSpace || colorSpace->type() != gfx::ColorSpace::ICC)
@@ -562,9 +577,8 @@ void JpegFormat::saveColorSpace(FileOp* fop, jpeg_compress_struct* cinfo,
 
   std::vector<uint8_t> markerData(kMarkerMaxSize);
   int markerIndex = 1;
-  int numMarkers =
-    (iccSize / kICCAvailDataPerMarker) +
-    (iccSize % kICCAvailDataPerMarker > 0 ? 1: 0);
+  int numMarkers = (iccSize / kICCAvailDataPerMarker) +
+                   (iccSize % kICCAvailDataPerMarker > 0 ? 1 : 0);
 
   // ICC profile too big to fit in JPEG markers (64kb*255 ~= 16mb)
   if (numMarkers > 255) {
@@ -579,14 +593,15 @@ void JpegFormat::saveColorSpace(FileOp* fop, jpeg_compress_struct* cinfo,
     ASSERT(n < kICCAvailDataPerMarker);
 
     // Marker Header
-    std::copy(kICCSig, kICCSig+sizeof(kICCSig), &markerData[0]);
-    markerData[sizeof(kICCSig)  ] = markerIndex;
-    markerData[sizeof(kICCSig)+1] = numMarkers;
+    std::copy(kICCSig, kICCSig + sizeof(kICCSig), &markerData[0]);
+    markerData[sizeof(kICCSig)] = markerIndex;
+    markerData[sizeof(kICCSig) + 1] = numMarkers;
 
     // Marker Data
-    std::copy(iccData, iccData+n, &markerData[kICCMarkerHeaderSize]);
+    std::copy(iccData, iccData + n, &markerData[kICCMarkerHeaderSize]);
 
-    jpeg_write_marker(cinfo, kICCMarker, &markerData[0], kICCMarkerHeaderSize + n);
+    jpeg_write_marker(
+      cinfo, kICCMarker, &markerData[0], kICCMarkerHeaderSize + n);
 
     ++markerIndex;
     iccSize -= n;
@@ -631,4 +646,4 @@ FormatOptionsPtr JpegFormat::onAskUserForFormatOptions(FileOp* fop)
   return opts;
 }
 
-} // namespace app
+}  // namespace app

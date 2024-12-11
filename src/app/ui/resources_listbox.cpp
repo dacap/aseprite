@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/resources_listbox.h"
@@ -29,7 +29,8 @@ using namespace skin;
 // ResourceListItem
 
 ResourceListItem::ResourceListItem(Resource* resource)
-  : ListItem(resource->id()), m_resource(resource)
+  : ListItem(resource->id())
+  , m_resource(resource)
 {
 }
 
@@ -62,20 +63,21 @@ void ResourceListItem::onPaint(PaintEvent& ev)
 
   g->fillRect(bgcolor, bounds);
 
-  static_cast<ResourcesListBox*>(parent())->
-    paintResource(g, bounds, m_resource.get());
+  static_cast<ResourcesListBox*>(parent())->paintResource(
+    g, bounds, m_resource.get());
 
-  g->drawText(text(), fgcolor, gfx::ColorNone,
-              gfx::Point(
-                bounds.x + 2*guiscale(),
-                bounds.y + bounds.h/2 - g->measureUIText(text()).h/2));
+  g->drawText(
+    text(),
+    fgcolor,
+    gfx::ColorNone,
+    gfx::Point(bounds.x + 2 * guiscale(),
+               bounds.y + bounds.h / 2 - g->measureUIText(text()).h / 2));
 }
 
 void ResourceListItem::onSizeHint(SizeHintEvent& ev)
 {
-  ev.setSizeHint(
-    static_cast<ResourcesListBox*>(parent())->
-    resourceSizeHint(m_resource.get()));
+  ev.setSizeHint(static_cast<ResourcesListBox*>(parent())->resourceSizeHint(
+    m_resource.get()));
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -85,17 +87,27 @@ class ResourcesListBox::LoadingItem : public ListItem {
 public:
   LoadingItem()
     : ListItem("Loading")
-    , m_state(0) {
+    , m_state(0)
+  {
   }
 
-  void makeProgress() {
+  void makeProgress()
+  {
     std::string text = "Loading ";
 
     switch ((++m_state) % 4) {
-      case 0: text += "/"; break;
-      case 1: text += "-"; break;
-      case 2: text += "\\"; break;
-      case 3: text += "|"; break;
+      case 0:
+        text += "/";
+        break;
+      case 1:
+        text += "-";
+        break;
+      case 2:
+        text += "\\";
+        break;
+      case 3:
+        text += "|";
+        break;
     }
 
     setText(text);
@@ -112,12 +124,13 @@ ResourcesListBox::ResourcesListBox(ResourcesLoader* resourcesLoader)
   : m_resourcesLoader(resourcesLoader)
   , m_resourcesTimer(100)
 {
-  m_resourcesTimer.Tick.connect([this]{ onTick(); });
+  m_resourcesTimer.Tick.connect([this] { onTick(); });
 }
 
 Resource* ResourcesListBox::selectedResource()
 {
-  if (ResourceListItem* listItem = dynamic_cast<ResourceListItem*>(getSelectedChild()))
+  if (ResourceListItem* listItem =
+        dynamic_cast<ResourceListItem*>(getSelectedChild()))
     return listItem->resource();
   else
     return nullptr;
@@ -142,8 +155,8 @@ void ResourcesListBox::reload()
 
 void ResourcesListBox::deleteAllChildren()
 {
-  auto children = this->children(); // Create a copy because we'll
-                                    // modify the list in the for()
+  auto children = this->children();  // Create a copy because we'll
+                                     // modify the list in the for()
 
   // Delete all ResourcesListItem. (PalettesListBox contains a tooltip
   // manager too, so we cannot remove just all children.)
@@ -153,7 +166,9 @@ void ResourcesListBox::deleteAllChildren()
   }
 }
 
-void ResourcesListBox::paintResource(Graphics* g, gfx::Rect& bounds, Resource* resource)
+void ResourcesListBox::paintResource(Graphics* g,
+                                     gfx::Rect& bounds,
+                                     Resource* resource)
 {
   onPaintResource(g, bounds, resource);
 }
@@ -168,7 +183,6 @@ gfx::Size ResourcesListBox::resourceSizeHint(Resource* resource)
 bool ResourcesListBox::onProcessMessage(ui::Message* msg)
 {
   switch (msg->type()) {
-
     case kOpenMessage: {
       if (m_reloadOnOpen) {
         m_reloadOnOpen = false;
@@ -181,7 +195,6 @@ bool ResourcesListBox::onProcessMessage(ui::Message* msg)
       }
       break;
     }
-
   }
   return ListBox::onProcessMessage(msg);
 }
@@ -215,8 +228,9 @@ void ResourcesListBox::onTick()
   std::string name;
 
   while (m_resourcesLoader->next(resource)) {
-    std::unique_ptr<ResourceListItem> listItem(onCreateResourceItem(resource.get()));
-    insertChild(getItemsCount()-1, listItem.get());
+    std::unique_ptr<ResourceListItem> listItem(
+      onCreateResourceItem(resource.get()));
+    insertChild(getItemsCount() - 1, listItem.get());
     sortItems();
     layout();
 
@@ -249,4 +263,4 @@ void ResourcesListBox::stop()
   }
 }
 
-} // namespace app
+}  // namespace app

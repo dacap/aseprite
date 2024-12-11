@@ -13,11 +13,11 @@
 
 namespace app {
 
-  int split_filename(const std::string& filename,
-                     std::string& left,
-                     std::string& right,
-                     int& width);
+int split_filename(const std::string& filename,
+                   std::string& left,
+                   std::string& right,
+                   int& width);
 
-} // namespace app
+}  // namespace app
 
 #endif

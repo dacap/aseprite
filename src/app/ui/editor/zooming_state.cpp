@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/editor/zooming_state.h"
@@ -69,7 +69,7 @@ bool ZoomingState::onMouseMove(Editor* editor, MouseMessage* msg)
   gfx::Point pt = (msg->position() - m_startPos);
   int threshold = 8 * guiscale() * editor->display()->nativeWindow()->scale();
 
-  if (m_moved || std::sqrt(pt.x*pt.x + pt.y*pt.y) > threshold) {
+  if (m_moved || std::sqrt(pt.x * pt.x + pt.y * pt.y) > threshold) {
     m_moved = true;
 
     int newScale = m_startZoom.linearScale() + pt.x / threshold;
@@ -84,8 +84,7 @@ bool ZoomingState::onMouseMove(Editor* editor, MouseMessage* msg)
 bool ZoomingState::onSetCursor(Editor* editor, const gfx::Point& mouseScreenPos)
 {
   auto theme = skin::SkinTheme::get(editor);
-  editor->showMouseCursor(
-    kCustomCursor, theme->cursors.magnifier());
+  editor->showMouseCursor(kCustomCursor, theme->cursors.magnifier());
   return true;
 }
 
@@ -104,4 +103,4 @@ bool ZoomingState::onUpdateStatusBar(Editor* editor)
   return false;
 }
 
-} // namespace app
+}  // namespace app

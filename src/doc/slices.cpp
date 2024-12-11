@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/slices.h"
@@ -64,4 +64,4 @@ Slice* Slices::getById(ObjectId id) const
   return nullptr;
 }
 
-} // namespace doc
+}  // namespace doc

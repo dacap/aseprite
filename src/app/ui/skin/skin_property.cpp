@@ -6,15 +6,14 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/ui/skin/skin_property.h"
 
 #include "ui/widget.h"
 
-namespace app {
-namespace skin {
+namespace app { namespace skin {
 
 const char* SkinProperty::Name = "SkinProperty";
 
@@ -31,8 +30,8 @@ SkinProperty::~SkinProperty()
 
 SkinPropertyPtr get_skin_property(ui::Widget* widget)
 {
-  auto skinProp =
-    std::static_pointer_cast<SkinProperty>(widget->getProperty(SkinProperty::Name));
+  auto skinProp = std::static_pointer_cast<SkinProperty>(
+    widget->getProperty(SkinProperty::Name));
   if (!skinProp) {
     skinProp = std::make_shared<SkinProperty>();
     widget->setProperty(skinProp);
@@ -40,5 +39,4 @@ SkinPropertyPtr get_skin_property(ui::Widget* widget)
   return skinProp;
 }
 
-} // namespace skin
-} // namespace app
+}}  // namespace app::skin

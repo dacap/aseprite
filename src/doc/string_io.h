@@ -12,9 +12,9 @@
 
 namespace doc {
 
-  void write_string(std::ostream& os, const std::string& str);
-  std::string read_string(std::istream& is);
+void write_string(std::ostream& os, const std::string& str);
+std::string read_string(std::istream& is);
 
-} // namespace doc
+}  // namespace doc
 
 #endif

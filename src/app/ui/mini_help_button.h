@@ -24,6 +24,6 @@ private:
   std::string m_link;
 };
 
-} // namespace app
+}  // namespace app
 
 #endif

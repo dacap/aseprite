@@ -5,15 +5,14 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/script/engine.h"
 #include "app/script/luacpp.h"
 #include "ui/window.h"
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 namespace {
 
@@ -38,18 +37,14 @@ int Window_get_events(lua_State* L)
   return 1;
 }
 
-const luaL_Reg Window_methods[] = {
-  { nullptr, nullptr }
-};
+const luaL_Reg Window_methods[] = { { nullptr, nullptr } };
 
-const Property Window_properties[] = {
-  { "width", Window_get_width, nullptr },
-  { "height", Window_get_height, nullptr },
-  { "events", Window_get_events, nullptr },
-  { nullptr, nullptr, nullptr }
-};
+const Property Window_properties[] = { { "width", Window_get_width, nullptr },
+                                       { "height", Window_get_height, nullptr },
+                                       { "events", Window_get_events, nullptr },
+                                       { nullptr, nullptr, nullptr } };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(ui::Window);
 
@@ -60,5 +55,4 @@ void register_window_class(lua_State* L)
   REG_CLASS_PROPERTIES(L, Window);
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

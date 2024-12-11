@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/add_tag.h"
@@ -17,8 +17,7 @@
 #include "doc/tag.h"
 #include "doc/tag_io.h"
 
-namespace app {
-namespace cmd {
+namespace app { namespace cmd {
 
 using namespace doc;
 
@@ -86,5 +85,4 @@ void AddTag::onRedo()
   doc->notify_observers<DocEvent&>(&DocObserver::onAddTag, ev);
 }
 
-} // namespace cmd
-} // namespace app
+}}  // namespace app::cmd

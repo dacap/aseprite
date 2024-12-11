@@ -5,7 +5,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/tilesets.h"
@@ -38,7 +38,7 @@ tileset_index Tilesets::add(Tileset* tileset)
   // The tileset can be nullptr to add an empty slot in the Tilesets
   // (and align tileset indexes).
   m_tilesets.push_back(tileset);
-  return tileset_index(m_tilesets.size()-1);
+  return tileset_index(m_tilesets.size() - 1);
 }
 
-} // namespace doc
+}  // namespace doc

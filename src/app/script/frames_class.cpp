@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/script/docobj.h"
@@ -14,8 +14,7 @@
 #include "app/script/luacpp.h"
 #include "doc/sprite.h"
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 using namespace doc;
 
@@ -26,22 +25,25 @@ struct FramesObj {
   const std::vector<frame_t>* frames;
 
   FramesObj(Sprite* sprite)
-    : spriteId(sprite->id()),
-      frames(nullptr) {
+    : spriteId(sprite->id())
+    , frames(nullptr)
+  {
   }
   FramesObj(Sprite* sprite, const std::vector<frame_t>& frames)
-    : spriteId(sprite->id()),
-      frames(new std::vector<frame_t>(frames)) {
+    : spriteId(sprite->id())
+    , frames(new std::vector<frame_t>(frames))
+  {
   }
 
-  ~FramesObj() {
-    delete frames;
-  }
+  ~FramesObj() { delete frames; }
 
   FramesObj(const FramesObj&) = delete;
   FramesObj& operator=(const FramesObj&) = delete;
 
-  Sprite* sprite(lua_State* L) { return check_docobj(L, doc::get<Sprite>(spriteId)); }
+  Sprite* sprite(lua_State* L)
+  {
+    return check_docobj(L, doc::get<Sprite>(spriteId));
+  }
 };
 
 int Frames_gc(lua_State* L)
@@ -68,26 +70,24 @@ int Frames_index(lua_State* L)
 
   if (obj->frames) {
     if (i >= 1 && i <= obj->frames->size())
-      i = (*obj->frames)[i-1]+1;
+      i = (*obj->frames)[i - 1] + 1;
     else
       i = 0;
   }
 
   if (i >= 1 && i <= sprite->totalFrames())
-    push_sprite_frame(L, sprite, i-1);
+    push_sprite_frame(L, sprite, i - 1);
   else
     lua_pushnil(L);
   return 1;
 }
 
-const luaL_Reg Frames_methods[] = {
-  { "__gc", Frames_gc },
-  { "__len", Frames_len },
-  { "__index", Frames_index },
-  { nullptr, nullptr }
-};
+const luaL_Reg Frames_methods[] = { { "__gc", Frames_gc },
+                                    { "__len", Frames_len },
+                                    { "__index", Frames_index },
+                                    { nullptr, nullptr } };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(FramesObj);
 
@@ -102,10 +102,11 @@ void push_sprite_frames(lua_State* L, Sprite* sprite)
   push_new<FramesObj>(L, sprite);
 }
 
-void push_sprite_frames(lua_State* L, doc::Sprite* sprite, const std::vector<doc::frame_t>& frames)
+void push_sprite_frames(lua_State* L,
+                        doc::Sprite* sprite,
+                        const std::vector<doc::frame_t>& frames)
 {
   push_new<FramesObj>(L, sprite, frames);
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

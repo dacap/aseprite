@@ -10,11 +10,11 @@
 
 namespace app {
 
-  enum DropFramePlace {
-    kDropBeforeFrame,
-    kDropAfterFrame,
-  };
+enum DropFramePlace {
+  kDropBeforeFrame,
+  kDropAfterFrame,
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

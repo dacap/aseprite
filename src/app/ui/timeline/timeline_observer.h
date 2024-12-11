@@ -9,16 +9,16 @@
 #pragma once
 
 namespace app {
-  class Timeline;
+class Timeline;
 
-  class TimelineObserver {
-  public:
-    virtual ~TimelineObserver() { }
+class TimelineObserver {
+public:
+  virtual ~TimelineObserver() { }
 
-    // Called when the current timeline range is going to change.
-    virtual void onBeforeRangeChanged(Timeline* timeline) { }
-  };
+  // Called when the current timeline range is going to change.
+  virtual void onBeforeRangeChanged(Timeline* timeline) { }
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

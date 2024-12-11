@@ -14,10 +14,11 @@
 
 namespace app {
 
-  // Builds a string representation of a tileset for using in
-  // labels in the UI.
-  std::string tileset_label(const doc::Tileset* tileset, doc::tileset_index index);
+// Builds a string representation of a tileset for using in
+// labels in the UI.
+std::string tileset_label(const doc::Tileset* tileset,
+                          doc::tileset_index index);
 
-} // namespace app
+}  // namespace app
 
 #endif

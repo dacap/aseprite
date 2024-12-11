@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/res/resources_loader.h"
@@ -20,11 +20,12 @@
 
 namespace app {
 
-ResourcesLoader::ResourcesLoader(std::unique_ptr<ResourcesLoaderDelegate>&& delegate)
+ResourcesLoader::ResourcesLoader(
+  std::unique_ptr<ResourcesLoaderDelegate>&& delegate)
   : m_delegate(std::move(delegate))
   , m_done(false)
   , m_cancel(false)
-  , m_thread(new std::thread([this]{ threadLoadResources(); }))
+  , m_thread(new std::thread([this] { threadLoadResources(); }))
 {
 }
 
@@ -76,8 +77,7 @@ void ResourcesLoader::threadLoadResources()
           idAndPath.second.c_str());
 
     Resource* resource =
-      m_delegate->loadResource(idAndPath.first,
-                               idAndPath.second);
+      m_delegate->loadResource(idAndPath.first, idAndPath.second);
     if (resource)
       m_queue.push(resource);
   }
@@ -85,7 +85,7 @@ void ResourcesLoader::threadLoadResources()
 
 std::thread* ResourcesLoader::createThread()
 {
-  return new std::thread([this]{ threadLoadResources(); });
+  return new std::thread([this] { threadLoadResources(); });
 }
 
-} // namespace app
+}  // namespace app

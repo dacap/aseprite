@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -34,31 +34,31 @@
 namespace app {
 
 struct ColorQuantizationParams : public NewParams {
-  Param<bool> ui { this, true, "ui" };
-  Param<bool> withAlpha { this, true, "withAlpha" };
-  Param<int> maxColors { this, 256, "maxColors" };
-  Param<bool> useRange { this, false, "useRange" };
-  Param<RgbMapAlgorithm> algorithm { this, RgbMapAlgorithm::DEFAULT, "algorithm" };
+  Param<bool> ui{ this, true, "ui" };
+  Param<bool> withAlpha{ this, true, "withAlpha" };
+  Param<int> maxColors{ this, 256, "maxColors" };
+  Param<bool> useRange{ this, false, "useRange" };
+  Param<RgbMapAlgorithm> algorithm{ this,
+                                    RgbMapAlgorithm::DEFAULT,
+                                    "algorithm" };
 };
 
 class PaletteFromSpriteWindow : public app::gen::PaletteFromSprite {
 public:
-  PaletteFromSpriteWindow() {
+  PaletteFromSpriteWindow()
+  {
     rgbmapAlgorithmPlaceholder()->addChild(&m_algoSelector);
 
-    advancedCheck()->Click.connect(
-      [this](){
-        advanced()->setVisible(advancedCheck()->isSelected());
-        expandWindow(sizeHint());
-      });
-
+    advancedCheck()->Click.connect([this]() {
+      advanced()->setVisible(advancedCheck()->isSelected());
+      expandWindow(sizeHint());
+    });
   }
 
-  doc::RgbMapAlgorithm algorithm() {
-    return m_algoSelector.algorithm();
-  }
+  doc::RgbMapAlgorithm algorithm() { return m_algoSelector.algorithm(); }
 
-  void algorithm(const doc::RgbMapAlgorithm mapAlgo) {
+  void algorithm(const doc::RgbMapAlgorithm mapAlgo)
+  {
     m_algoSelector.algorithm(mapAlgo);
   }
 
@@ -66,7 +66,8 @@ private:
   RgbMapAlgorithmSelector m_algoSelector;
 };
 
-class ColorQuantizationCommand : public CommandWithNewParams<ColorQuantizationParams> {
+class ColorQuantizationCommand
+  : public CommandWithNewParams<ColorQuantizationParams> {
 public:
   ColorQuantizationCommand();
 
@@ -77,8 +78,7 @@ protected:
 
 ColorQuantizationCommand::ColorQuantizationCommand()
   : CommandWithNewParams<ColorQuantizationParams>(
-      CommandId::ColorQuantization(),
-      CmdRecordableFlag)
+      CommandId::ColorQuantization(), CmdRecordableFlag)
 {
 }
 
@@ -119,18 +119,16 @@ void ColorQuantizationCommand::onExecute(Context* ctx)
       window.ncolors()->setTextf("%d", maxColors);
 
       if (entries.picks() > 1) {
-        window.currentRange()->setTextf(
-          "%s, %d color(s)",
-          window.currentRange()->text().c_str(),
-          entries.picks());
+        window.currentRange()->setTextf("%s, %d color(s)",
+                                        window.currentRange()->text().c_str(),
+                                        entries.picks());
       }
       else
         window.currentRange()->setEnabled(false);
 
-      window.currentPalette()->setTextf(
-        "%s, %d color(s)",
-        window.currentPalette()->text().c_str(),
-        curPalette->size());
+      window.currentPalette()->setTextf("%s, %d color(s)",
+                                        window.currentPalette()->text().c_str(),
+                                        curPalette->size());
     }
 
     window.openWindowInForeground();
@@ -175,35 +173,45 @@ void ColorQuantizationCommand::onExecute(Context* ctx)
 
     SpriteJob job(ctx, doc, "Color Quantization", ui);
     const bool newBlend = pref.experimental.newBlend();
-    job.startJobWithCallback(
-      [sprite, withAlpha, curPalette, &tmpPalette, &job, &entries,
-       newBlend, algorithm, createPal, site, frame](Tx& tx) {
-        render::create_palette_from_sprite(
-          sprite, 0, sprite->lastFrame(),
-          withAlpha, &tmpPalette,
-          &job,                 // SpriteJob is a render::TaskDelegate
-          newBlend,
-          algorithm);
+    job.startJobWithCallback([sprite,
+                              withAlpha,
+                              curPalette,
+                              &tmpPalette,
+                              &job,
+                              &entries,
+                              newBlend,
+                              algorithm,
+                              createPal,
+                              site,
+                              frame](Tx& tx) {
+      render::create_palette_from_sprite(
+        sprite,
+        0,
+        sprite->lastFrame(),
+        withAlpha,
+        &tmpPalette,
+        &job,  // SpriteJob is a render::TaskDelegate
+        newBlend,
+        algorithm);
 
-        std::unique_ptr<Palette> newPalette(
-          new Palette(createPal ? tmpPalette:
-                                  *site.palette()));
+      std::unique_ptr<Palette> newPalette(
+        new Palette(createPal ? tmpPalette : *site.palette()));
 
-        if (createPal) {
-          entries = PalettePicks(newPalette->size());
-          entries.all();
-        }
+      if (createPal) {
+        entries = PalettePicks(newPalette->size());
+        entries.all();
+      }
 
-        int i = 0, j = 0;
-        for (bool state : entries) {
-          if (state)
-            newPalette->setEntry(i, tmpPalette.getEntry(j++));
-          ++i;
-        }
+      int i = 0, j = 0;
+      for (bool state : entries) {
+        if (state)
+          newPalette->setEntry(i, tmpPalette.getEntry(j++));
+        ++i;
+      }
 
-        if (*curPalette != *newPalette)
-          tx(new cmd::SetPalette(sprite, frame, newPalette.get()));
-      });
+      if (*curPalette != *newPalette)
+        tx(new cmd::SetPalette(sprite, frame, newPalette.get()));
+    });
     job.waitJob();
     if (job.isCanceled())
       return;
@@ -218,4 +226,4 @@ Command* CommandFactory::createColorQuantizationCommand()
   return new ColorQuantizationCommand;
 }
 
-} // namespace app
+}  // namespace app

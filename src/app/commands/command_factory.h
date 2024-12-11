@@ -9,18 +9,17 @@
 #pragma once
 
 namespace app {
-  class Command;
+class Command;
 
-  class CommandFactory {
-  public:
+class CommandFactory {
+public:
 #undef FOR_EACH_COMMAND
-#define FOR_EACH_COMMAND(Name)                  \
-    static Command* create##Name##Command();
+#define FOR_EACH_COMMAND(Name) static Command* create##Name##Command();
 
 #include "app/commands/commands_list.h"
 #undef FOR_EACH_COMMAND
-  };
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

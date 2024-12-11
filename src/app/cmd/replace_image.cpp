@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/cmd/replace_image.h"
@@ -20,12 +20,13 @@
 #include "doc/subobjects_io.h"
 #include "doc/tilesets.h"
 
-namespace app {
-namespace cmd {
+namespace app { namespace cmd {
 
 using namespace doc;
 
-ReplaceImage::ReplaceImage(Sprite* sprite, const ImageRef& oldImage, const ImageRef& newImage)
+ReplaceImage::ReplaceImage(Sprite* sprite,
+                           const ImageRef& oldImage,
+                           const ImageRef& newImage)
   : WithSprite(sprite)
   , m_oldImageId(oldImage->id())
   , m_newImageId(newImage->id())
@@ -82,7 +83,7 @@ void ReplaceImage::replaceImage(ObjectId oldId, const ImageRef& newImage)
       if (!tileset)
         continue;
 
-      for (tile_index i=0; i<tileset->size(); ++i) {
+      for (tile_index i = 0; i < tileset->size(); ++i) {
         ImageRef image = tileset->get(i);
         if (image && image->id() == oldId)
           tileset->incrementVersion();
@@ -93,5 +94,4 @@ void ReplaceImage::replaceImage(ObjectId oldId, const ImageRef& newImage)
   spr->replaceImage(oldId, newImage);
 }
 
-} // namespace cmd
-} // namespace app
+}}  // namespace app::cmd

@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/object.h"
@@ -32,8 +32,8 @@ Object::Object(ObjectType type)
 
 Object::Object(const Object& other)
   : m_type(other.m_type)
-  , m_id(0) // We don't copy the ID
-  , m_version(0) // We don't copy the version
+  , m_id(0)       // We don't copy the ID
+  , m_version(0)  // We don't copy the version
 {
 }
 
@@ -79,12 +79,17 @@ void Object::setId(ObjectId id)
     if (objects.find(m_id) != objects.end()) {
       Object* obj = objects.find(m_id)->second;
       if (obj) {
-        TRACEARGS("ASSERT FAILED: Object with id", m_id,
-                  "of kind", int(obj->type()),
-                  "version", obj->version(), "should not exist");
+        TRACEARGS("ASSERT FAILED: Object with id",
+                  m_id,
+                  "of kind",
+                  int(obj->type()),
+                  "version",
+                  obj->version(),
+                  "should not exist");
       }
       else {
-        TRACEARGS("ASSERT FAILED: Object with id", m_id,
+        TRACEARGS("ASSERT FAILED: Object with id",
+                  m_id,
                   "registered as nullptr should not exist");
       }
     }
@@ -109,4 +114,4 @@ Object* get_object(ObjectId id)
     return nullptr;
 }
 
-} // namespace doc
+}  // namespace doc

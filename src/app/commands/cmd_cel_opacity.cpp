@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -65,9 +65,7 @@ void CelOpacityCommand::onExecute(Context* context)
   ContextWriter writer(context);
   Layer* layer = writer.layer();
   Cel* cel = writer.cel();
-  if (!cel ||
-      layer->isBackground() ||
-      !layer->isEditable() ||
+  if (!cel || layer->isBackground() || !layer->isEditable() ||
       cel->opacity() == m_opacity)
     return;
 
@@ -87,8 +85,7 @@ void CelOpacityCommand::onExecute(Context* context)
 
     for (Cel* c : cel->sprite()->uniqueCels(range.selectedFrames())) {
       if (range.contains(c->layer())) {
-        if (!c->layer()->isBackground() &&
-            c->layer()->isEditable() &&
+        if (!c->layer()->isBackground() && c->layer()->isEditable() &&
             m_opacity != c->opacity()) {
           tx(new cmd::SetCelOpacity(c, m_opacity));
         }
@@ -112,4 +109,4 @@ Command* CommandFactory::createCelOpacityCommand()
   return new CelOpacityCommand;
 }
 
-} // namespace app
+}  // namespace app

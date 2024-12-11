@@ -6,7 +6,7 @@
 // Read LICENSE.txt for more information.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "doc/image.h"
@@ -32,30 +32,36 @@ Image::~Image()
 
 int Image::getMemSize() const
 {
-  return sizeof(Image) + rowBytes()*height();
+  return sizeof(Image) + rowBytes() * height();
 }
 
 // static
-Image* Image::create(PixelFormat format, int width, int height,
+Image* Image::create(PixelFormat format,
+                     int width,
+                     int height,
                      const ImageBufferPtr& buffer)
 {
   return Image::create(ImageSpec((ColorMode)format, width, height, 0), buffer);
 }
 
 // static
-Image* Image::create(const ImageSpec& spec,
-                     const ImageBufferPtr& buffer)
+Image* Image::create(const ImageSpec& spec, const ImageBufferPtr& buffer)
 {
   ASSERT(spec.width() >= 1 && spec.height() >= 1);
   if (spec.width() < 1 || spec.height() < 1)
     return nullptr;
 
   switch (spec.colorMode()) {
-    case ColorMode::RGB:       return new ImageImpl<RgbTraits>(spec, buffer);
-    case ColorMode::GRAYSCALE: return new ImageImpl<GrayscaleTraits>(spec, buffer);
-    case ColorMode::INDEXED:   return new ImageImpl<IndexedTraits>(spec, buffer);
-    case ColorMode::BITMAP:    return new ImageImpl<BitmapTraits>(spec, buffer);
-    case ColorMode::TILEMAP:   return new ImageImpl<TilemapTraits>(spec, buffer);
+    case ColorMode::RGB:
+      return new ImageImpl<RgbTraits>(spec, buffer);
+    case ColorMode::GRAYSCALE:
+      return new ImageImpl<GrayscaleTraits>(spec, buffer);
+    case ColorMode::INDEXED:
+      return new ImageImpl<IndexedTraits>(spec, buffer);
+    case ColorMode::BITMAP:
+      return new ImageImpl<BitmapTraits>(spec, buffer);
+    case ColorMode::TILEMAP:
+      return new ImageImpl<TilemapTraits>(spec, buffer);
   }
   return nullptr;
 }
@@ -64,8 +70,8 @@ Image* Image::create(const ImageSpec& spec,
 Image* Image::createCopy(const Image* image, const ImageBufferPtr& buffer)
 {
   ASSERT(image);
-  return crop_image(image, 0, 0, image->width(), image->height(),
-                    image->maskColor(), buffer);
+  return crop_image(
+    image, 0, 0, image->width(), image->height(), image->maskColor(), buffer);
 }
 
-} // namespace doc
+}  // namespace doc

@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -63,11 +63,12 @@ void SavePaletteCommand::onExecute(Context* ctx)
   else {
     base::paths exts = get_writable_palette_extensions();
     base::paths selFilename;
-    std::string initialPath = (m_saveAsPreset ? get_preset_palettes_dir(): "");
+    std::string initialPath = (m_saveAsPreset ? get_preset_palettes_dir() : "");
     if (!app::show_file_selector(Strings::save_palette_title(),
                                  initialPath,
                                  exts,
-                                 FileSelectorType::Save, selFilename))
+                                 FileSelectorType::Save,
+                                 selFilename))
       return;
 
     filename = selFilename.front();
@@ -77,9 +78,8 @@ void SavePaletteCommand::onExecute(Context* ctx)
     // that file format is not supported to save color palettes)
     if (!base::has_file_extension(filename, exts)) {
       if (ctx->isUIAvailable()) {
-        ui::Alert::show(
-          Strings::alerts_file_format_doesnt_support_palette(
-            base::get_file_extension(filename)));
+        ui::Alert::show(Strings::alerts_file_format_doesnt_support_palette(
+          base::get_file_extension(filename)));
       }
       return;
     }
@@ -89,7 +89,10 @@ void SavePaletteCommand::onExecute(Context* ctx)
   if (activeDoc)
     colorSpace = activeDoc->sprite()->colorSpace();
 
-  if (!save_palette(filename.c_str(), palette, 16, colorSpace)) // TODO 16 should be configurable
+  if (!save_palette(filename.c_str(),
+                    palette,
+                    16,
+                    colorSpace))  // TODO 16 should be configurable
     ui::Alert::show(Strings::alerts_error_saving_file(filename));
 
   if (m_preset == get_default_palette_preset_name()) {
@@ -98,7 +101,7 @@ void SavePaletteCommand::onExecute(Context* ctx)
       set_current_palette(palette, false);
   }
   if (m_saveAsPreset) {
-      App::instance()->PalettePresetsChange();
+    App::instance()->PalettePresetsChange();
   }
 }
 
@@ -116,4 +119,4 @@ Command* CommandFactory::createSavePaletteCommand()
   return new SavePaletteCommand;
 }
 
-} // namespace app
+}  // namespace app

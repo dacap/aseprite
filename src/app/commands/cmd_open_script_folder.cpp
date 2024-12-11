@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #ifndef ENABLE_SCRIPTING
@@ -28,6 +28,7 @@ using namespace ui;
 class OpenScriptFolderCommand : public Command {
 public:
   OpenScriptFolderCommand();
+
 protected:
   void onExecute(Context* context);
 };
@@ -47,12 +48,13 @@ void OpenScriptFolderCommand::onExecute(Context* context)
     base::make_directory(path);
     // Create README.txt file
     std::ofstream os(FSTREAM_PATH(base::join_path(path, "README.txt")));
-    os << "Put your scripts here and restart Aseprite to see them in File > Scripts\n"
-       << "\n"
-       << "Scripts are .lua files, you can find more information here:\n"
-       << "\n"
-       << "  https://github.com/aseprite/api\n"
-       << "\n";
+    os
+      << "Put your scripts here and restart Aseprite to see them in File > Scripts\n"
+      << "\n"
+      << "Scripts are .lua files, you can find more information here:\n"
+      << "\n"
+      << "  https://github.com/aseprite/api\n"
+      << "\n";
   }
   app::launcher::open_folder(path);
 }
@@ -62,4 +64,4 @@ Command* CommandFactory::createOpenScriptFolderCommand()
   return new OpenScriptFolderCommand;
 }
 
-} // namespace app
+}  // namespace app

@@ -12,8 +12,8 @@
 
 namespace app {
 
-  typedef gen::CommandId CommandId;
+typedef gen::CommandId CommandId;
 
-} // namespace app
+}  // namespace app
 
 #endif

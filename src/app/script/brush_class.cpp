@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/script/engine.h"
@@ -16,8 +16,7 @@
 
 #include <algorithm>
 
-namespace app {
-namespace script {
+namespace app { namespace script {
 
 namespace {
 
@@ -26,7 +25,8 @@ using namespace doc;
 struct BrushObj {
   BrushRef brush;
   BrushObj(const BrushRef& brush)
-    : brush(brush) {
+    : brush(brush)
+  {
   }
 };
 
@@ -52,8 +52,8 @@ BrushRef Brush_new(lua_State* L, int index)
     }
     lua_pop(L, 1);
 
-    BrushType type = (image ? BrushType::kImageBrushType:
-                              BrushType::kCircleBrushType);
+    BrushType type =
+      (image ? BrushType::kImageBrushType : BrushType::kCircleBrushType);
     if (lua_getfield(L, index, "type") != LUA_TNIL)
       type = (BrushType)lua_tointeger(L, -1);
     lua_pop(L, 1);
@@ -127,10 +127,9 @@ int Brush_gc(lua_State* L)
 int Brush_setFgColor(lua_State* L)
 {
   auto obj = get_obj<BrushObj>(L, 1);
-  if (obj->brush &&
-      obj->brush->image()) {
-    const doc::color_t color = convert_args_into_pixel_color(
-      L, 2, obj->brush->image()->pixelFormat());
+  if (obj->brush && obj->brush->image()) {
+    const doc::color_t color =
+      convert_args_into_pixel_color(L, 2, obj->brush->image()->pixelFormat());
     obj->brush->setImageColor(Brush::ImageColor::MainColor, color);
   }
   return 0;
@@ -139,12 +138,10 @@ int Brush_setFgColor(lua_State* L)
 int Brush_setBgColor(lua_State* L)
 {
   auto obj = get_obj<BrushObj>(L, 1);
-  if (obj->brush &&
-      obj->brush->image()) {
-    const doc::color_t color = convert_args_into_pixel_color(
-      L, 2, obj->brush->image()->pixelFormat());
-    obj->brush->setImageColor(
-      Brush::ImageColor::BackgroundColor, color);
+  if (obj->brush && obj->brush->image()) {
+    const doc::color_t color =
+      convert_args_into_pixel_color(L, 2, obj->brush->image()->pixelFormat());
+    obj->brush->setImageColor(Brush::ImageColor::BackgroundColor, color);
   }
   return 0;
 }
@@ -201,12 +198,10 @@ int Brush_get_patternOrigin(lua_State* L)
   return 1;
 }
 
-const luaL_Reg Brush_methods[] = {
-  { "__gc", Brush_gc },
-  { "setFgColor", Brush_setFgColor },
-  { "setBgColor", Brush_setBgColor },
-  { nullptr, nullptr }
-};
+const luaL_Reg Brush_methods[] = { { "__gc", Brush_gc },
+                                   { "setFgColor", Brush_setFgColor },
+                                   { "setBgColor", Brush_setBgColor },
+                                   { nullptr, nullptr } };
 
 const Property Brush_properties[] = {
   { "type", Brush_get_type, nullptr },
@@ -219,7 +214,7 @@ const Property Brush_properties[] = {
   { nullptr, nullptr, nullptr }
 };
 
-} // anonymous namespace
+}  // anonymous namespace
 
 DEF_MTNAME(BrushObj);
 
@@ -244,5 +239,4 @@ BrushRef get_brush_from_arg(lua_State* L, int index)
     return Brush_new(L, index);
 }
 
-} // namespace script
-} // namespace app
+}}  // namespace app::script

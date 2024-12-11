@@ -11,22 +11,22 @@
 #include "app/ui/tabs.h"
 
 namespace app {
-  class WorkspacePanel;
+class WorkspacePanel;
 
-  class WorkspaceTabs : public Tabs {
-  public:
-    ui::WidgetType Type();
+class WorkspaceTabs : public Tabs {
+public:
+  ui::WidgetType Type();
 
-    WorkspaceTabs(TabsDelegate* tabsDelegate);
-    ~WorkspaceTabs();
+  WorkspaceTabs(TabsDelegate* tabsDelegate);
+  ~WorkspaceTabs();
 
-    WorkspacePanel* panel() const { return m_panel; }
-    void setPanel(WorkspacePanel* panel);
+  WorkspacePanel* panel() const { return m_panel; }
+  void setPanel(WorkspacePanel* panel);
 
-  private:
-    WorkspacePanel* m_panel;
-  };
+private:
+  WorkspacePanel* m_panel;
+};
 
-} // namespace app
+}  // namespace app
 
 #endif

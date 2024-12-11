@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/app.h"
@@ -44,8 +44,7 @@ bool LayerLockCommand::onEnabled(Context* context)
 bool LayerLockCommand::onChecked(Context* context)
 {
   const ContextReader reader(context);
-  if (!reader.document() ||
-      !reader.layer())
+  if (!reader.document() || !reader.layer())
     return false;
 
   SelectedLayers selLayers;
@@ -92,4 +91,4 @@ Command* CommandFactory::createLayerLockCommand()
   return new LayerLockCommand;
 }
 
-} // namespace app
+}  // namespace app

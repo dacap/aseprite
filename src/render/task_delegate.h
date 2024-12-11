@@ -10,13 +10,13 @@
 
 namespace render {
 
-  class TaskDelegate {
-  public:
-    virtual ~TaskDelegate() { }
-    virtual void notifyTaskProgress(double progress) = 0;
-    virtual bool continueTask() = 0;
-  };
+class TaskDelegate {
+public:
+  virtual ~TaskDelegate() { }
+  virtual void notifyTaskProgress(double progress) = 0;
+  virtual bool continueTask() = 0;
+};
 
-} // namespace render
+}  // namespace render
 
-#endif // RENDER_TASK_H_INCLUDED
+#endif  // RENDER_TASK_H_INCLUDED

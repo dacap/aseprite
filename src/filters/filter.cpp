@@ -5,7 +5,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "filters/filter.h"
@@ -28,7 +28,6 @@ void FilterWithPalette::applyToPalette(FilterManager* filterMgr)
   doc::PalettePicks picks = fid->getPalettePicks();
 
   switch (filterMgr->pixelFormat()) {
-
     case doc::IMAGE_RGB:
       m_usePaletteOnRGB = (picks.picks() > 0);
       if (!m_usePaletteOnRGB)
@@ -57,4 +56,4 @@ void FilterWithPalette::applyToPalette(FilterManager* filterMgr)
   onApplyToPalette(filterMgr, picks);
 }
 
-} // namespace filters
+}  // namespace filters

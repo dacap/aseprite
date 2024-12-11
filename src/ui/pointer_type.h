@@ -12,8 +12,8 @@
 
 namespace ui {
 
-  typedef os::PointerType PointerType;
+typedef os::PointerType PointerType;
 
-} // namespace ui
+}  // namespace ui
 
 #endif

@@ -6,7 +6,7 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/docs.h"
@@ -48,10 +48,11 @@ Doc* Docs::add(Doc* doc)
 
 Doc* Docs::add(int width, int height, doc::ColorMode colorMode, int ncolors)
 {
-  std::unique_ptr<Doc> doc(
-    new Doc(Sprite::MakeStdSprite(ImageSpec(colorMode, width, height), ncolors)));
+  std::unique_ptr<Doc> doc(new Doc(
+    Sprite::MakeStdSprite(ImageSpec(colorMode, width, height), ncolors)));
   doc->setFilename("Sprite");
-  doc->setContext(m_ctx); // Change the document context to add the doc in this collection
+  doc->setContext(
+    m_ctx);  // Change the document context to add the doc in this collection
 
   return doc.release();
 }
@@ -59,7 +60,7 @@ Doc* Docs::add(int width, int height, doc::ColorMode colorMode, int ncolors)
 void Docs::remove(Doc* doc)
 {
   iterator it = std::find(begin(), end(), doc);
-  if (it == end())              // Already removed.
+  if (it == end())  // Already removed.
     return;
 
   m_docs.erase(it);
@@ -76,7 +77,7 @@ void Docs::move(Doc* doc, int index)
   if (it != end())
     m_docs.erase(it);
 
-  m_docs.insert(begin()+index, doc);
+  m_docs.insert(begin() + index, doc);
 }
 
 Doc* Docs::getById(ObjectId id) const
@@ -115,4 +116,4 @@ void Docs::deleteAll()
   }
 }
 
-} // namespace app
+}  // namespace app

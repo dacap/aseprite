@@ -5,18 +5,18 @@
 // the End-User License Agreement for Aseprite.
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+  #include "config.h"
 #endif
 
 #include "app/tools/symmetry.h"
 
- #include "app/tools/point_shape.h"
- #include "app/tools/tool_loop.h"
+#include "app/tools/point_shape.h"
+#include "app/tools/tool_loop.h"
 
-namespace app {
-namespace tools {
+namespace app { namespace tools {
 
-void Symmetry::generateStrokes(const Stroke& stroke, Strokes& strokes,
+void Symmetry::generateStrokes(const Stroke& stroke,
+                               Strokes& strokes,
                                ToolLoop* loop)
 {
   Stroke stroke2;
@@ -34,23 +34,28 @@ void Symmetry::generateStrokes(const Stroke& stroke, Strokes& strokes,
       break;
 
     case gen::SymmetryMode::BOTH: {
-      calculateSymmetricalStroke(stroke, stroke2, loop, gen::SymmetryMode::HORIZONTAL);
+      calculateSymmetricalStroke(
+        stroke, stroke2, loop, gen::SymmetryMode::HORIZONTAL);
       strokes.push_back(stroke2);
 
       Stroke stroke3;
-      calculateSymmetricalStroke(stroke, stroke3, loop, gen::SymmetryMode::VERTICAL);
+      calculateSymmetricalStroke(
+        stroke, stroke3, loop, gen::SymmetryMode::VERTICAL);
       strokes.push_back(stroke3);
 
       Stroke stroke4;
-      calculateSymmetricalStroke(stroke3, stroke4, loop, gen::SymmetryMode::BOTH);
+      calculateSymmetricalStroke(
+        stroke3, stroke4, loop, gen::SymmetryMode::BOTH);
       strokes.push_back(stroke4);
       break;
     }
   }
 }
 
-void Symmetry::calculateSymmetricalStroke(const Stroke& refStroke, Stroke& stroke,
-                                          ToolLoop* loop, gen::SymmetryMode symmetryMode)
+void Symmetry::calculateSymmetricalStroke(const Stroke& refStroke,
+                                          Stroke& stroke,
+                                          ToolLoop* loop,
+                                          gen::SymmetryMode symmetryMode)
 {
   int brushSize, brushCenter;
   if (loop->getPointShape()->isFloodFill()) {
@@ -61,7 +66,8 @@ void Symmetry::calculateSymmetricalStroke(const Stroke& refStroke, Stroke& strok
     // TODO we should flip the brush center+image+bitmap or just do
     //      the symmetry of all pixels
     auto brush = loop->getBrush();
-    if (symmetryMode == gen::SymmetryMode::HORIZONTAL || symmetryMode == gen::SymmetryMode::BOTH) {
+    if (symmetryMode == gen::SymmetryMode::HORIZONTAL ||
+        symmetryMode == gen::SymmetryMode::BOTH) {
       brushSize = brush->bounds().w;
       brushCenter = brush->center().x;
     }
@@ -79,7 +85,8 @@ void Symmetry::calculateSymmetricalStroke(const Stroke& refStroke, Stroke& strok
     }
     Stroke::Pt pt2 = pt;
     pt2.symmetry = symmetryMode;
-    if (symmetryMode == gen::SymmetryMode::HORIZONTAL || symmetryMode == gen::SymmetryMode::BOTH)
+    if (symmetryMode == gen::SymmetryMode::HORIZONTAL ||
+        symmetryMode == gen::SymmetryMode::BOTH)
       pt2.x = 2 * (m_x + brushCenter) - pt2.x - brushSize;
     else
       pt2.y = 2 * (m_y + brushCenter) - pt2.y - brushSize;
@@ -87,5 +94,4 @@ void Symmetry::calculateSymmetricalStroke(const Stroke& refStroke, Stroke& strok
   }
 }
 
-} // namespace tools
-} // namespace app
+}}  // namespace app::tools

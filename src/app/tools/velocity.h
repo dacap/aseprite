@@ -13,8 +13,7 @@
 #include "base/vector2d.h"
 #include "gfx/point.h"
 
-namespace app {
-namespace tools {
+namespace app { namespace tools {
 
 // Mouse velocity sensor
 class VelocitySensor {
@@ -26,7 +25,8 @@ public:
 
   // Maximum length of the velocity vector (number of screen pixels
   // traveled between two updates) to create a max sensor output.
-  static constexpr float kScreenPixelsForFullVelocity = 32.0f; // TODO 32 should be configurable
+  static constexpr float kScreenPixelsForFullVelocity =
+    32.0f;  // TODO 32 should be configurable
 
   VelocitySensor();
 
@@ -43,7 +43,6 @@ private:
   base::tick_t m_lastUpdate;
 };
 
-} // namespace tools
-} // namespace app
+}}  // namespace app::tools
 
 #endif
