@@ -1,5 +1,5 @@
 // Aseprite Document Library
-// Copyright (c) 2018 Igara Studio S.A.
+// Copyright (c) 2018-2024 Igara Studio S.A.
 // Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -11,6 +11,7 @@
 
 #include <gtest/gtest.h>
 
+#include "doc/algorithm/random_image.h"
 #include "doc/image.h"
 #include "doc/primitives.h"
 
@@ -25,12 +26,30 @@ protected:
   ImageAllTypes() {}
 };
 
-typedef testing::Types<RgbTraits, GrayscaleTraits, IndexedTraits, BitmapTraits> ImageAllTraits;
+using ImageAllTraits = testing::Types<RgbTraits, GrayscaleTraits, IndexedTraits, BitmapTraits>;
+
 TYPED_TEST_SUITE(ImageAllTypes, ImageAllTraits);
+
+#if DOC_USE_BITMAP_AS_1BPP
+
+template<typename T>
+class ImageAllTypesNoBitmap : public testing::Test {
+protected:
+  ImageAllTypesNoBitmap() {}
+};
+
+using ImageAllTraitsNoBitmap = testing::Types<RgbTraits, GrayscaleTraits, IndexedTraits>;
+TYPED_TEST_SUITE(ImageAllTypesNoBitmap, ImageAllTraitsNoBitmap);
+
+#else // !DOC_USE_BITMAP_AS_1BPP
+
+  #define ImageAllTypesNoBitmap ImageAllTypes
+
+#endif // !DOC_USE_BITMAP_AS_1BPP
 
 TYPED_TEST(ImageAllTypes, PutGetAndIterators)
 {
-  typedef TypeParam ImageTraits;
+  using ImageTraits = TypeParam;
 
   std::vector<int> lengths;
   lengths.push_back(1);
@@ -150,7 +169,7 @@ TEST(Image, DiffRgbImages)
 
 TYPED_TEST(ImageAllTypes, DrawHLine)
 {
-  typedef TypeParam ImageTraits;
+  using ImageTraits = TypeParam;
 
   std::vector<int> lengths;
   lengths.push_back(7);
@@ -186,7 +205,7 @@ TYPED_TEST(ImageAllTypes, DrawHLine)
 
 TYPED_TEST(ImageAllTypes, FillRect)
 {
-  typedef TypeParam ImageTraits;
+  using ImageTraits = TypeParam;
 
   for (int i = 0; i < 100; ++i) {
     int w = 1 + i;
@@ -215,6 +234,75 @@ TYPED_TEST(ImageAllTypes, FillRect)
           else
             EXPECT_EQ(0, pixel);
         }
+      }
+    }
+  }
+}
+
+TYPED_TEST(ImageAllTypesNoBitmap, NewIterators)
+{
+  using ImageTraits = TypeParam;
+
+  for (int i = 0; i < 100; ++i) {
+    int w = 1 + i;
+    int h = 1 + i;
+
+    std::unique_ptr<Image> image(Image::create(ImageTraits::pixel_format, w, h));
+    doc::algorithm::random_image(image.get());
+
+    // TopLeft
+    {
+      int v = 0;
+      auto it = image->readArea(image->bounds(), IteratorStart::TopLeft);
+      while (it.nextLine()) {
+        auto* addr = (typename ImageTraits::address_t)it.addr8();
+        for (int u = 0; u < w; ++u, ++addr) {
+          auto expected = get_pixel_fast<ImageTraits>(image.get(), u, v);
+          ASSERT_EQ(expected, *addr);
+        }
+        ++v;
+      }
+    }
+
+    // TopRight
+    {
+      int v = 0;
+      auto it = image->readArea(image->bounds(), IteratorStart::TopRight);
+      while (it.nextLine()) {
+        auto* addr = (typename ImageTraits::address_t)it.addr8();
+        for (int u = w - 1; u >= 0; --u, --addr) {
+          auto expected = get_pixel_fast<ImageTraits>(image.get(), u, v);
+          ASSERT_EQ(expected, *addr);
+        }
+        ++v;
+      }
+    }
+
+    // BottomLeft
+    {
+      int v = h - 1;
+      auto it = image->readArea(image->bounds(), IteratorStart::BottomLeft);
+      while (it.nextLine()) {
+        auto* addr = (typename ImageTraits::address_t)it.addr8();
+        for (int u = 0; u < w; ++u, ++addr) {
+          auto expected = get_pixel_fast<ImageTraits>(image.get(), u, v);
+          ASSERT_EQ(expected, *addr);
+        }
+        --v;
+      }
+    }
+
+    // BottomRight
+    {
+      int v = h - 1;
+      auto it = image->readArea(image->bounds(), IteratorStart::BottomRight);
+      while (it.nextLine()) {
+        auto* addr = (typename ImageTraits::address_t)it.addr8();
+        for (int u = w - 1; u >= 0; --u, --addr) {
+          auto expected = get_pixel_fast<ImageTraits>(image.get(), u, v);
+          ASSERT_EQ(expected, *addr);
+        }
+        --v;
       }
     }
   }
