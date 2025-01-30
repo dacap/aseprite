@@ -155,10 +155,7 @@ public:
   void clearAndInvalidateRange();
 
   // Dockable impl
-  int dockableAt() const override
-  {
-    return ui::TOP | ui::BOTTOM | ui::LEFT | ui::RIGHT | ui::EXPANSIVE;
-  }
+  int dockableAt() const override { return ui::BOTTOM | ui::LEFT | ui::RIGHT | ui::EXPANSIVE; }
 
 protected:
   bool onProcessMessage(ui::Message* msg) override;
