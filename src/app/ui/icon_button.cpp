@@ -30,10 +30,10 @@ IconButton::IconButton(const SkinPartPtr& part) : Button(""), m_part(part)
 
 void IconButton::onInitTheme(InitThemeEvent& ev)
 {
-  Button::onInitTheme(ev);
-
   auto theme = SkinTheme::get(this);
   setBgColor(theme->colors.menuitemNormalFace());
+
+  Button::onInitTheme(ev);
 }
 
 void IconButton::onSizeHint(SizeHintEvent& ev)
