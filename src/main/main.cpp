@@ -95,6 +95,7 @@ int app_main(int argc, char* argv[])
 
   // Initialize the random seed.
   std::srand(static_cast<unsigned int>(std::time(nullptr)));
+  std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
 #if LAF_WINDOWS
   base::CoInit com; // To create COM objects
