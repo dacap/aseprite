@@ -47,7 +47,9 @@ jobs:
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1.2.17
       with:
-        key: ${{ matrix.os }}-${{ matrix.ui }}-${{ matrix.scripting }}-${{ matrix.build_type }}
+        key: ${{ matrix.os }}-${{ matrix.build_type }}
+        max-size: 4G
+        append-timestamp: false
     - uses: aseprite/get-ninja@main
     - uses: ilammy/msvc-dev-cmd@v1
       if: runner.os == 'Windows'
