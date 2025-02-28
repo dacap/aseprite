@@ -487,7 +487,6 @@ void Tabs::onPaint(PaintEvent& ev)
   auto theme = SkinTheme::get(this);
   Graphics* g = ev.graphics();
   gfx::Rect rect = clientBounds();
-
   gfx::Rect box(rect.x, rect.y, rect.w, m_tabsHeight - m_tabsBottomHeight);
 
   theme->paintWidget(g, this, style(), rect);

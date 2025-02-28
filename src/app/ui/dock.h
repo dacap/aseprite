@@ -8,7 +8,7 @@
 #define APP_UI_DOCK_H_INCLUDED
 #pragma once
 
-#include "dockable.h"
+#include "app/ui/dockable.h"
 #include "gfx/rect.h"
 #include "gfx/size.h"
 #include "ui/widget.h"
@@ -93,6 +93,7 @@ private:
                                       const int index)> f);
 
   bool hasVisibleSide(const int i) const { return (m_sides[i] && m_sides[i]->isVisible()); }
+  void redockWidget(app::Dock* widgetDock, ui::Widget* dockableWidget, const int side);
 
   struct Hit {
     ui::Widget* widget = nullptr;

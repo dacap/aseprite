@@ -16,9 +16,9 @@
 #include "app/modules/gfx.h"
 #include "app/pref/preferences.h"
 #include "app/ui/dockable.h"
+#include "app/ui/layout_selector.h"
+#include "app/ui/main_window.h"
 #include "app/ui/skin/skin_theme.h"
-#include "layout_selector.h"
-#include "main_window.h"
 #include "os/system.h"
 #include "ui/cursor_type.h"
 #include "ui/label.h"
@@ -493,24 +493,24 @@ bool Dock::onProcessMessage(ui::Message* msg)
           if (!bounds.contains(pos))
             break; // Do not handle anything outside the bounds of the dock.
 
-          const int BUFFER_ZONE =
+          const int kBufferZone =
             std::max(12 * guiscale(), std::min(m_hit.widget->size().w, m_hit.widget->size().h));
 
           int newTargetSide = -1;
           if (m_hit.dockable->dockableAt() & LEFT && !(dockedAt & LEFT) &&
-              pos.x < bounds.x + BUFFER_ZONE) {
+              pos.x < bounds.x + kBufferZone) {
             newTargetSide = LEFT;
           }
           else if (m_hit.dockable->dockableAt() & RIGHT && !(dockedAt & RIGHT) &&
-                   pos.x > (bounds.w - BUFFER_ZONE)) {
+                   pos.x > (bounds.w - kBufferZone)) {
             newTargetSide = RIGHT;
           }
           else if (m_hit.dockable->dockableAt() & TOP && !(dockedAt & TOP) &&
-                   pos.y < bounds.y + BUFFER_ZONE) {
+                   pos.y < bounds.y + kBufferZone) {
             newTargetSide = TOP;
           }
           else if (m_hit.dockable->dockableAt() & BOTTOM && !(dockedAt & BOTTOM) &&
-                   pos.y > (bounds.h - BUFFER_ZONE)) {
+                   pos.y > (bounds.h - kBufferZone)) {
             newTargetSide = BOTTOM;
           }
 
@@ -556,38 +556,6 @@ bool Dock::onProcessMessage(ui::Message* msg)
 
           assert(dockableWidget && widgetDock);
 
-          auto dockNRoll = [&](const int side) {
-            const gfx::Rect workspaceBounds = widgetDock->bounds();
-
-            gfx::Size size;
-            if (dockableWidget->id() == "timeline") {
-              size.w = 64;
-              size.h = 64;
-              auto timelineSplitterPos = get_config_double(kLegacyLayoutMainWindowSection,
-                                                           kLegacyLayoutTimelineSplitter,
-                                                           75.0) /
-                                         100.0;
-              auto pos = gen::TimelinePosition::LEFT;
-              size.w = (workspaceBounds.w * (1.0 - timelineSplitterPos)) / guiscale();
-
-              if (side & RIGHT) {
-                pos = gen::TimelinePosition::RIGHT;
-              }
-              if (side & BOTTOM) {
-                pos = gen::TimelinePosition::BOTTOM;
-                size.h = (workspaceBounds.h * (1.0 - timelineSplitterPos)) / guiscale();
-              }
-              Preferences::instance().general.timelinePosition(pos);
-            }
-
-            widgetDock->undock(dockableWidget);
-            widgetDock->dock(side, dockableWidget, size);
-
-            App::instance()->mainWindow()->invalidate();
-            layout();
-            onUserResizedDock();
-          };
-
           if (mouseMessage->right() && !m_dragging) {
             Menu menu;
             MenuItem left(Strings::dock_left());
@@ -595,30 +563,37 @@ bool Dock::onProcessMessage(ui::Message* msg)
             MenuItem top(Strings::dock_top());
             MenuItem bottom(Strings::dock_bottom());
 
-            if (m_hit.dockable->dockableAt() & ui::LEFT && currentSide != ui::LEFT) {
+            if (m_hit.dockable->dockableAt() & ui::LEFT) {
               menu.addChild(&left);
             }
-            if (m_hit.dockable->dockableAt() & ui::RIGHT && currentSide != ui::RIGHT) {
+            if (m_hit.dockable->dockableAt() & ui::RIGHT) {
               menu.addChild(&right);
             }
-            if (m_hit.dockable->dockableAt() & ui::TOP && currentSide != ui::TOP) {
+            if (m_hit.dockable->dockableAt() & ui::TOP) {
               menu.addChild(&top);
             }
-            if (m_hit.dockable->dockableAt() & ui::BOTTOM && currentSide != ui::BOTTOM) {
+            if (m_hit.dockable->dockableAt() & ui::BOTTOM) {
               menu.addChild(&bottom);
             }
 
-            left.Click.connect([&dockNRoll] { dockNRoll(ui::LEFT); });
-            right.Click.connect([&dockNRoll] { dockNRoll(ui::RIGHT); });
-            top.Click.connect([&dockNRoll] { dockNRoll(ui::TOP); });
-            bottom.Click.connect([&dockNRoll] { dockNRoll(ui::BOTTOM); });
+            switch (currentSide) {
+              case ui::LEFT:   left.setEnabled(false); break;
+              case ui::RIGHT:  right.setEnabled(false); break;
+              case ui::TOP:    top.setEnabled(false); break;
+              case ui::BOTTOM: bottom.setEnabled(false); break;
+            }
+
+            left.Click.connect([&] { redockWidget(widgetDock, dockableWidget, ui::LEFT); });
+            right.Click.connect([&] { redockWidget(widgetDock, dockableWidget, ui::RIGHT); });
+            top.Click.connect([&] { redockWidget(widgetDock, dockableWidget, ui::TOP); });
+            bottom.Click.connect([&] { redockWidget(widgetDock, dockableWidget, ui::BOTTOM); });
 
             menu.showPopup(mouseMessage->position(), display());
             return false;
           }
           else if (m_hit.targetSide > 0 && m_dragging) {
             ASSERT(m_hit.dockable->dockableAt() & m_hit.targetSide);
-            dockNRoll(m_hit.targetSide);
+            redockWidget(widgetDock, dockableWidget, m_hit.targetSide);
             m_dropzonePlaceholder = nullptr;
             m_dragging = false;
             m_hit = Hit();
@@ -783,6 +758,38 @@ void Dock::forEachSide(gfx::Rect bounds,
 
     f(widget, rc, separator, i);
   }
+}
+
+void Dock::redockWidget(app::Dock* widgetDock, ui::Widget* dockableWidget, const int side)
+{
+  const gfx::Rect workspaceBounds = widgetDock->bounds();
+
+  gfx::Size size;
+  if (dockableWidget->id() == "timeline") {
+    size.w = 64;
+    size.h = 64;
+    auto timelineSplitterPos =
+      get_config_double(kLegacyLayoutMainWindowSection, kLegacyLayoutTimelineSplitter, 75.0) /
+      100.0;
+    auto pos = gen::TimelinePosition::LEFT;
+    size.w = (workspaceBounds.w * (1.0 - timelineSplitterPos)) / guiscale();
+
+    if (side & RIGHT) {
+      pos = gen::TimelinePosition::RIGHT;
+    }
+    if (side & BOTTOM || side & TOP) {
+      pos = gen::TimelinePosition::BOTTOM;
+      size.h = (workspaceBounds.h * (1.0 - timelineSplitterPos)) / guiscale();
+    }
+    Preferences::instance().general.timelinePosition(pos);
+  }
+
+  widgetDock->undock(dockableWidget);
+  widgetDock->dock(side, dockableWidget, size);
+
+  App::instance()->mainWindow()->invalidate();
+  layout();
+  onUserResizedDock();
 }
 
 Dock::Hit Dock::calcHit(const gfx::Point& pos)

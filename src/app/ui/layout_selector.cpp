@@ -119,8 +119,6 @@ public:
     }
   }
 
-  ~LayoutItem() override { m_actionConn.disconnect(); }
-
   // Separated from the constructor so we can add it on the fly when modifying Default/Mirrored
   void addActionButton(const std::string& newLayoutId = "")
   {
@@ -298,7 +296,7 @@ private:
   LayoutSelector* m_selector;
   std::string m_layoutId;
   std::unique_ptr<IconButton> m_actionButton;
-  obs::connection m_actionConn;
+  obs::scoped_connection m_actionConn;
 };
 
 void LayoutSelector::LayoutComboBox::onChange()

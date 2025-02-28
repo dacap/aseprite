@@ -429,7 +429,7 @@ void MainWindow::setDefaultLayout()
   if ((timelineSide & RIGHT) || (timelineSide & LEFT)) {
     timelineSize.w = (workspaceBounds.w * (1.0 - timelineSplitterPos)) / guiscale();
   }
-  if (timelineSide & BOTTOM) {
+  if ((timelineSide & BOTTOM) || (timelineSide & TOP)) {
     timelineSize.h = (workspaceBounds.h * (1.0 - timelineSplitterPos)) / guiscale();
   }
 
