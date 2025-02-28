@@ -25,7 +25,7 @@ using namespace tinyxml2;
 Layouts::Layouts()
 {
   try {
-    const std::string& fn = m_userLayoutsFilename = UserLayoutsFilename();
+    std::string fn = m_userLayoutsFilename = UserLayoutsFilename();
     if (base::is_file(fn))
       load(fn);
   }
