@@ -223,57 +223,6 @@ if(NOT USE_SHARED_CURL)
   set(CURL_STATICLIB ON BOOL)
 endif()
 
-# zlib
-if(USE_SHARED_ZLIB)
-  find_package(ZLIB REQUIRED)
-else()
-  set(ZLIB_FOUND ON)
-  set(ZLIB_LIBRARY zlibstatic)
-  set(ZLIB_LIBRARIES ${ZLIB_LIBRARY})
-  set(ZLIB_INCLUDE_DIRS
-    ${ZLIB_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib) # Zlib generated zconf.h file
-  set(ZLIB_INCLUDE_DIR ${ZLIB_INCLUDE_DIRS} CACHE PATH "")
-endif()
-include_directories(${ZLIB_INCLUDE_DIRS})
-
-# libpng
-if(USE_SHARED_LIBPNG)
-  find_package(PNG REQUIRED)
-  add_definitions(${PNG_DEFINITIONS})
-else()
-  set(PNG_FOUND ON)
-  set(PNG_LIBRARY png_static)
-  set(PNG_LIBRARIES ${PNG_LIBRARY})
-  set(PNG_INCLUDE_DIRS
-    ${LIBPNG_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng) # Libpng generated pnglibconf.h file
-  set(PNG_INCLUDE_DIR ${PNG_INCLUDE_DIRS} CACHE PATH "")
-  set(PNG_PNG_INCLUDE_DIR ${PNG_INCLUDE_DIRS} CACHE PATH "")
-endif()
-include_directories(${PNG_INCLUDE_DIRS})
-add_definitions(-DPNG_NO_MMX_CODE) # Do not use MMX optimizations in PNG code
-
-# tinyxml2
-if(USE_SHARED_TINYXML)
-  find_library(TINYXML_LIBRARY NAMES tinyxml2)
-  find_path(TINYXML_INCLUDE_DIR NAMES tinyxml2.h)
-else()
-  set(TINYXML_LIBRARY tinyxml2)
-  set(TINYXML_INCLUDE_DIR ${TINYXML_DIR})
-endif()
-include_directories(${TINYXML_INCLUDE_DIR})
-
-# TinyEXIF
-if(USE_SHARED_TINYEXIF)
-  find_library(TINYEXIF_LIBRARY NAMES TinyEXIF)
-  find_path(TINYEXIF_INCLUDE_DIR NAMES TinyEXIF.h)
-else()
-  set(TINYEXIF_LIBRARY TinyEXIFstatic)
-  set(TINYEXIF_INCLUDE_DIR ${TINYEXIF_DIR})
-endif()
-include_directories(${TINYEXIF_INCLUDE_DIR})
-
 # pixman
 if(USE_SHARED_PIXMAN)
   find_library(PIXMAN_LIBRARY NAMES pixman pixman-1)
@@ -304,16 +253,6 @@ elseif(NOT LAF_BACKEND STREQUAL "skia")
   set(HARFBUZZ_LIBRARIES harfbuzz)
   set(HARFBUZZ_INCLUDE_DIRS ${HARFBUZZ_DIR}/src)
 endif()
-
-if(USE_SHARED_GIFLIB)
-  find_package(GIF REQUIRED)
-else()
-  set(GIF_LIBRARY giflib)
-  set(GIF_LIBRARIES ${GIF_LIBRARY})
-  set(GIF_INCLUDE_DIR ${GIFLIB_DIR})
-  set(GIF_INCLUDE_DIRS ${GIF_INCLUDE_DIR})
-endif()
-include_directories(${GIF_INCLUDE_DIRS})
 
 # libjpeg-turbo
 find_package(JpegTurbo)

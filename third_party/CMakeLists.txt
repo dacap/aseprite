@@ -1,5 +1,5 @@
 # Aseprite
-# Copyright (C) 2021-2024  Igara Studio S.A.
+# Copyright (C) 2021-2025  Igara Studio S.A.
 # Copyright (C) 2001-2018  David Capello
 
 include_directories(.)
@@ -8,15 +8,39 @@ if(MSVC)
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif(MSVC)
 
-if(NOT USE_SHARED_ZLIB)
-  set(SKIP_INSTALL_ALL on)
+# zlib
+if(USE_SHARED_ZLIB)
+  find_package(ZLIB REQUIRED)
+else()
+  set(SKIP_INSTALL_ALL ON)
+  set(ZLIB_FOUND ON)
+  set(ZLIB_LIBRARY zlibstatic)
+  set(ZLIB_LIBRARIES ${ZLIB_LIBRARY})
+  set(ZLIB_INCLUDE_DIRS
+    ${ZLIB_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib) # Zlib generated zconf.h file
+  set(ZLIB_INCLUDE_DIR ${ZLIB_INCLUDE_DIRS} CACHE PATH "")
   # Don't build zlib tests
   set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "Enable Zlib Examples")
+  set(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/zlib" CACHE INTERNAL "")
   add_subdirectory(zlib)
+  add_library(ZLIB::ZLIB ALIAS zlibstatic)
 endif()
 
-if(NOT USE_SHARED_LIBPNG)
+# libpng
+if(USE_SHARED_LIBPNG)
+  find_package(PNG REQUIRED)
+  add_definitions(${PNG_DEFINITIONS})
+else()
   set(SKIP_INSTALL_ALL ON)
+  set(PNG_FOUND ON)
+  set(PNG_LIBRARY png_static)
+  set(PNG_LIBRARIES ${PNG_LIBRARY})
+  set(PNG_INCLUDE_DIRS
+    ${LIBPNG_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng) # Libpng generated pnglibconf.h file
+  set(PNG_INCLUDE_DIR ${PNG_INCLUDE_DIRS} CACHE PATH "")
+  set(PNG_PNG_INCLUDE_DIR ${PNG_INCLUDE_DIRS} CACHE PATH "")
   # We only need the static version of libpng
   set(PNG_SHARED OFF CACHE BOOL "Build shared lib")
   set(PNG_STATIC ON CACHE BOOL "Build static lib")
@@ -24,11 +48,19 @@ if(NOT USE_SHARED_LIBPNG)
   add_subdirectory(libpng)
 endif()
 
-if(NOT USE_SHARED_GIFLIB)
+# giflib
+if(USE_SHARED_GIFLIB)
+  find_package(GIF REQUIRED)
+else()
+  set(GIF_LIBRARY giflib)
+  set(GIF_LIBRARIES ${GIF_LIBRARY})
+  set(GIF_INCLUDE_DIR ${GIFLIB_DIR})
+  set(GIF_INCLUDE_DIRS ${GIF_INCLUDE_DIR})
   set(GIFLIB_UTILS OFF CACHE BOOL "Build giflib utils")
   add_subdirectory(giflib)
 endif()
 
+# webp
 if(ENABLE_WEBP AND NOT LAF_BACKEND STREQUAL "skia")
   set(WEBP_BUILD_EXTRAS OFF CACHE BOOL "Build extras.")
   set(WEBP_BUILD_ANIM_UTILS OFF CACHE BOOL "Build animation utilities.")
@@ -49,16 +81,28 @@ if(ENABLE_WEBP AND NOT LAF_BACKEND STREQUAL "skia")
   endif()
 endif()
 
-if(NOT USE_SHARED_TINYXML)
+# tinyxml2
+if(USE_SHARED_TINYXML)
+  find_library(TINYXML_LIBRARY NAMES tinyxml2)
+  find_path(TINYXML_INCLUDE_DIR NAMES tinyxml2.h)
+else()
+  set(TINYXML_LIBRARY tinyxml2)
+  set(TINYXML_INCLUDE_DIR ${TINYXML_DIR})
   set(tinyxml2_BUILD_TESTING OFF CACHE BOOL "Build tests for tinyxml2")
   add_subdirectory(tinyxml2)
 endif()
 
-if(NOT USE_SHARED_TINYEXIF)
+# TinyEXIF
+if(USE_SHARED_TINYEXIF)
+  find_library(TINYEXIF_LIBRARY NAMES TinyEXIF)
+  find_path(TINYEXIF_INCLUDE_DIR NAMES TinyEXIF.h)
+else()
   set(BUILD_SHARED_LIBS OFF CACHE BOOL "build as shared library")
   set(BUILD_STATIC_LIBS ON CACHE BOOL "build as static library")
   set(LINK_CRT_STATIC_LIBS OFF CACHE BOOL "link CRT static library")
   set(BUILD_DEMO OFF CACHE BOOL "build demo binary")
+  set(TINYEXIF_LIBRARY TinyEXIFstatic)
+  set(TINYEXIF_INCLUDE_DIR ${TINYEXIF_DIR})
   add_subdirectory(TinyEXIF)
 endif()
 
