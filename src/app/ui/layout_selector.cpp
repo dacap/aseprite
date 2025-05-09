@@ -236,10 +236,9 @@ public:
 
     // Sort the layouts by putting the defaults first, in case the user made a custom new one before
     // modifying a default.
-    constexpr struct {
-      bool operator()(LayoutPtr& a, LayoutPtr& b) const { return a->isDefault(); }
-    } customDefaultSort;
-    std::sort(m_selector->m_layouts.begin(), m_selector->m_layouts.end(), customDefaultSort);
+    std::sort(m_selector->m_layouts.begin(),
+              m_selector->m_layouts.end(),
+              [](LayoutPtr& a, LayoutPtr& b) -> bool { return a->isDefault(); });
 
     for (const auto& layout : m_selector->m_layouts) {
       ListItem* item;
