@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2023  Igara Studio S.A.
+// Copyright (C) 2018-2025  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -80,7 +80,7 @@ void Transaction::setNewDocRange(const DocRange& range)
   m_cmds->setNewDocRange(range);
 }
 
-void Transaction::commit()
+void Transaction::commit(const CommitAction commitAction)
 {
   // This assert can fail when we run scripts in batch mode
   // ui::assert_ui_thread();
@@ -91,7 +91,9 @@ void Transaction::commit()
   m_cmds->updateSpritePositionAfter();
   const SpritePosition sprPos = m_cmds->spritePositionAfterExecute();
 
-  m_undo->add(m_cmds);
+  if (commitAction == CommitAction::AddUndoInfo)
+    m_undo->add(m_cmds);
+
   m_cmds = nullptr;
 
   // Process changes

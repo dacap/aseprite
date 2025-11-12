@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2023  Igara Studio S.A.
+// Copyright (C) 2019-2025  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -35,6 +35,11 @@ enum Modification {
 class CannotModifyWhenReadOnlyException : public base::Exception {
 public:
   CannotModifyWhenReadOnlyException() throw();
+};
+
+enum class CommitAction {
+  AddUndoInfo,
+  DiscardUndoInfo,
 };
 
 // High-level class to group a set of commands to modify the
@@ -81,7 +86,7 @@ public:
   // it will generate a DocUndo::add() which triggers a
   // DocUndoObserver::onAddUndoState() notification, which
   // updates the Undo History window UI.
-  void commit();
+  void commit(CommitAction commitAction = CommitAction::AddUndoInfo);
 
   // Discard everything that was added so far. We can start
   // executing new Cmds again.

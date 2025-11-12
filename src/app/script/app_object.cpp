@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2024  Igara Studio S.A.
+// Copyright (C) 2018-2025  Igara Studio S.A.
 // Copyright (C) 2015-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -168,6 +168,41 @@ int App_transaction(lua_State* L)
     catch (const LockedDocException& ex) {
       return luaL_error(L, "cannot lock document for transaction\n%s", ex.what());
     }
+  }
+  return nresults;
+}
+
+int App_inhibitUndo(lua_State* L)
+{
+  int top = lua_gettop(L);
+  int nresults = 0;
+
+  if (!lua_isfunction(L, 1))
+    return luaL_error(L, "function expected as first argument");
+
+  app::Context* ctx = App::instance()->context();
+  if (!ctx)
+    return luaL_error(L, "no context");
+
+  try {
+    // We lock the document in the whole transaction because the
+    // RWLock now is re-entrant and we are able to call commands
+    // inside the app.transaction() (creating inner ContextWriters).
+    ContextWriter writer(ctx);
+    Tx tx(writer, {});
+
+    lua_pushvalue(L, -1);
+    if (lua_pcall(L, 0, LUA_MULTRET, 0) == LUA_OK) {
+      // We keep the transaction modifications but discard the undo
+      // info (collected cmds).
+      tx.commit(CommitAction::DiscardUndoInfo);
+    }
+    else
+      return lua_error(L); // pcall already put an error object on the stack
+    nresults = lua_gettop(L) - top;
+  }
+  catch (const LockedDocException& ex) {
+    return luaL_error(L, "cannot lock sprite for transaction\n%s", ex.what());
   }
   return nresults;
 }
@@ -853,6 +888,7 @@ const luaL_Reg App_methods[] = {
   { "open",        App_open        },
   { "exit",        App_exit        },
   { "transaction", App_transaction },
+  { "inhibitUndo", App_inhibitUndo },
   { "undo",        App_undo        },
   { "redo",        App_redo        },
   { "alert",       App_alert       },

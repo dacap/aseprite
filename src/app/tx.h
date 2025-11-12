@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2024  Igara Studio S.A.
+// Copyright (C) 2019-2025  Igara Studio S.A.
 // Copyright (C) 2018  David Capello
 //
 // This program is distributed under the terms of
@@ -103,10 +103,10 @@ public:
       m_doc->unlock(m_lockResult);
   }
 
-  void commit()
+  void commit(const CommitAction commitAction = CommitAction::AddUndoInfo)
   {
     if (m_owner)
-      m_transaction->commit();
+      m_transaction->commit(commitAction);
   }
 
   void setNewDocRange(const view::Range& range) { m_transaction->setNewDocRange(range); }
