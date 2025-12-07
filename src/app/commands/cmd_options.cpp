@@ -86,6 +86,48 @@ app::gen::ColorProfileBehavior missingCsMap[] = {
   app::gen::ColorProfileBehavior::ASK,
 };
 
+// This property generates a lower case version of the widget's text, and a space-separated lower
+// case list of words. It includes any tooltips attached to the widget and for ComboBoxes it
+// combines all of the item text. This helps the preference search not have to repeatedly do all of
+// these string operations when the user is typing.
+//
+// When the UI language changes, these properties are removed so they may be generated again.
+class SearchTextProperty : public ui::Property {
+public:
+  static constexpr const char* Name = "SearchText";
+
+  SearchTextProperty(ui::Widget* widget, ui::TooltipManager* tooltipManager) : ui::Property(Name)
+  {
+    m_text = widget->text();
+
+    if (widget->type() == ui::kComboBoxWidget) {
+      auto* comboBox = static_cast<ui::ComboBox*>(widget);
+
+      for (int i = 0; i < comboBox->getItemCount(); i++)
+        m_text += " " + comboBox->getItemText(i);
+
+      // Handle the special combobox tooltip case, where they're attached to the entry widget.
+      if (const auto& comboTooltip = tooltipManager->getTooltipFor(comboBox->getEntryWidget());
+          !comboTooltip.empty())
+        m_text += " " + comboTooltip;
+    }
+    else if (const auto& tooltip = tooltipManager->getTooltipFor(widget); !tooltip.empty())
+      m_text += " " + tooltip;
+
+    m_text = base::string_to_lower(m_text);
+
+    base::split_string(m_text, m_textWords, " ");
+  }
+
+  const std::string& text() const { return m_text; }
+
+  const std::vector<std::string>& textWords() const { return m_textWords; }
+
+private:
+  std::string m_text;
+  std::vector<std::string> m_textWords;
+};
+
 class ExtensionCategorySeparator : public SeparatorInView {
 public:
   ExtensionCategorySeparator(const Extension::Category category, const std::string& text)
@@ -1447,12 +1489,19 @@ private:
     auto* item = dynamic_cast<const LangItem*>(language()->getSelectedItem());
     if (!item)
       return;
+
     const std::string lang = item->langId();
     const bool state = (lang == "ar" || lang == "ja" || lang == "ko" || lang == "th" ||
                         lang == "yue_Hant" || lang == "zh_Hans" || lang == "zh_Hant");
     fontWarningFiller()->setVisible(state);
     fontWarning()->setVisible(state);
     layout();
+
+    // Clear search text cache inside widgets
+    WidgetsList allWidgets;
+    allWidgetsIn(this, allWidgets);
+    for (auto* widget : allWidgets)
+      widget->removeProperty(SearchTextProperty::Name);
   }
 
   void onClearRecentFiles() { App::instance()->recentFiles()->clear(); }
@@ -2166,8 +2215,13 @@ private:
 
     // Using the flag instead of isEnabled() preserves the specific widget's state instead of trying
     // to find a disabled parent, etc.
-    for (auto* widget : allWidgets)
+    for (auto* widget : allWidgets) {
+      auto searchProp = widget->getProperty(SearchTextProperty::Name);
+      if (!searchProp)
+        widget->setProperty(std::make_shared<SearchTextProperty>(widget, tooltipManager()));
+
       m_preSearchDisabledFlag.try_emplace(widget, widget->hasFlags(DISABLED));
+    }
   }
 
   void loadPreSearchState()
@@ -2226,34 +2280,17 @@ private:
             m_preSearchDisabledFlag[widget] == true)
           continue;
 
-        std::string text = widget->text();
-
-        if (widget->type() == kComboBoxWidget) {
-          auto* comboBox = static_cast<ComboBox*>(widget);
-
-          // Hardcoded exception for the "new documents"/"active document" preferences
-          if (comboBox == gridScope() || comboBox == bgScope())
-            continue;
-
-          for (int j = 0; j < comboBox->getItemCount(); j++)
-            text += " " + comboBox->getItemText(j);
-
-          // Handle the special combobox tooltip case, where they're attached to the entry widget.
-          if (const auto& comboTooltip = tooltipManager()->getTooltipFor(
-                comboBox->getEntryWidget());
-              !comboTooltip.empty())
-            text += " " + comboTooltip;
-        }
-        else if (const auto& tooltip = tooltipManager()->getTooltipFor(widget); !tooltip.empty())
-          text += " " + tooltip;
+        const auto& property = std::static_pointer_cast<SearchTextProperty>(
+          widget->getProperty(SearchTextProperty::Name));
+        const auto& text = property->text();
 
         if (text.empty())
           continue;
 
-        std::vector<std::string> textWords;
-        base::split_string(base::string_to_lower(text), textWords, " ");
+        bool highlight = match.word(text);
+        if (!highlight)
+          highlight = match.fuzzyWords(property->textWords(), 2);
 
-        bool highlight = match(text) || match.fuzzyWords(textWords, 2);
         widget->setEnabled(highlight);
 
         if (widget->type() == kLabelWidget || widget->type() == kLinkLabelWidget) {
