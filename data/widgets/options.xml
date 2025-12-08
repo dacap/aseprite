@@ -7,7 +7,7 @@
     <hbox expansive="true">
 
       <vbox expansive="true">
-        <search id="search" magnet="true" clearonesc="true" />
+        <search id="search" magnet="true" clearonesc="true" debounce="250" />
         <view maxsize="true" expansive="true">
           <listbox id="section_listbox">
             <listitem text="@.section_general" value="section_general" />

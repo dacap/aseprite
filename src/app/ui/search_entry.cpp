@@ -17,6 +17,7 @@
 #include "ui/message.h"
 #include "ui/paint_event.h"
 #include "ui/size_hint_event.h"
+#include "ui/timer.h"
 
 #include <algorithm>
 
@@ -26,13 +27,27 @@ using namespace app::skin;
 using namespace gfx;
 using namespace ui;
 
-SearchEntry::SearchEntry() : Entry(256, ""), m_clearOnEsc(false)
+SearchEntry::SearchEntry() : Entry(256, ""), m_clearOnEsc(false), m_debounceMs(0)
 {
+}
+
+void SearchEntry::setDebounce(int ms)
+{
+  m_debounceMs = ms;
+  if (!m_debounceMs && m_debounceTimer)
+    m_debounceTimer.reset();
 }
 
 bool SearchEntry::onProcessMessage(ui::Message* msg)
 {
   switch (msg->type()) {
+    case kTimerMessage: {
+      if (static_cast<TimerMessage*>(msg)->timer() == m_debounceTimer.get()) {
+        Change();
+        m_debounceTimer->stop();
+      }
+      break;
+    }
     case kMouseDownMessage: {
       Rect closeBounds = getCloseIconBounds();
       Point mousePos = static_cast<MouseMessage*>(msg)->position() - bounds().origin();
@@ -88,6 +103,20 @@ void SearchEntry::onSizeHint(SizeHintEvent& ev)
   sz.h = std::max(sz.h, icon->height() + border().height());
 
   ev.setSizeHint(sz);
+}
+
+void SearchEntry::onChange()
+{
+  if (!m_debounceMs) {
+    Change();
+    return;
+  }
+
+  if (!m_debounceTimer)
+    m_debounceTimer = std::make_unique<Timer>(m_debounceMs, this);
+
+  m_debounceTimer->setInterval(m_debounceMs);
+  m_debounceTimer->start();
 }
 
 Rect SearchEntry::onGetEntryTextBounds() const

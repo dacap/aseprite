@@ -527,6 +527,7 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem,
       searchEntry->setPlaceholder(Strings::general_search());
 
     searchEntry->setClearOnEsc(bool_attr(elem, "clearonesc", false));
+    searchEntry->setDebounce(int_attr(elem, "debounce", 0));
   }
   else if (elem_name == "font") {
     if (!widget)

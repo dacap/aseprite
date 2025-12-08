@@ -11,6 +11,10 @@
 
 #include "ui/entry.h"
 
+namespace ui {
+class Timer;
+}
+
 namespace app {
 
 class SearchEntry : public ui::Entry {
@@ -22,10 +26,14 @@ public:
 
   void clear() { onCloseIconPressed(); }
 
+  void setDebounce(int ms);
+  int debounceMs() const { return m_debounceMs; }
+
 protected:
   bool onProcessMessage(ui::Message* msg) override;
   void onPaint(ui::PaintEvent& ev) override;
   void onSizeHint(ui::SizeHintEvent& ev) override;
+  void onChange() override;
   gfx::Rect onGetEntryTextBounds() const override;
 
   virtual os::Surface* onGetCloseIcon() const;
@@ -34,6 +42,8 @@ protected:
 private:
   gfx::Rect getCloseIconBounds() const;
   bool m_clearOnEsc;
+  int m_debounceMs;
+  std::unique_ptr<ui::Timer> m_debounceTimer;
 };
 
 } // namespace app
