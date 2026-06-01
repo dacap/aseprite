@@ -64,21 +64,14 @@ protected:
       ASSERT(m_option);
 
       // Update the Option value only if the user touched the widget.
-      if (m_modifiedByUser)
+      if (Base::isEdited())
         (*m_option)(this->isSelected());
     }
     return Base::onProcessMessage(msg);
   }
 
-  void onClick() override
-  {
-    Base::onClick();
-    m_modifiedByUser = true;
-  }
-
 private:
   Option<bool>* m_option;
-  bool m_modifiedByUser = false;
 };
 
 } // namespace app

@@ -132,6 +132,10 @@ public:
   void setFocusMagnet(bool state);
   bool isFocusMagnet() const;
 
+  // True if the user changed this widget value.
+  bool isEdited() const { return hasFlags(EDITED); }
+  void setEdited() { enableFlags(EDITED); }
+
   // ===============================================================
   // LOOK & FEEL
   // ===============================================================
