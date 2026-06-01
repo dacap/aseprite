@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2020-2025  Igara Studio S.A.
+// Copyright (C) 2020-present  Igara Studio S.A.
 // Copyright (C) 2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -9,6 +9,8 @@
 #define UI_STYLE_H_INCLUDED
 #pragma once
 
+#include "base/enum_flags.h"
+#include "base/ints.h"
 #include "gfx/border.h"
 #include "gfx/color.h"
 #include "gfx/point.h"
@@ -43,27 +45,23 @@ public:
     };
 
     // Flags (in which state the widget must be to show this layer)
-    enum { kMouse = 1, kFocus = 2, kSelected = 4, kDisabled = 8, kCapture = 16 };
+    enum StyleFlags : uint8_t {
+      kNoFlag = 0,
+      kMouse = 1,
+      kFocus = 2,
+      kSelected = 4,
+      kDisabled = 8,
+      kCapture = 16
+    };
 
     class IconSurfaceProvider {
     public:
       virtual os::Surface* iconSurface() const = 0;
     };
 
-    Layer()
-      : m_type(Type::kNone)
-      , m_flags(0)
-      , m_align(CENTER | MIDDLE)
-      , m_color(gfx::ColorNone)
-      , m_icon(nullptr)
-      , m_spriteSheet(nullptr)
-      , m_offset(0, 0)
-    {
-    }
-
     Type type() const { return m_type; }
-    int flags() const { return m_flags; }
-    int align() const { return m_align; }
+    StyleFlags flags() const { return m_flags; }
+    WidgetAlign align() const { return m_align; }
 
     gfx::Color color() const { return m_color; }
     os::Surface* icon() const { return m_icon.get(); }
@@ -73,8 +71,8 @@ public:
     const gfx::Point& offset() const { return m_offset; }
 
     void setType(const Type type) { m_type = type; }
-    void setFlags(const int flags) { m_flags = flags; }
-    void setAlign(const int align) { m_align = align; }
+    void setFlags(const StyleFlags flags) { m_flags = flags; }
+    void setAlign(const WidgetAlign align) { m_align = align; }
     void setColor(gfx::Color color) { m_color = color; }
     void setIcon(const os::SurfaceRef& icon) { m_icon = icon; }
     void setSpriteSheet(const os::SurfaceRef& spriteSheet) { m_spriteSheet = spriteSheet; }
@@ -83,15 +81,15 @@ public:
     void setOffset(const gfx::Point& offset) { m_offset = offset; }
 
   private:
-    Type m_type;
-    int m_flags;
-    int m_align;
-    gfx::Color m_color;
-    os::SurfaceRef m_icon;
-    os::SurfaceRef m_spriteSheet;
+    Type m_type = Type::kNone;
+    StyleFlags m_flags = kNoFlag;
+    WidgetAlign m_align = CENTER | MIDDLE;
+    gfx::Color m_color = gfx::ColorNone;
+    os::SurfaceRef m_icon = nullptr;
+    os::SurfaceRef m_spriteSheet = nullptr;
     gfx::Rect m_spriteBounds;
     gfx::Rect m_slicesBounds;
-    gfx::Point m_offset;
+    gfx::Point m_offset = gfx::Point(0, 0);
   };
 
   typedef std::vector<Layer> Layers;
@@ -171,6 +169,8 @@ private:
   text::FontRef m_font;
   bool m_mnemonics;
 };
+
+LAF_ENUM_FLAGS(Style::Layer::StyleFlags)
 
 } // namespace ui
 

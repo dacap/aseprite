@@ -68,7 +68,7 @@ WidgetType register_widget_type()
 
 Widget::Widget(WidgetType type)
   : m_type(type)
-  , m_flags(0)
+  , m_fa(0)
   , m_theme(get_theme())
   , m_style(nullptr)
   , m_font(nullptr)

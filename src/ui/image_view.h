@@ -1,4 +1,5 @@
 // Aseprite UI Library
+// Copyright (C) 2026-present  Igara Studio S.A.
 // Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -19,7 +20,7 @@ namespace ui {
 
 class ImageView : public Widget {
 public:
-  ImageView(const os::Ref<os::Surface>& sur, int align);
+  ImageView(const os::Ref<os::Surface>& sur, WidgetAlign align);
 
 protected:
   void onSizeHint(SizeHintEvent& ev) override;

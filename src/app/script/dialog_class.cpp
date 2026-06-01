@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2025  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2018  David Capello
 //
 // This program is distributed under the terms of
@@ -64,8 +64,8 @@ namespace app { namespace script {
 
 using namespace ui;
 
-static constexpr const int kDefaultAutofit = ui::LEFT | ui::TOP;
-static constexpr const int kDefaultLabelAlign = ui::LEFT | ui::CENTER;
+static constexpr const WidgetAlign kDefaultAutofit = ui::LEFT | ui::TOP;
+static constexpr const WidgetAlign kDefaultLabelAlign = ui::LEFT | ui::CENTER;
 
 namespace {
 
@@ -130,7 +130,7 @@ struct Dialog {
   std::map<std::string, ui::Widget*, std::less<>> dataWidgets;
   std::map<std::string, ui::Widget*, std::less<>> labelWidgets;
   int currentRadioGroup = 0;
-  int autofit = kDefaultAutofit;
+  WidgetAlign autofit = kDefaultAutofit;
 
   // Member used to hold current state about the creation of a tabs
   // widget. After creation it is reset to null to be ready for the
@@ -216,10 +216,10 @@ struct Dialog {
       it->second->setText(text);
   }
 
-  void setAutofit(int align)
+  void setAutofit(const WidgetAlign align)
   {
     // Accept both 0 or a valid subset of align parameters.
-    if (align == 0 || (align & (ui::LEFT | ui::RIGHT | ui::TOP | ui::BOTTOM)))
+    if (align == ui::NOALIGN || (align & (ui::LEFT | ui::RIGHT | ui::TOP | ui::BOTTOM)))
       autofit = align;
   }
 
@@ -348,7 +348,7 @@ int Dialog_new(lua_State* L)
   ui::Window::Type windowType = ui::Window::WithTitleBar;
   std::string title = "Script";
   bool sizeable = true;
-  int autofit = kDefaultAutofit;
+  WidgetAlign autofit = kDefaultAutofit;
   if (lua_isstring(L, 1)) {
     title = lua_tostring(L, 1);
   }
@@ -370,7 +370,7 @@ int Dialog_new(lua_State* L)
 
     type = lua_getfield(L, 1, "autofit");
     if (type != LUA_TNIL) {
-      autofit = lua_tointeger(L, -1);
+      autofit = (WidgetAlign)lua_tointeger(L, -1);
     }
     lua_pop(L, 1);
   }
@@ -592,7 +592,7 @@ int Dialog_add_widget(lua_State* L, Widget* widget)
 {
   auto dlg = get_obj<Dialog>(L, 1);
   const char* label = nullptr;
-  int labelAlign = kDefaultLabelAlign;
+  WidgetAlign labelAlign = kDefaultLabelAlign;
   std::string id;
   bool visible = true;
   bool hexpand = true;
@@ -631,7 +631,7 @@ int Dialog_add_widget(lua_State* L, Widget* widget)
       const int v = lua_tointeger(L, -1) &
                     (ui::CENTER | ui::LEFT | ui::RIGHT | ui::TOP | ui::BOTTOM);
       if (v)
-        labelAlign = v;
+        labelAlign = (ui::WidgetAlign)v;
     }
     lua_pop(L, 1);
 
@@ -676,9 +676,9 @@ int Dialog_add_widget(lua_State* L, Widget* widget)
       }
     }
 
-    auto hbox = new ui::HBox;
+    auto* hbox = new ui::HBox;
     if (widget->type() == ui::kButtonWidget)
-      hbox->enableFlags(ui::HOMOGENEOUS);
+      hbox->enableAlign(ui::HOMOGENEOUS);
 
     // For tabs and unlabeled separators, we don't want the empty space of an unspecified label, so
     // span 2 columns.
@@ -1696,7 +1696,7 @@ int Dialog_modify(lua_State* L)
     if (relayout && !dlg->window.isResizing()) {
       dlg->window.layout();
 
-      if (dlg->autofit > 0) {
+      if (dlg->autofit != ui::NOALIGN) {
         const gfx::Rect oldBounds = dlg->window.bounds();
 
         // There is a ^ (XOR) logical operator because if TOP and BOTTOM (for example) are "true"
@@ -2005,7 +2005,7 @@ int Dialog_get_autofit(lua_State* L)
 int Dialog_set_autofit(lua_State* L)
 {
   auto dlg = get_obj<Dialog>(L, 1);
-  dlg->setAutofit(lua_tointeger(L, 2));
+  dlg->setAutofit((ui::WidgetAlign)lua_tointeger(L, 2));
   return 0;
 }
 

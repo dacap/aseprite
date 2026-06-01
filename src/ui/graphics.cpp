@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2019-2025  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -476,7 +476,7 @@ void Graphics::drawAlignedUIText(const std::string& str,
                                  gfx::Color fg,
                                  gfx::Color bg,
                                  const gfx::Rect& rc,
-                                 const int align)
+                                 const WidgetAlign align)
 {
   doUIStringAlgorithm(str, fg, bg, rc, align, true);
 }
@@ -490,7 +490,7 @@ gfx::Size Graphics::measureText(const std::string& str)
     .size();
 }
 
-gfx::Size Graphics::fitString(const std::string& str, int maxWidth, int align)
+gfx::Size Graphics::fitString(const std::string& str, const int maxWidth, const WidgetAlign align)
 {
   return doUIStringAlgorithm(str,
                              gfx::ColorNone,
@@ -501,11 +501,11 @@ gfx::Size Graphics::fitString(const std::string& str, int maxWidth, int align)
 }
 
 gfx::Size Graphics::doUIStringAlgorithm(const std::string& str,
-                                        gfx::Color fg,
-                                        gfx::Color bg,
+                                        const gfx::Color fg,
+                                        const gfx::Color bg,
                                         const gfx::Rect& rc,
-                                        int align,
-                                        bool draw)
+                                        const WidgetAlign align,
+                                        const bool draw)
 {
   ASSERT(m_font);
 

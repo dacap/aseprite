@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2025  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -976,7 +976,7 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
         const char* stateValue = xmlLayer->Attribute("state");
         if (stateValue) {
           std::string state(stateValue);
-          int flags = 0;
+          ui::Style::Layer::StyleFlags flags = ui::Style::Layer::kNoFlag;
           if (state.find("disabled") != std::string::npos)
             flags |= ui::Style::Layer::kDisabled;
           if (state.find("selected") != std::string::npos)
@@ -994,7 +994,7 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
         const char* alignValue = xmlLayer->Attribute("align");
         if (alignValue) {
           std::string alignString(alignValue);
-          int align = 0;
+          WidgetAlign align = NOALIGN;
           if (alignString.find("left") != std::string::npos)
             align |= LEFT;
           if (alignString.find("center") != std::string::npos)
@@ -1649,7 +1649,7 @@ void SkinTheme::paintMenuItem(ui::PaintEvent& ev)
     // Draw the keyboard shortcut
     else if (AppMenuItem* appMenuItem = dynamic_cast<AppMenuItem*>(widget)) {
       if (appMenuItem->key() && !appMenuItem->key()->shortcuts().empty()) {
-        int old_align = appMenuItem->align();
+        WidgetAlign old_align = appMenuItem->align();
 
         pos = bounds;
         pos.w -= widget->childSpacing() / 4;

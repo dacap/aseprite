@@ -1,4 +1,5 @@
 // Aseprite UI Library
+// Copyright (C) 2026-present  Igara Studio S.A.
 // Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -22,8 +23,8 @@ TEST(Grid, Simple2x1Grid)
   w1->setMinSize(gfx::Size(10, 10));
   w2->setMinSize(gfx::Size(10, 10));
 
-  grid->addChildInCell(w1, 1, 1, 0);
-  grid->addChildInCell(w2, 1, 1, 0);
+  grid->addChildInCell(w1, 1, 1, NOALIGN);
+  grid->addChildInCell(w2, 1, 1, NOALIGN);
 
   // Test request-size
   Size reqSize = grid->sizeHint();
@@ -59,7 +60,7 @@ TEST(Grid, Expand2ndWidget)
   w1->setMinSize(gfx::Size(20, 20));
   w2->setMinSize(gfx::Size(10, 10));
 
-  grid->addChildInCell(w1, 1, 1, 0);
+  grid->addChildInCell(w1, 1, 1, NOALIGN);
   grid->addChildInCell(w2, 1, 1, HORIZONTAL | TOP);
 
   // Test request size
@@ -92,8 +93,8 @@ TEST(Grid, SameWidth2x1Grid)
   w1->setMinSize(gfx::Size(20, 20));
   w2->setMinSize(gfx::Size(10, 10));
 
-  grid->addChildInCell(w1, 1, 1, 0);
-  grid->addChildInCell(w2, 1, 1, 0);
+  grid->addChildInCell(w1, 1, 1, NOALIGN);
+  grid->addChildInCell(w2, 1, 1, NOALIGN);
 
   // Test request size
   Size reqSize = grid->sizeHint();
@@ -158,7 +159,7 @@ TEST(Grid, Intrincate2x2Grid)
   w3->setMinSize(gfx::Size(10, 10));
   w4->setMinSize(gfx::Size(10, 10));
 
-  grid->addChildInCell(w1, 1, 1, 0);
+  grid->addChildInCell(w1, 1, 1, NOALIGN);
   grid->addChildInCell(w2, 2, 1, HORIZONTAL);
   grid->addChildInCell(w3, 2, 2, HORIZONTAL | VERTICAL);
   grid->addChildInCell(w4, 1, 2, VERTICAL);

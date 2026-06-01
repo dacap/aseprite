@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2019-2021  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -10,6 +10,7 @@
 #pragma once
 
 #include "gfx/fwd.h"
+#include "ui/base.h"
 
 #include <functional>
 
@@ -19,7 +20,7 @@ class Display;
 class Widget;
 class Window;
 
-int fit_bounds(Display* display, int arrowAlign, const gfx::Rect& target, gfx::Rect& bounds);
+int fit_bounds(Display* display, WidgetAlign arrowAlign, const gfx::Rect& target, gfx::Rect& bounds);
 
 // Fits a possible rectangle for the given window fitting it with a
 // special logic. It works for both cases:

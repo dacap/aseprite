@@ -1,4 +1,5 @@
 // Aseprite UI Library
+// Copyright (C) 2026-present  Igara Studio S.A.
 // Copyright (C) 2001-2013  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -14,7 +15,7 @@ namespace ui {
 
 class TextBox : public Widget {
 public:
-  TextBox(const std::string& text, int align);
+  TextBox(const std::string& text, WidgetAlign align);
 
 protected:
   bool onProcessMessage(Message* msg) override;

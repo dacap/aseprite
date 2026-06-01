@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2018-2025  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2001-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -34,7 +34,7 @@ Grid::Cell::Cell()
   child = nullptr;
   hspan = 0;
   vspan = 0;
-  align = 0;
+  align = NOALIGN;
   w = 0;
   h = 0;
 }
@@ -90,7 +90,7 @@ Grid::~Grid()
  * - BOTTOM: Sets vertical alignment to the end of the cell.
  * - None: Uses the whole vertical space of the cell.
  */
-void Grid::addChildInCell(Widget* child, int hspan, int vspan, int align)
+void Grid::addChildInCell(Widget* child, const int hspan, const int vspan, const WidgetAlign align)
 {
   ASSERT(hspan > 0);
   ASSERT(vspan > 0);
@@ -299,7 +299,9 @@ void Grid::calculateSize()
   }
 }
 
-void Grid::calculateStripSize(std::vector<Strip>& colstrip, std::vector<Strip>& rowstrip, int align)
+void Grid::calculateStripSize(std::vector<Strip>& colstrip,
+                              std::vector<Strip>& rowstrip,
+                              const WidgetAlign align)
 {
   Cell* cell;
 
@@ -494,7 +496,7 @@ void Grid::distributeStripSize(std::vector<Strip>& colstrip,
   }
 }
 
-bool Grid::putWidgetInCell(Widget* child, int hspan, int vspan, int align)
+bool Grid::putWidgetInCell(Widget* child, int hspan, int vspan, const WidgetAlign align)
 {
   int col, row, colbeg, colend, rowend;
   Cell *cell, *parentcell;

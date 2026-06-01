@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2019-2024  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -65,9 +65,9 @@ Alert::Alert() : Window(WithTitleBar), m_progress(nullptr), m_progressPlaceholde
   m_buttonsPlaceholder = box3;
 
   // Pseudo separators (only to fill blank space)
-  auto box4 = new Box(0);
-  auto box5 = new Box(0);
-  m_progressPlaceholder = new Box(0);
+  auto* box4 = new VBox;
+  auto* box5 = new VBox;
+  m_progressPlaceholder = new VBox;
 
   box4->setExpansive(true);
   box5->setExpansive(true);
@@ -93,7 +93,7 @@ void Alert::setTitle(const std::string& title)
   setText(title);
 }
 
-void Alert::addLabel(const std::string& text, const int align)
+void Alert::addLabel(const std::string& text, const WidgetAlign align)
 {
   auto label = new Label(text);
   label->setAlign(align);
@@ -200,7 +200,7 @@ void Alert::processString(std::string& buf)
   bool label = false;
   bool separator = false;
   bool button = false;
-  int align = 0;
+  WidgetAlign align = NOALIGN;
 
   // Process buffer
   int c = 0;
@@ -235,7 +235,7 @@ void Alert::processString(std::string& buf)
       else {
         title = label = separator = button = false;
         beg = c + 2;
-        align = 0;
+        align = NOALIGN;
 
         switch (buf[c]) {
           case '<':

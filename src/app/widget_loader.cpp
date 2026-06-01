@@ -53,7 +53,7 @@ using namespace app::skin;
 using namespace tinyxml2;
 using namespace ui;
 
-static int convert_align_value_to_flags(const char* value);
+static WidgetAlign convert_align_string_to_enum(const char* value);
 static int int_attr(const XMLElement* elem, const char* attribute_name, int default_value);
 
 WidgetLoader::WidgetLoader() : m_tooltipManager(NULL)
@@ -120,9 +120,9 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem,
       widget = new Panel();
   }
   else if (elem_name == "box") {
-    bool horizontal = bool_attr(elem, "horizontal", false);
-    bool vertical = bool_attr(elem, "vertical", false);
-    int align = (horizontal ? HORIZONTAL : vertical ? VERTICAL : 0);
+    const bool horizontal = bool_attr(elem, "horizontal", false);
+    const bool vertical = bool_attr(elem, "vertical", false);
+    const WidgetAlign align = (horizontal ? HORIZONTAL : vertical ? VERTICAL : NOALIGN);
 
     if (!widget)
       widget = new Box(align);
@@ -328,7 +328,10 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem,
     Splitter::Type type = (by && strcmp(by, "pixel") == 0 ? Splitter::ByPixel :
                                                             Splitter::ByPercentage);
 
-    Splitter* splitter = new Splitter(type, horizontal ? HORIZONTAL : vertical ? VERTICAL : 0);
+    Splitter* splitter = new Splitter(type,
+                                      horizontal ? HORIZONTAL :
+                                      vertical   ? VERTICAL :
+                                                   NOALIGN);
     if (position) {
       splitter->setPosition(strtod(position, NULL) * (type == Splitter::ByPixel ? guiscale() : 1));
     }
@@ -358,15 +361,16 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem,
                      (top ? TOP : (bottom ? BOTTOM : MIDDLE)));
   }
   else if (elem_name == "separator") {
-    bool center = bool_attr(elem, "center", false);
-    bool right = bool_attr(elem, "right", false);
-    bool middle = bool_attr(elem, "middle", false);
-    bool bottom = bool_attr(elem, "bottom", false);
-    bool horizontal = bool_attr(elem, "horizontal", false);
-    bool vertical = bool_attr(elem, "vertical", false);
-    int align = (horizontal ? HORIZONTAL : 0) | (vertical ? VERTICAL : 0) |
-                (center ? CENTER : (right ? RIGHT : LEFT)) |
-                (middle ? MIDDLE : (bottom ? BOTTOM : TOP));
+    const bool center = bool_attr(elem, "center", false);
+    const bool right = bool_attr(elem, "right", false);
+    const bool middle = bool_attr(elem, "middle", false);
+    const bool bottom = bool_attr(elem, "bottom", false);
+    const bool horizontal = bool_attr(elem, "horizontal", false);
+    const bool vertical = bool_attr(elem, "vertical", false);
+    const WidgetAlign align = (horizontal ? HORIZONTAL : NOALIGN) |
+                              (vertical ? VERTICAL : NOALIGN) |
+                              (center ? CENTER : (right ? RIGHT : LEFT)) |
+                              (middle ? MIDDLE : (bottom ? BOTTOM : TOP));
 
     if (!widget) {
       widget = new Separator(m_xmlTranslator(elem, "text"), align);
@@ -395,18 +399,18 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem,
     const char* text = (elem->GetText() ? elem->GetText() : "");
     bool wordwrap = bool_attr(elem, "wordwrap", false);
     const char* text_align = elem->Attribute("text_align");
-    int align = text_align ? convert_align_value_to_flags(text_align) : 0;
+    WidgetAlign align = (text_align ? convert_align_string_to_enum(text_align) : NOALIGN);
 
     if (!widget)
-      widget = new TextBox(text, 0);
+      widget = new TextBox(text, NOALIGN);
     else
       widget->setText(text);
 
     if (wordwrap)
-      widget->setAlign(widget->align() | WORDWRAP);
+      widget->enableAlign(WORDWRAP);
 
     if (align)
-      widget->setAlign(widget->align() | align);
+      widget->enableAlign(align);
   }
   else if (elem_name == "view") {
     if (!widget)
@@ -508,7 +512,7 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem,
           os::SurfaceRef sur = os::System::instance()->loadRgbaSurface(rf.filename().c_str());
           if (sur) {
             sur->setImmutable();
-            widget = new ImageView(sur, 0);
+            widget = new ImageView(sur, NOALIGN);
           }
         }
         catch (...) {
@@ -518,7 +522,7 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem,
       else if (icon) {
         SkinPartPtr part = SkinTheme::instance()->getPartById(std::string(icon));
         if (part) {
-          widget = new ImageView(part->bitmapRef(0), 0);
+          widget = new ImageView(part->bitmapRef(0), NOALIGN);
         }
       }
     }
@@ -730,7 +734,7 @@ void WidgetLoader::fillWidgetWithXmlElementAttributesWithChildren(const XMLEleme
         const char* cell_align = childElem->Attribute("cell_align");
         int hspan = cell_hspan ? strtol(cell_hspan, NULL, 10) : 1;
         int vspan = cell_vspan ? strtol(cell_vspan, NULL, 10) : 1;
-        int align = cell_align ? convert_align_value_to_flags(cell_align) : 0;
+        const WidgetAlign align = (cell_align ? convert_align_string_to_enum(cell_align) : NOALIGN);
         auto grid = dynamic_cast<ui::Grid*>(widget);
         ASSERT(grid != nullptr);
 
@@ -757,43 +761,43 @@ void WidgetLoader::fillWidgetWithXmlElementAttributesWithChildren(const XMLEleme
   }
 }
 
-static int convert_align_value_to_flags(const char* value)
+static WidgetAlign convert_align_string_to_enum(const char* value)
 {
   char *tok, *ptr = base_strdup(value);
-  int flags = 0;
+  WidgetAlign align = NOALIGN;
 
   for (tok = strtok(ptr, " "); tok != NULL; tok = strtok(NULL, " ")) {
     if (strcmp(tok, "horizontal") == 0) {
-      flags |= HORIZONTAL;
+      align |= HORIZONTAL;
     }
     else if (strcmp(tok, "vertical") == 0) {
-      flags |= VERTICAL;
+      align |= VERTICAL;
     }
     else if (strcmp(tok, "left") == 0) {
-      flags |= LEFT;
+      align |= LEFT;
     }
     else if (strcmp(tok, "center") == 0) {
-      flags |= CENTER;
+      align |= CENTER;
     }
     else if (strcmp(tok, "right") == 0) {
-      flags |= RIGHT;
+      align |= RIGHT;
     }
     else if (strcmp(tok, "top") == 0) {
-      flags |= TOP;
+      align |= TOP;
     }
     else if (strcmp(tok, "middle") == 0) {
-      flags |= MIDDLE;
+      align |= MIDDLE;
     }
     else if (strcmp(tok, "bottom") == 0) {
-      flags |= BOTTOM;
+      align |= BOTTOM;
     }
     else if (strcmp(tok, "homogeneous") == 0) {
-      flags |= HOMOGENEOUS;
+      align |= HOMOGENEOUS;
     }
   }
 
   base_free(ptr);
-  return flags;
+  return align;
 }
 
 static int int_attr(const XMLElement* elem, const char* attribute_name, int default_value)

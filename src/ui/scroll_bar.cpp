@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2019-2022  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -25,7 +25,7 @@ int ScrollBar::m_wherepos = 0;
 int ScrollBar::m_whereclick = 0;
 bool ScrollBar::m_dragging = false;
 
-ScrollBar::ScrollBar(int align, ScrollableViewDelegate* delegate)
+ScrollBar::ScrollBar(const WidgetAlign align, ScrollableViewDelegate* delegate)
   : Widget(kViewScrollbarWidget)
   , m_delegate(delegate)
   , m_thumbStyle(nullptr)

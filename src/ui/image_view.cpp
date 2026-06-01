@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2020  Igara Studio S.A.
+// Copyright (C) 2020-present  Igara Studio S.A.
 // Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -21,7 +21,9 @@
 
 namespace ui {
 
-ImageView::ImageView(const os::SurfaceRef& sur, int align) : Widget(kImageViewWidget), m_sur(sur)
+ImageView::ImageView(const os::SurfaceRef& sur, const WidgetAlign align)
+  : Widget(kImageViewWidget)
+  , m_sur(sur)
 {
   setAlign(align);
 }

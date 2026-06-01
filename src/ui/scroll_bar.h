@@ -1,4 +1,5 @@
 // Aseprite UI Library
+// Copyright (C) 2026-present  Igara Studio S.A.
 // Copyright (C) 2001-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -22,7 +23,7 @@ public:
 
 class ScrollBar : public Widget {
 public:
-  ScrollBar(int align, ScrollableViewDelegate* delegate);
+  ScrollBar(WidgetAlign align, ScrollableViewDelegate* delegate);
 
   Style* thumbStyle() { return m_thumbStyle; }
   void setThumbStyle(Style* style) { m_thumbStyle = style; }

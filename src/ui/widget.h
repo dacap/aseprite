@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2018-2025  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -67,13 +67,16 @@ public:
   const std::string& id() const { return m_id; }
   void setId(const char* id) { m_id = id; }
 
-  int flags() const { return m_flags; }
-  bool hasFlags(int flags) const { return ((m_flags & flags) == flags); }
-  void enableFlags(int flags) { m_flags |= flags; }
-  void disableFlags(int flags) { m_flags &= ~flags; }
+  WidgetFlags flags() const { return get_flags_from_fa(m_fa); }
+  WidgetAlign align() const { return get_align_from_fa(m_fa); }
 
-  int align() const { return (m_flags & ALIGN_MASK); }
-  void setAlign(int align) { m_flags = ((m_flags & PROPERTIES_MASK) | (align & ALIGN_MASK)); }
+  bool hasFlags(const WidgetFlags f) const { return (m_fa & f) == f; }
+  void enableFlags(const WidgetFlags f) { m_fa = make_fa(flags() | f, align()); }
+  void disableFlags(const WidgetFlags f) { m_fa = make_fa(flags() & ~f, align()); }
+
+  void setAlign(const WidgetAlign a) { m_fa = make_fa(flags(), a); }
+  void enableAlign(const WidgetAlign a) { m_fa = make_fa(flags(), align() | a); }
+  void disableAlign(const WidgetAlign a) { m_fa = make_fa(flags(), align() & ~a); }
 
   // Text property.
 
@@ -459,7 +462,7 @@ private:
 
   WidgetType m_type; // Widget's type
   std::string m_id;  // Widget's id
-  int m_flags;       // Special boolean properties (see flags in ui/base.h)
+  fa_t m_fa;         // Properties/status (WidgetFlags) + alignment/layout flags (WidgetAlign)
   Theme* m_theme;    // Widget's theme
   Style* m_style;
   std::string m_text;               // Widget text

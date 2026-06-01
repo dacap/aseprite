@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2018-2025  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2001-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -23,7 +23,7 @@ namespace ui {
 
 using namespace gfx;
 
-Box::Box(int align) : Widget(kBoxWidget)
+Box::Box(WidgetAlign align) : Widget(kBoxWidget)
 {
   enableFlags(IGNORE_MOUSE);
   setAlign(align);

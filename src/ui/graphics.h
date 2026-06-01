@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2019-2025  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -19,6 +19,7 @@
 #include "text/font.h"
 #include "text/fwd.h"
 #include "text/shaper_features.h"
+#include "ui/base.h"
 #include "ui/layer.h"
 #include "ui/paint.h"
 
@@ -144,10 +145,10 @@ public:
                          gfx::Color fg,
                          gfx::Color bg,
                          const gfx::Rect& rc,
-                         const int align);
+                         WidgetAlign align);
 
   gfx::Size measureText(const std::string& str);
-  gfx::Size fitString(const std::string& str, int maxWidth, int align);
+  gfx::Size fitString(const std::string& str, int maxWidth, WidgetAlign align);
 
   // Can be used in case that you've accessed/changed the
   // getInternalSurface() directly and need to specify which area
@@ -159,7 +160,7 @@ private:
                                 gfx::Color fg,
                                 gfx::Color bg,
                                 const gfx::Rect& rc,
-                                int align,
+                                WidgetAlign align,
                                 bool draw);
   void dirty(const gfx::Rect& bounds);
 

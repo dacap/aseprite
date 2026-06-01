@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2019-2024  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -35,7 +35,7 @@ static const std::vector<gfx::Rect> get_all_workareas()
   return workareas;
 }
 
-int fit_bounds(Display* display, int arrowAlign, const gfx::Rect& target, gfx::Rect& bounds)
+int fit_bounds(Display* display, WidgetAlign arrowAlign, const gfx::Rect& target, gfx::Rect& bounds)
 {
   bounds.x = target.x;
   bounds.y = target.y;

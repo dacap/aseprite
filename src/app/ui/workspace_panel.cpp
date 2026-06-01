@@ -245,7 +245,7 @@ DropViewAtResult WorkspacePanel::dropViewAt(const gfx::Point& screenPos,
   if (!clone && from == this && m_views.size() == 1)
     return DropViewAtResult::NOTHING;
 
-  int splitterAlign = 0;
+  WidgetAlign splitterAlign = NOALIGN;
   if (dropArea & (LEFT | RIGHT))
     splitterAlign = HORIZONTAL;
   else if (dropArea & (TOP | BOTTOM))

@@ -16,7 +16,7 @@ namespace app {
 
 class SeparatorInView : public ui::Separator {
 public:
-  SeparatorInView(const std::string& text = std::string(), int align = ui::HORIZONTAL)
+  SeparatorInView(const std::string& text = std::string(), ui::WidgetAlign align = ui::HORIZONTAL)
     : Separator(text, align)
   {
     InitTheme.connect([this] {
