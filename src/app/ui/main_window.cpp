@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2025  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -109,6 +109,8 @@ MainWindow::MainWindow()
 // Refer to https://github.com/aseprite/aseprite/issues/3914
 void MainWindow::initialize()
 {
+  setId("main_window");
+
   m_menuBar = std::make_unique<MainMenuBar>();
   m_notifications = std::make_unique<Notifications>();
   m_layoutSelector = std::make_unique<LayoutSelector>(m_tooltipManager, m_notifications.get());
