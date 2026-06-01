@@ -1,5 +1,5 @@
 // Aseprite Code Generator
-// Copyright (c) 2024 Igara Studio S.A.
+// Copyright (c) 2024-present Igara Studio S.A.
 // Copyright (c) 2014-2016 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -13,6 +13,7 @@
 #include <string>
 
 void gen_ui_class(tinyxml2::XMLDocument* doc,
+                  tinyxml2::XMLDocument* prefDoc,
                   const std::string& inputFn,
                   const std::string& widgetId);
 

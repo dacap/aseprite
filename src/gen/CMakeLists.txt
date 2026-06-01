@@ -1,4 +1,5 @@
 # Aseprite Code Generator
+# Copyright (C) 2026-present  Igara Studio S.A.
 # Copyright (C) 2014-2017  David Capello
 
 add_executable(gen
@@ -18,4 +19,5 @@ endif()
 target_link_libraries(gen
   laf-base
   cfg-lib
-  ${TINYXML_LIBRARY})
+  ${TINYXML_LIBRARY}
+  fmt)

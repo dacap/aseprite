@@ -1,5 +1,5 @@
 // Aseprite Code Generator
-// Copyright (c) 2021-2024 Igara Studio S.A.
+// Copyright (c) 2021-present Igara Studio S.A.
 // Copyright (c) 2014-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -10,7 +10,9 @@
 #include "base/exception.h"
 #include "base/file_handle.h"
 #include "base/fs.h"
+#include "base/split_string.h"
 #include "base/string.h"
+#include "fmt/format.h"
 #include "gen/common.h"
 
 #include <iostream>
@@ -27,10 +29,16 @@ struct Item {
   std::string cppid;
   std::string type;
   std::string incl;
-  const Item& typeIncl(const char* type, const char* incl)
+  std::string pref;
+  Item& typeIncl(const char* type, const char* incl)
   {
     this->type = type;
     this->incl = incl;
+    return *this;
+  }
+  Item& prefCheck(const char* pref)
+  {
+    this->pref = pref;
     return *this;
   }
 };
@@ -89,8 +97,8 @@ static Item convert_to_item(XMLElement* elem)
   if (name == "buttonset")
     return item.typeIncl("app::ButtonSet", "app/ui/button_set.h");
   if (name == "check") {
-    if (elem->Attribute("pref") != nullptr)
-      return item.typeIncl("BoolPrefWidget<ui::CheckBox>", "app/ui/pref_widget.h");
+    if (const char* pref = elem->Attribute("pref"))
+      return item.typeIncl("BoolPrefWidget<ui::CheckBox>", "app/ui/pref_widget.h").prefCheck(pref);
     else
       return item.typeIncl("ui::CheckBox", "ui/button.h");
   }
@@ -156,7 +164,41 @@ static Item convert_to_item(XMLElement* elem)
   throw base::Exception("Unknown widget name: " + name);
 }
 
-void gen_ui_class(XMLDocument* doc, const std::string& inputFn, const std::string& widgetId)
+static bool check_pref(XMLDocument* prefDoc, const std::string& sectionOption)
+{
+  std::vector<std::string> parts;
+  base::split_string(sectionOption, parts, ".");
+
+  if (parts.size() != 2)
+    throw base::Exception(
+      fmt::format("Invalid pref=\"{}\", format \"section.option\" expected ", sectionOption));
+
+  XMLHandle handle(prefDoc);
+  XMLElement* child = handle.FirstChildElement("preferences")
+                        .FirstChildElement("global")
+                        .FirstChildElement("section")
+                        .ToElement();
+
+  while (child) {
+    if (child->Attribute("id") == parts[0]) {
+      child = child->FirstChildElement("option");
+      while (child) {
+        if (child->Attribute("id") == parts[1])
+          return true; // Option found
+        child = child->NextSiblingElement();
+      }
+      break;
+    }
+    child = child->NextSiblingElement();
+  }
+
+  return false;
+}
+
+void gen_ui_class(XMLDocument* doc,
+                  XMLDocument* prefDoc,
+                  const std::string& inputFn,
+                  const std::string& widgetId)
 {
   std::cout << "// Don't modify, generated file from " << inputFn << "\n"
             << "\n";
@@ -178,7 +220,14 @@ void gen_ui_class(XMLDocument* doc, const std::string& inputFn, const std::strin
       const char* id = elem->Attribute("id");
       if (!id)
         continue;
-      items.push_back(convert_to_item(elem));
+
+      Item item = convert_to_item(elem);
+      if (prefDoc && !item.pref.empty()) {
+        if (!check_pref(prefDoc, item.pref))
+          throw base::Exception(fmt::format("Invalid pref=\"{}\" not found", item.pref));
+      }
+
+      items.push_back(item);
 
       if (!hasTooltips && elem->Attribute("tooltip"))
         hasTooltips = true;
