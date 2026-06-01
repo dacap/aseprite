@@ -2,26 +2,8 @@
 # Copyright (C) 2018-present  Igara Studio S.A.
 # Copyright (C) 2001-2018  David Capello
 
-# Generate a ui::Widget for each widget in a XML file
-file(GLOB widget_files ${SOURCE_DATA_DIR}/widgets/*.xml)
-foreach(widget_file ${widget_files})
-  get_filename_component(widget_name ${widget_file} NAME_WE)
-  set(output_fn ${CMAKE_CURRENT_BINARY_DIR}/${widget_name}.xml.h)
-
-  add_custom_command(
-    OUTPUT ${output_fn}
-    COMMAND ${GEN_EXE} --input ${widget_file} --widgetid ${widget_name} > ${output_fn}.tmp
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${output_fn}.tmp ${output_fn}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    MAIN_DEPENDENCY ${widget_file}
-    DEPENDS ${GEN_DEP})
-
-  list(APPEND generated_files ${output_fn})
-endforeach()
-
 # Generate preference types from data/pref.xml
 set(pref_xml ${SOURCE_DATA_DIR}/pref.xml)
-
 set(output_fn ${CMAKE_CURRENT_BINARY_DIR}/pref.xml.h)
 add_custom_command(
   OUTPUT ${output_fn}
@@ -41,6 +23,23 @@ add_custom_command(
   MAIN_DEPENDENCY ${pref_xml}
   DEPENDS ${GEN_DEP})
 list(APPEND generated_files ${output_fn})
+
+# Generate a ui::Widget for each widget in a XML file
+file(GLOB widget_files ${SOURCE_DATA_DIR}/widgets/*.xml)
+foreach(widget_file ${widget_files})
+  get_filename_component(widget_name ${widget_file} NAME_WE)
+  set(output_fn ${CMAKE_CURRENT_BINARY_DIR}/${widget_name}.xml.h)
+
+  add_custom_command(
+    OUTPUT ${output_fn}
+    COMMAND ${GEN_EXE} --input ${widget_file} --widgetid ${widget_name} --pref-file "${pref_xml}" > ${output_fn}.tmp
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${output_fn}.tmp ${output_fn}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    MAIN_DEPENDENCY ${widget_file}
+    DEPENDS ${GEN_DEP})
+
+  list(APPEND generated_files ${output_fn})
+endforeach()
 
 # Generate theme.xml.h from data/extensions/aseprite-theme/theme.xml
 set(theme_xml ${SOURCE_DATA_DIR}/extensions/aseprite-theme/theme.xml)
