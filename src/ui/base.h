@@ -41,6 +41,7 @@ enum WidgetFlags : uint32_t {
                                  // operation.
   IGNORE_MOUSE     = 0x00020000, // Don't process mouse messages for this widget (useful for labels,
                                  // boxes, grids, etc.)
+  EDITED           = 0x00040000, // Value changed/edited by the end-user
   FLAGS_MASK       = 0x000fffff,
 };
 
