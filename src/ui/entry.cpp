@@ -47,6 +47,7 @@ static inline bool is_word_char(int ch)
 
 Entry::Entry(const int maxsize)
   : Widget(kEntryWidget)
+  , m_boxes({ CharBox() })
   , m_maxsize(maxsize)
   , m_caret(0)
   , m_scroll(0)
