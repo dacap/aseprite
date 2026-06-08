@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2025  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -448,7 +448,7 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem,
   }
   else if (elem_name == "dropdownbutton") {
     if (!widget) {
-      widget = new DropDownButton(m_xmlTranslator(elem, "text").c_str());
+      widget = new DropDownButton(m_xmlTranslator(elem, "text"));
     }
   }
   else if (elem_name == "buttonset") {
