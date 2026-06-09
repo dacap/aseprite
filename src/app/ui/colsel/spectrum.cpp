@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2020-2022  Igara Studio S.A.
+// Copyright (C) 2020-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -9,7 +9,7 @@
   #include "config.h"
 #endif
 
-#include "app/ui/color_spectrum.h"
+#include "app/ui/colsel/spectrum.h"
 
 #include "app/color_utils.h"
 #include "app/ui/skin/skin_theme.h"

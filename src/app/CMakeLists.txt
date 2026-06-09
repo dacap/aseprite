@@ -1,5 +1,5 @@
 # Aseprite
-# Copyright (C) 2018-2025  Igara Studio S.A.
+# Copyright (C) 2018-present  Igara Studio S.A.
 # Copyright (C) 2001-2018  David Capello
 
 # Generate a ui::Widget for each widget in a XML file
@@ -604,12 +604,12 @@ target_sources(app-lib PRIVATE
   ui/color_bar.cpp
   ui/color_button.cpp
   ui/color_popup.cpp
-  ui/color_selector.cpp
   ui/color_shades.cpp
   ui/color_sliders.cpp
-  ui/color_spectrum.cpp
-  ui/color_tint_shade_tone.cpp
-  ui/color_wheel.cpp
+  ui/colsel/color_selector.cpp
+  ui/colsel/spectrum.cpp
+  ui/colsel/tint_shade_tone.cpp
+  ui/colsel/wheel.cpp
   ui/configure_timeline_popup.cpp
   ui/context_bar.cpp
   ui/dithering_selector.cpp

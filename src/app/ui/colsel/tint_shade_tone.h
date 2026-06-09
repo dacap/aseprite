@@ -1,15 +1,15 @@
 // Aseprite
-// Copyright (C) 2022  Igara Studio S.A.
+// Copyright (C) 2022-present  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
 
-#ifndef APP_UI_COLOR_TINT_SHADE_TONE_H_INCLUDED
-#define APP_UI_COLOR_TINT_SHADE_TONE_H_INCLUDED
+#ifndef APP_UI_COLSEL_TINT_SHADE_TONE_H_INCLUDED
+#define APP_UI_COLSEL_TINT_SHADE_TONE_H_INCLUDED
 #pragma once
 
-#include "app/ui/color_selector.h"
+#include "app/ui/colsel/color_selector.h"
 #include "obs/connection.h"
 
 namespace app {

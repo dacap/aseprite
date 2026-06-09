@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2025  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -11,7 +11,7 @@
   #include "config.h"
 #endif
 
-#include "app/ui/color_selector.h"
+#include "app/ui/colsel/color_selector.h"
 
 #include "app/app.h"
 #include "app/color_spaces.h"

@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2024  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -39,9 +39,9 @@
 #include "app/modules/palettes.h"
 #include "app/pref/preferences.h"
 #include "app/tx.h"
-#include "app/ui/color_spectrum.h"
-#include "app/ui/color_tint_shade_tone.h"
-#include "app/ui/color_wheel.h"
+#include "app/ui/colsel/spectrum.h"
+#include "app/ui/colsel/tint_shade_tone.h"
+#include "app/ui/colsel/wheel.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/hex_color_entry.h"
 #include "app/ui/input_chain.h"

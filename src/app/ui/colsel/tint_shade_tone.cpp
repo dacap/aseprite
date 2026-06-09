@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2020-2022  Igara Studio S.A.
+// Copyright (C) 2020-present  Igara Studio S.A.
 // Copyright (C) 2016-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -9,7 +9,7 @@
   #include "config.h"
 #endif
 
-#include "app/ui/color_tint_shade_tone.h"
+#include "app/ui/colsel/tint_shade_tone.h"
 
 #include "app/color_utils.h"
 #include "app/pref/preferences.h"
