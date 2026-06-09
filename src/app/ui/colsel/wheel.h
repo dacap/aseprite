@@ -12,7 +12,7 @@
 #include "app/ui/colsel/color_selector.h"
 #include "ui/button.h"
 
-namespace app {
+namespace app::colsel {
 
 class ColorWheel : public ColorSelector {
 public:
@@ -86,6 +86,6 @@ private:
   mutable bool m_harmonyPicked;
 };
 
-} // namespace app
+} // namespace app::colsel
 
 #endif

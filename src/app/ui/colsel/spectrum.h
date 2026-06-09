@@ -11,7 +11,7 @@
 
 #include "app/ui/colsel/color_selector.h"
 
-namespace app {
+namespace app::colsel {
 
 class ColorSpectrum : public ColorSelector {
 public:
@@ -39,6 +39,6 @@ private:
   std::string m_bottomShader;
 };
 
-} // namespace app
+} // namespace app::colsel
 
 #endif

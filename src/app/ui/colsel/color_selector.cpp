@@ -47,7 +47,7 @@
   #include "include/effects/SkRuntimeEffect.h"
 #endif
 
-namespace app {
+namespace app::colsel {
 
 using namespace app::skin;
 using namespace ui;
@@ -672,4 +672,4 @@ void ColorSelector::resetBottomEffect()
 
 #endif // SK_ENABLE_SKSL
 
-} // namespace app
+} // namespace app::colsel

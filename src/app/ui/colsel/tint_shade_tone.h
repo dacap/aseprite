@@ -12,7 +12,7 @@
 #include "app/ui/colsel/color_selector.h"
 #include "obs/connection.h"
 
-namespace app {
+namespace app::colsel {
 class Color;
 
 class ColorTintShadeTone : public ColorSelector {
@@ -47,6 +47,6 @@ private:
   obs::scoped_connection m_conn;
 };
 
-} // namespace app
+} // namespace app::colsel
 
 #endif

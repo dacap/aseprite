@@ -25,7 +25,7 @@
 
 #include <algorithm>
 
-namespace app {
+namespace app::colsel {
 
 using namespace app::skin;
 using namespace gfx;
@@ -177,4 +177,4 @@ int ColorSpectrum::onNeedsSurfaceRepaint(const app::Color& newColor)
     ColorSelector::onNeedsSurfaceRepaint(newColor);
 }
 
-} // namespace app
+} // namespace app::colsel

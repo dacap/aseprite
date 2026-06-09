@@ -470,7 +470,7 @@ void ColorBar::setColorSelector(ColorSelector selector)
   switch (m_selector) {
     case ColorSelector::TINT_SHADE_TONE:
       if (!m_tintShadeTone) {
-        m_tintShadeTone = new ColorTintShadeTone;
+        m_tintShadeTone = new colsel::ColorTintShadeTone;
         m_tintShadeTone->setExpansive(true);
         m_tintShadeTone->selectColor(m_fgColor.getColor());
         m_tintShadeTone->ColorChange.connect(&ColorBar::onPickSpectrum, this);
@@ -481,7 +481,7 @@ void ColorBar::setColorSelector(ColorSelector selector)
 
     case ColorSelector::SPECTRUM:
       if (!m_spectrum) {
-        m_spectrum = new ColorSpectrum;
+        m_spectrum = new colsel::ColorSpectrum;
         m_spectrum->setExpansive(true);
         m_spectrum->selectColor(m_fgColor.getColor());
         m_spectrum->ColorChange.connect(&ColorBar::onPickSpectrum, this);
@@ -494,20 +494,20 @@ void ColorBar::setColorSelector(ColorSelector selector)
     case ColorSelector::RYB_WHEEL:
     case ColorSelector::NORMAL_MAP_WHEEL:
       if (!m_wheel) {
-        m_wheel = new ColorWheel;
+        m_wheel = new colsel::ColorWheel;
         m_wheel->setExpansive(true);
         m_wheel->selectColor(m_fgColor.getColor());
         m_wheel->ColorChange.connect(&ColorBar::onPickSpectrum, this);
         m_selectorPlaceholder.addChild(m_wheel);
       }
       if (m_selector == ColorSelector::RGB_WHEEL) {
-        m_wheel->setColorModel(ColorWheel::ColorModel::RGB);
+        m_wheel->setColorModel(colsel::ColorWheel::ColorModel::RGB);
       }
       else if (m_selector == ColorSelector::RYB_WHEEL) {
-        m_wheel->setColorModel(ColorWheel::ColorModel::RYB);
+        m_wheel->setColorModel(colsel::ColorWheel::ColorModel::RYB);
       }
       else if (m_selector == ColorSelector::NORMAL_MAP_WHEEL) {
-        m_wheel->setColorModel(ColorWheel::ColorModel::NORMAL_MAP);
+        m_wheel->setColorModel(colsel::ColorWheel::ColorModel::NORMAL_MAP);
       }
       m_wheel->setVisible(true);
       break;

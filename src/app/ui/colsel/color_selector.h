@@ -34,7 +34,7 @@ inline bool cs_double_diff(double a, double b)
   return std::fabs((a) - (b)) > 0.001;
 }
 
-namespace app {
+namespace app::colsel {
 
 class ColorSelector : public ui::Widget,
                       public IColorSource {
@@ -146,6 +146,6 @@ private:
 #endif
 };
 
-} // namespace app
+} // namespace app::colsel
 
 #endif

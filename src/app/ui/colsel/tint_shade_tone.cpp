@@ -19,7 +19,7 @@
 
 #include <algorithm>
 
-namespace app {
+namespace app::colsel {
 
 using namespace app::skin;
 using namespace gfx;
@@ -217,4 +217,4 @@ int ColorTintShadeTone::onNeedsSurfaceRepaint(const app::Color& newColor)
   return flags;
 }
 
-} // namespace app
+} // namespace app::colsel

@@ -28,7 +28,7 @@
 #include "ui/size_hint_event.h"
 #include "ui/system.h"
 
-namespace app {
+namespace app::colsel {
 
 using namespace app::skin;
 using namespace gfx;
@@ -609,4 +609,4 @@ float ColorWheel::convertHueAngle(float h, int dir) const
   return h;
 }
 
-} // namespace app
+} // namespace app::colsel

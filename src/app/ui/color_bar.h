@@ -38,10 +38,12 @@ class TooltipManager;
 }
 
 namespace app {
-class ColorButton;
+namespace colsel {
 class ColorSpectrum;
 class ColorTintShadeTone;
 class ColorWheel;
+} // namespace colsel
+class ColorButton;
 class CommandExecutionEvent;
 class PaletteIndexChangeEvent;
 class PalettePopup;
@@ -242,9 +244,9 @@ private:
   ui::VBox m_colorHelpers;
   ui::HBox m_tilesHelpers;
   ColorSelector m_selector;
-  ColorTintShadeTone* m_tintShadeTone;
-  ColorSpectrum* m_spectrum;
-  ColorWheel* m_wheel;
+  colsel::ColorTintShadeTone* m_tintShadeTone;
+  colsel::ColorSpectrum* m_spectrum;
+  colsel::ColorWheel* m_wheel;
   ColorButton m_fgColor;
   ColorButton m_bgColor;
   WarningIcon* m_fgWarningIcon;
