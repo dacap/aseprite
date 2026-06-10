@@ -10,11 +10,10 @@
 #pragma once
 
 #include "app/ui/colsel/color_selector.h"
-#include "ui/button.h"
 
 namespace app::colsel {
 
-class ColorWheel : public ColorSelector {
+class Wheel : public ColorSelectorImpl {
 public:
   enum class ColorModel {
     RGB,
@@ -34,52 +33,57 @@ public:
     LAST = SQUARE
   };
 
-  ColorWheel();
+  Wheel(ColorSelector::Type type);
 
   bool isDiscrete() const { return m_discrete; }
-  void setDiscrete(bool state);
+  void setDiscrete(ColorSelector* colSel, bool state);
+  void setColorModel(ColorSelector* colSel, ColorModel colorModel);
+  void setHarmony(ColorSelector* colSel, Harmony harmony);
 
-  void setColorModel(ColorModel colorModel);
-  void setHarmony(Harmony harmony);
-
-protected:
 #if SK_ENABLE_SKSL
-  const char* getMainAreaShader() override;
-  const char* getBottomBarShader() override;
-  void setShaderParams(SkRuntimeShaderBuilder& builder, bool main) override;
+  std::string mainAreaShader() const override;
+  std::string bottomBarShader(const ColorSelector* colSel) const override;
+  void setShaderParams(SkRuntimeShaderBuilder& builder,
+                       const ColorSelector* colSel,
+                       const app::Color& color,
+                       const bool main) override;
 #endif
-  app::Color getMainAreaColor(const int u, const int umax, const int v, const int vmax) override;
-  app::Color getBottomBarColor(const int u, const int umax) override;
-  void onPaintMainArea(ui::Graphics* g, const gfx::Rect& rc) override;
-  void onPaintBottomBar(ui::Graphics* g, const gfx::Rect& rc) override;
+
+  app::Color getMainAreaColor(const ColorSelector* colSel,
+                              int u,
+                              int umax,
+                              int v,
+                              int vmax) override;
+  app::Color getBottomBarColor(const ColorSelector* colSel, int u, int umax) override;
+
+  void onPaintMainArea(ColorSelector* colSel, ui::Graphics* g, const gfx::Rect& rc) override;
+  void onPaintBottomBar(ColorSelector* colSel, ui::Graphics* g, const gfx::Rect& rc) override;
   void onPaintSurfaceInBgThread(os::Surface* s,
+                                const ColorSelector* colSel,
                                 const gfx::Rect& main,
                                 const gfx::Rect& bottom,
                                 const gfx::Rect& alpha,
+                                PaintFlags paintFlags,
                                 bool& stop) override;
-  int onNeedsSurfaceRepaint(const app::Color& newColor) override;
+  PaintFlags onNeedsSurfaceRepaint(const ColorSelector* colSel,
+                                   const app::Color& newColor) override;
   bool subColorPicked() override { return m_harmonyPicked; }
+  void onOptions(ColorSelector* colSel) override;
 
 private:
-  void onResize(ui::ResizeEvent& ev) override;
-  void onOptions();
   int getHarmonies() const;
-  app::Color getColorInHarmony(int i) const;
+  app::Color getColorInHarmony(const app::Color& color, int i) const;
 
   // Converts an hue angle from HSV <-> current color model hue.
   // With dir == +1, the angle is from the color model and it's converted to HSV hue.
   // With dir == -1, the angle came from HSV and is converted to the current color model.
   float convertHueAngle(float angle, int dir) const;
 
-  std::string m_mainShader;
-  std::string m_bottomShader;
   gfx::Rect m_wheelBounds;
-  gfx::Color m_bgColor;
   double m_wheelRadius;
   bool m_discrete;
   ColorModel m_colorModel;
   Harmony m_harmony;
-  ui::Button m_options;
 
   // Internal flag used to know if after pickColor() we selected an
   // harmony.

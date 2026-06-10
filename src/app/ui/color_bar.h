@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2024  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -17,6 +17,7 @@
 #include "app/tileset_mode.h"
 #include "app/ui/button_set.h"
 #include "app/ui/color_button.h"
+#include "app/ui/colsel/color_selector.h"
 #include "app/ui/dockable.h"
 #include "app/ui/input_chain_element.h"
 #include "app/ui/palette_view.h"
@@ -38,11 +39,6 @@ class TooltipManager;
 }
 
 namespace app {
-namespace colsel {
-class ColorSpectrum;
-class ColorTintShadeTone;
-class ColorWheel;
-} // namespace colsel
 class ColorButton;
 class CommandExecutionEvent;
 class PaletteIndexChangeEvent;
@@ -58,14 +54,7 @@ class ColorBar : public ui::Box,
   static ColorBar* m_instance;
 
 public:
-  enum class ColorSelector {
-    NONE,
-    SPECTRUM,
-    RGB_WHEEL,
-    RYB_WHEEL,
-    TINT_SHADE_TONE,
-    NORMAL_MAP_WHEEL,
-  };
+  using ColorSelectorType = colsel::ColorSelector::Type;
 
   static ColorBar* instance() { return m_instance; }
 
@@ -87,8 +76,8 @@ public:
   PaletteView* getPaletteView() { return &m_paletteView; }
   PaletteView* getTilesView() { return &m_tilesView; }
 
-  ColorSelector getColorSelector() const;
-  void setColorSelector(ColorSelector selector);
+  ColorSelectorType colorSelector() const { return m_colorSelector.type(); }
+  void setColorSelector(ColorSelectorType type);
 
   // Used by the Palette Editor command to change the status of button
   // when the visibility of the dialog changes.
@@ -243,10 +232,7 @@ private:
   ui::Button m_remapTilesButton;
   ui::VBox m_colorHelpers;
   ui::HBox m_tilesHelpers;
-  ColorSelector m_selector;
-  colsel::ColorTintShadeTone* m_tintShadeTone;
-  colsel::ColorSpectrum* m_spectrum;
-  colsel::ColorWheel* m_wheel;
+  colsel::ColorSelector m_colorSelector;
   ColorButton m_fgColor;
   ColorButton m_bgColor;
   WarningIcon* m_fgWarningIcon;
@@ -272,6 +258,7 @@ private:
   bool m_ascending;
   obs::scoped_connection m_beforeCmdConn;
   obs::scoped_connection m_afterCmdConn;
+  obs::scoped_connection m_colSelConn;
   obs::scoped_connection m_fgConn;
   obs::scoped_connection m_bgConn;
   obs::scoped_connection m_fgTileConn;

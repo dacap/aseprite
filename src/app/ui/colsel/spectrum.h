@@ -13,30 +13,37 @@
 
 namespace app::colsel {
 
-class ColorSpectrum : public ColorSelector {
+class Spectrum : public ColorSelectorImpl {
 public:
-  ColorSpectrum();
+  Spectrum();
 
-protected:
 #if SK_ENABLE_SKSL
-  const char* getMainAreaShader() override;
-  const char* getBottomBarShader() override;
-  void setShaderParams(SkRuntimeShaderBuilder& builder, bool main) override;
+  std::string mainAreaShader() const override;
+  std::string bottomBarShader(const ColorSelector* colSel) const override;
+  void setShaderParams(SkRuntimeShaderBuilder& builder,
+                       const ColorSelector* colSel,
+                       const app::Color& color,
+                       const bool main) override;
 #endif
-  app::Color getMainAreaColor(const int u, const int umax, const int v, const int vmax) override;
-  app::Color getBottomBarColor(const int u, const int umax) override;
-  void onPaintMainArea(ui::Graphics* g, const gfx::Rect& rc) override;
-  void onPaintBottomBar(ui::Graphics* g, const gfx::Rect& rc) override;
+
+  app::Color getMainAreaColor(const ColorSelector* colSel,
+                              int u,
+                              int umax,
+                              int v,
+                              int vmax) override;
+  app::Color getBottomBarColor(const ColorSelector* colSel, int u, int umax) override;
+
+  void onPaintMainArea(ColorSelector* colSel, ui::Graphics* g, const gfx::Rect& rc) override;
+  void onPaintBottomBar(ColorSelector* colSel, ui::Graphics* g, const gfx::Rect& rc) override;
   void onPaintSurfaceInBgThread(os::Surface* s,
+                                const ColorSelector* colSel,
                                 const gfx::Rect& main,
                                 const gfx::Rect& bottom,
                                 const gfx::Rect& alpha,
+                                PaintFlags paintFlags,
                                 bool& stop) override;
-  int onNeedsSurfaceRepaint(const app::Color& newColor) override;
-
-private:
-  std::string m_mainShader;
-  std::string m_bottomShader;
+  PaintFlags onNeedsSurfaceRepaint(const ColorSelector* colSel,
+                                   const app::Color& newColor) override;
 };
 
 } // namespace app::colsel

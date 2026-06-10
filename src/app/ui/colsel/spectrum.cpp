@@ -31,16 +31,15 @@ using namespace app::skin;
 using namespace gfx;
 using namespace ui;
 
-ColorSpectrum::ColorSpectrum()
+Spectrum::Spectrum()
 {
 }
 
 #if SK_ENABLE_SKSL
 
-const char* ColorSpectrum::getMainAreaShader()
+std::string Spectrum::mainAreaShader() const
 {
-  if (m_mainShader.empty()) {
-    m_mainShader += R"(
+  return R"(
 uniform half3 iRes;
 uniform half4 iHsl;
 
@@ -52,14 +51,11 @@ half4 main(vec2 fragcoord) {
  return $hsl_to_rgb(half3(hue, sat, lit)).rgb1;
 }
 )";
-  }
-  return m_mainShader.c_str();
 }
 
-const char* ColorSpectrum::getBottomBarShader()
+std::string Spectrum::bottomBarShader(const ColorSelector*) const
 {
-  if (m_bottomShader.empty()) {
-    m_bottomShader += R"(
+  return R"(
 uniform half3 iRes;
 uniform half4 iHsl;
 
@@ -68,113 +64,121 @@ half4 main(vec2 fragcoord) {
  return $hsl_to_rgb(half3(iHsl.x, s, iHsl.z)).rgb1;
 }
 )";
-  }
-  return m_bottomShader.c_str();
 }
 
-void ColorSpectrum::setShaderParams(SkRuntimeShaderBuilder& builder, bool main)
+void Spectrum::setShaderParams(SkRuntimeShaderBuilder& builder,
+                               const ColorSelector* colSel,
+                               const app::Color& color,
+                               const bool main)
 {
-  builder.uniform("iHsl") = appColorHsl_to_SkV4(m_color);
+  builder.uniform("iHsl") = appColorHsl_to_SkV4(color);
 }
 
 #endif // SK_ENABLE_SKSL
 
-app::Color ColorSpectrum::getMainAreaColor(const int u, const int umax, const int v, const int vmax)
+app::Color Spectrum::getMainAreaColor(const ColorSelector* colSel,
+                                      const int u,
+                                      const int umax,
+                                      const int v,
+                                      const int vmax)
 {
-  double hue = 360.0 * u / umax;
-  double lit = 1.0 - (double(v) / double(vmax));
+  const app::Color color = colSel->color();
+  const double hue = 360.0 * u / umax;
+  const double lit = 1.0 - (double(v) / double(vmax));
   return app::Color::fromHsl(std::clamp(hue, 0.0, 360.0),
-                             m_color.getHslSaturation(),
+                             color.getHslSaturation(),
                              std::clamp(lit, 0.0, 1.0),
-                             getCurrentAlphaForNewColor());
+                             colSel->currentAlphaForNewColor());
 }
 
-app::Color ColorSpectrum::getBottomBarColor(const int u, const int umax)
+app::Color Spectrum::getBottomBarColor(const ColorSelector* colSel, const int u, const int umax)
 {
-  double sat = double(u) / double(umax);
-  return app::Color::fromHsl(m_color.getHslHue(),
+  const app::Color color = colSel->color();
+  const double sat = double(u) / double(umax);
+  return app::Color::fromHsl(color.getHslHue(),
                              std::clamp(sat, 0.0, 1.0),
-                             m_color.getHslLightness(),
-                             getCurrentAlphaForNewColor());
+                             color.getHslLightness(),
+                             colSel->currentAlphaForNewColor());
 }
 
-void ColorSpectrum::onPaintMainArea(ui::Graphics* g, const gfx::Rect& rc)
+void Spectrum::onPaintMainArea(ColorSelector* colSel, ui::Graphics* g, const gfx::Rect& rc)
 {
-  if (m_color.getType() != app::Color::MaskType) {
-    double hue = m_color.getHslHue();
-    double lit = m_color.getHslLightness();
-    gfx::Point pos(rc.x + int(hue * rc.w / 360.0), rc.y + rc.h - int(lit * rc.h));
+  const app::Color color = colSel->color();
 
-    paintColorIndicator(g, pos, lit < 0.5);
+  if (color.getType() != app::Color::MaskType) {
+    const double hue = color.getHslHue();
+    const double lit = color.getHslLightness();
+    const gfx::Point pos(rc.x + int(hue * rc.w / 360.0), rc.y + rc.h - int(lit * rc.h));
+
+    colSel->paintColorIndicator(g, pos, lit < 0.5);
   }
 }
 
-void ColorSpectrum::onPaintBottomBar(ui::Graphics* g, const gfx::Rect& rc)
+void Spectrum::onPaintBottomBar(ColorSelector* colSel, ui::Graphics* g, const gfx::Rect& rc)
 {
-  double lit = m_color.getHslLightness();
+  const app::Color color = colSel->color();
+  const double lit = color.getHslLightness();
 
-  if (m_color.getType() != app::Color::MaskType) {
-    double sat = m_color.getHslSaturation();
-    gfx::Point pos(rc.x + int(double(rc.w) * sat), rc.y + rc.h / 2);
-    paintColorIndicator(g, pos, lit < 0.5);
+  if (color.getType() != app::Color::MaskType) {
+    const double sat = color.getHslSaturation();
+    const gfx::Point pos(rc.x + int(double(rc.w) * sat), rc.y + rc.h / 2);
+    colSel->paintColorIndicator(g, pos, lit < 0.5);
   }
 }
 
-void ColorSpectrum::onPaintSurfaceInBgThread(os::Surface* s,
-                                             const gfx::Rect& main,
-                                             const gfx::Rect& bottom,
-                                             const gfx::Rect& alpha,
-                                             bool& stop)
+void Spectrum::onPaintSurfaceInBgThread(os::Surface* s,
+                                        const ColorSelector* colSel,
+                                        const gfx::Rect& main,
+                                        const gfx::Rect& bottom,
+                                        const gfx::Rect& alpha,
+                                        PaintFlags paintFlags,
+                                        bool& stop)
 {
-  if (m_paintFlags & MainAreaFlag) {
-    double sat = m_color.getHslSaturation();
-    int umax = std::max(1, main.w - 1);
-    int vmax = std::max(1, main.h - 1);
+  const app::Color color = colSel->color();
+
+  if ((paintFlags & PaintFlags::MainArea) == PaintFlags::MainArea) {
+    const double sat = color.getHslSaturation();
+    const int umax = std::max(1, main.w - 1);
+    const int vmax = std::max(1, main.h - 1);
 
     for (int y = 0; y < main.h && !stop; ++y) {
       for (int x = 0; x < main.w && !stop; ++x) {
-        double hue = 360.0 * double(x) / double(umax);
-        double lit = 1.0 - double(y) / double(vmax);
+        const double hue = 360.0 * double(x) / double(umax);
+        const double lit = 1.0 - double(y) / double(vmax);
 
-        gfx::Color color = color_utils::color_for_ui(
+        const gfx::Color c = color_utils::color_for_ui(
           app::Color::fromHsl(std::clamp(hue, 0.0, 360.0), sat, std::clamp(lit, 0.0, 1.0)));
 
-        s->putPixel(color, main.x + x, main.y + y);
+        s->putPixel(c, main.x + x, main.y + y);
       }
     }
     if (stop)
       return;
-    m_paintFlags ^= MainAreaFlag;
   }
 
-  if (m_paintFlags & BottomBarFlag) {
-    double lit = m_color.getHslLightness();
-    double hue = m_color.getHslHue();
+  if ((paintFlags & PaintFlags::BottomBar) == PaintFlags::BottomBar) {
+    double lit = color.getHslLightness();
+    double hue = color.getHslHue();
     os::Paint paint;
     for (int x = 0; x < bottom.w && !stop; ++x) {
       paint.color(
         color_utils::color_for_ui(app::Color::fromHsl(hue, double(x) / double(bottom.w), lit)));
       s->drawRect(gfx::Rect(bottom.x + x, bottom.y, 1, bottom.h), paint);
     }
-    if (stop)
-      return;
-    m_paintFlags ^= BottomBarFlag;
   }
-
-  // Paint alpha bar
-  ColorSelector::onPaintSurfaceInBgThread(s, main, bottom, alpha, stop);
 }
 
-int ColorSpectrum::onNeedsSurfaceRepaint(const app::Color& newColor)
+PaintFlags Spectrum::onNeedsSurfaceRepaint(const ColorSelector* colSel, const app::Color& newColor)
 {
+  const app::Color color = colSel->color();
   return
     // Only if the saturation changes we have to redraw the main surface.
-    (cs_double_diff(m_color.getHslSaturation(), newColor.getHslSaturation()) ? MainAreaFlag : 0) |
-    (cs_double_diff(m_color.getHslHue(), newColor.getHslHue()) ||
-         cs_double_diff(m_color.getHslLightness(), newColor.getHslLightness()) ?
-       BottomBarFlag :
-       0) |
-    ColorSelector::onNeedsSurfaceRepaint(newColor);
+    (cs_double_diff(color.getHslSaturation(), newColor.getHslSaturation()) ? PaintFlags::MainArea :
+                                                                             PaintFlags::None) |
+    (cs_double_diff(color.getHslHue(), newColor.getHslHue()) ||
+         cs_double_diff(color.getHslLightness(), newColor.getHslLightness()) ?
+       PaintFlags::BottomBar :
+       PaintFlags::None);
 }
 
 } // namespace app::colsel

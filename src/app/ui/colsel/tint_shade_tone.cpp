@@ -25,30 +25,19 @@ using namespace app::skin;
 using namespace gfx;
 using namespace ui;
 
-ColorTintShadeTone::ColorTintShadeTone()
+TintShadeTone::TintShadeTone()
 {
-  m_conn = Preferences::instance().experimental.hueWithSatValueForColorSelector.AfterChange.connect(
-    [this]() {
-      m_paintFlags |= AllAreasFlag;
-
-#if SK_ENABLE_SKSL
-      m_bottomShader.clear();
-      resetBottomEffect();
-#endif
-
-      invalidate();
-    });
 }
 
 #if SK_ENABLE_SKSL
 
-const char* ColorTintShadeTone::getMainAreaShader()
+std::string TintShadeTone::mainAreaShader() const
 {
-  if (m_mainShader.empty()) {
-    m_mainShader += "uniform half3 iRes;"
-                    "uniform half4 iHsv;";
-    m_mainShader += kHSV_to_RGB_sksl;
-    m_mainShader += R"(
+  std::string shader;
+  shader += "uniform half3 iRes;"
+            "uniform half4 iHsv;";
+  shader += kHSV_to_RGB_sksl;
+  shader += R"(
 half4 main(vec2 fragcoord) {
  vec2 d = fragcoord.xy / iRes.xy;
  half hue = iHsv.x;
@@ -57,113 +46,122 @@ half4 main(vec2 fragcoord) {
  return hsv_to_rgb(vec3(hue, sat, val)).rgb1;
 }
 )";
-  }
-  return m_mainShader.c_str();
+  return shader;
 }
 
-const char* ColorTintShadeTone::getBottomBarShader()
+std::string TintShadeTone::bottomBarShader(const ColorSelector* colSel) const
 {
-  if (m_bottomShader.empty()) {
-    m_bottomShader += "uniform half3 iRes;"
-                      "uniform half4 iHsv;";
-    m_bottomShader += kHSV_to_RGB_sksl;
+  std::string shader;
+  shader += "uniform half3 iRes;"
+            "uniform half4 iHsv;";
+  shader += kHSV_to_RGB_sksl;
 
-    if (m_hueWithSatValue)
-      m_bottomShader += R"(
+  if (colSel->hueWithSatValue()) {
+    shader += R"(
 half4 main(vec2 fragcoord) {
  half h = (fragcoord.x / iRes.x);
  return hsv_to_rgb(half3(h, iHsv.y, iHsv.z)).rgb1;
 }
 )";
-    else
-      m_bottomShader += R"(
+  }
+  else {
+    shader += R"(
 half4 main(vec2 fragcoord) {
  half h = (fragcoord.x / iRes.x);
  return hsv_to_rgb(half3(h, 1.0, 1.0)).rgb1;
 }
 )";
   }
-  return m_bottomShader.c_str();
+  return shader;
 }
 
-void ColorTintShadeTone::setShaderParams(SkRuntimeShaderBuilder& builder, bool main)
+void TintShadeTone::setShaderParams(SkRuntimeShaderBuilder& builder,
+                                    const ColorSelector* colSel,
+                                    const app::Color& color,
+                                    const bool main)
 {
-  builder.uniform("iHsv") = appColorHsv_to_SkV4(m_color);
+  builder.uniform("iHsv") = appColorHsv_to_SkV4(color);
 }
 
 #endif // SK_ENABLE_SKSL
 
-app::Color ColorTintShadeTone::getMainAreaColor(const int u,
-                                                const int umax,
-                                                const int v,
-                                                const int vmax)
+app::Color TintShadeTone::getMainAreaColor(const ColorSelector* colSel,
+                                           const int u,
+                                           const int umax,
+                                           const int v,
+                                           const int vmax)
 {
-  double sat = (1.0 * u / umax);
-  double val = (1.0 - double(v) / double(vmax));
-  return app::Color::fromHsv(m_color.getHsvHue(),
+  const app::Color color = colSel->color();
+  const double sat = (1.0 * u / umax);
+  const double val = (1.0 - double(v) / double(vmax));
+  return app::Color::fromHsv(color.getHsvHue(),
                              std::clamp(sat, 0.0, 1.0),
                              std::clamp(val, 0.0, 1.0),
-                             getCurrentAlphaForNewColor());
+                             colSel->currentAlphaForNewColor());
 }
 
-app::Color ColorTintShadeTone::getBottomBarColor(const int u, const int umax)
+app::Color TintShadeTone::getBottomBarColor(const ColorSelector* colSel,
+                                            const int u,
+                                            const int umax)
 {
-  double hue = (360.0 * u / umax);
+  const app::Color color = colSel->color();
+  const double hue = (360.0 * u / umax);
   return app::Color::fromHsv(std::clamp(hue, 0.0, 360.0),
-                             m_color.getHsvSaturation(),
-                             m_color.getHsvValue(),
-                             getCurrentAlphaForNewColor());
+                             color.getHsvSaturation(),
+                             color.getHsvValue(),
+                             colSel->currentAlphaForNewColor());
 }
 
-void ColorTintShadeTone::onPaintMainArea(ui::Graphics* g, const gfx::Rect& rc)
+void TintShadeTone::onPaintMainArea(ColorSelector* colSel, ui::Graphics* g, const gfx::Rect& rc)
 {
-  if (m_color.getType() != app::Color::MaskType) {
-    double sat = m_color.getHsvSaturation();
-    double val = m_color.getHsvValue();
-    gfx::Point pos(rc.x + int(sat * rc.w), rc.y + int((1.0 - val) * rc.h));
+  const app::Color color = colSel->color();
 
-    paintColorIndicator(g, pos, val < 0.5);
+  if (color.getType() != app::Color::MaskType) {
+    const double sat = color.getHsvSaturation();
+    const double val = color.getHsvValue();
+    const gfx::Point pos(rc.x + int(sat * rc.w), rc.y + int((1.0 - val) * rc.h));
+
+    colSel->paintColorIndicator(g, pos, val < 0.5);
   }
 }
 
-void ColorTintShadeTone::onPaint(ui::PaintEvent& ev)
+void TintShadeTone::onPaintBottomBar(ColorSelector* colSel, ui::Graphics* g, const gfx::Rect& rc)
 {
-  m_hueWithSatValue = Preferences::instance().experimental.hueWithSatValueForColorSelector();
-  ColorSelector::onPaint(ev);
-}
+  const app::Color color = colSel->color();
 
-void ColorTintShadeTone::onPaintBottomBar(ui::Graphics* g, const gfx::Rect& rc)
-{
-  if (m_color.getType() != app::Color::MaskType) {
-    double hue = m_color.getHsvHue();
+  if (color.getType() != app::Color::MaskType) {
+    const double hue = color.getHsvHue();
     double val;
-    if (m_hueWithSatValue)
-      val = m_color.getHsvValue();
+    if (colSel->hueWithSatValue())
+      val = color.getHsvValue();
     else
       val = 1.0;
 
-    gfx::Point pos(rc.x + int(rc.w * hue / 360.0), rc.y + rc.h / 2);
-    paintColorIndicator(g, pos, val < 0.5);
+    const gfx::Point pos(rc.x + int(rc.w * hue / 360.0), rc.y + rc.h / 2);
+    colSel->paintColorIndicator(g, pos, val < 0.5);
   }
 }
 
-void ColorTintShadeTone::onPaintSurfaceInBgThread(os::Surface* s,
-                                                  const gfx::Rect& main,
-                                                  const gfx::Rect& bottom,
-                                                  const gfx::Rect& alpha,
-                                                  bool& stop)
+void TintShadeTone::onPaintSurfaceInBgThread(os::Surface* s,
+                                             const ColorSelector* colSel,
+                                             const gfx::Rect& main,
+                                             const gfx::Rect& bottom,
+                                             const gfx::Rect& alpha,
+                                             const PaintFlags paintFlags,
+                                             bool& stop)
 {
-  double hue = m_color.getHsvHue();
-  int umax = std::max(1, main.w - 1);
-  int vmax = std::max(1, main.h - 1);
+  const app::Color color = colSel->color();
+  const double hue = color.getHsvHue();
+  const int umax = std::max(1, main.w - 1);
+  const int vmax = std::max(1, main.h - 1);
 
-  if (m_paintFlags & MainAreaFlag) {
+  if ((paintFlags & PaintFlags::MainArea) == PaintFlags::MainArea) {
     for (int y = 0; y < main.h && !stop; ++y) {
       for (int x = 0; x < main.w && !stop; ++x) {
-        double sat = double(x) / double(umax);
-        double val = 1.0 - double(y) / double(vmax);
+        const double sat = double(x) / double(umax);
+        const double val = 1.0 - double(y) / double(vmax);
 
-        gfx::Color color = color_utils::color_for_ui(
+        const gfx::Color color = color_utils::color_for_ui(
           app::Color::fromHsv(hue, std::clamp(sat, 0.0, 1.0), std::clamp(val, 0.0, 1.0)));
 
         s->putPixel(color, main.x + x, main.y + y);
@@ -171,16 +169,15 @@ void ColorTintShadeTone::onPaintSurfaceInBgThread(os::Surface* s,
     }
     if (stop)
       return;
-    m_paintFlags ^= MainAreaFlag;
   }
 
-  if (m_paintFlags & BottomBarFlag) {
+  if ((paintFlags & PaintFlags::BottomBar) == PaintFlags::BottomBar) {
     os::Paint paint;
     double sat, val;
 
-    if (m_hueWithSatValue) {
-      sat = m_color.getHsvSaturation();
-      val = m_color.getHsvValue();
+    if (colSel->hueWithSatValue()) {
+      sat = color.getHsvSaturation();
+      val = color.getHsvValue();
     }
     else {
       sat = 1.0;
@@ -194,25 +191,23 @@ void ColorTintShadeTone::onPaintSurfaceInBgThread(os::Surface* s,
     }
     if (stop)
       return;
-    m_paintFlags ^= BottomBarFlag;
   }
-
-  // Paint alpha bar
-  ColorSelector::onPaintSurfaceInBgThread(s, main, bottom, alpha, stop);
 }
 
-int ColorTintShadeTone::onNeedsSurfaceRepaint(const app::Color& newColor)
+PaintFlags TintShadeTone::onNeedsSurfaceRepaint(const ColorSelector* colSel,
+                                                const app::Color& newColor)
 {
-  int flags =
+  const app::Color color = colSel->color();
+  PaintFlags flags =
     // Only if the hue changes we have to redraw the main surface.
-    (cs_double_diff(m_color.getHsvHue(), newColor.getHsvHue()) ? MainAreaFlag : 0) |
-    ColorSelector::onNeedsSurfaceRepaint(newColor);
+    (cs_double_diff(color.getHsvHue(), newColor.getHsvHue()) ? PaintFlags::MainArea :
+                                                               PaintFlags::None);
 
-  if (m_hueWithSatValue) {
-    flags |= (cs_double_diff(m_color.getHsvSaturation(), newColor.getHsvSaturation()) ||
-                  cs_double_diff(m_color.getHsvValue(), newColor.getHsvValue()) ?
-                BottomBarFlag :
-                0);
+  if (colSel->hueWithSatValue()) {
+    flags |= (cs_double_diff(color.getHsvSaturation(), newColor.getHsvSaturation()) ||
+                  cs_double_diff(color.getHsvValue(), newColor.getHsvValue()) ?
+                PaintFlags::BottomBar :
+                PaintFlags::None);
   }
   return flags;
 }

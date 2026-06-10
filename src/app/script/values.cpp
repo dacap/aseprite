@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2025  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
@@ -361,7 +361,7 @@ doc::tile_t get_value_from_lua(lua_State* L, int index)
   }
 
 FOR_ENUM(app::CelsTarget)
-FOR_ENUM(app::ColorBar::ColorSelector)
+FOR_ENUM(app::colsel::ColorSelector::Type)
 FOR_ENUM(app::SpriteSheetDataFormat)
 FOR_ENUM(app::SpriteSheetType)
 FOR_ENUM(app::TilesetMode)

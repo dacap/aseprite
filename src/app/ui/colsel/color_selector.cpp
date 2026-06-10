@@ -18,6 +18,9 @@
 #include "app/color_utils.h"
 #include "app/modules/gfx.h"
 #include "app/pref/preferences.h"
+#include "app/ui/colsel/spectrum.h"
+#include "app/ui/colsel/tint_shade_tone.h"
+#include "app/ui/colsel/wheel.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
 #include "app/util/shader_helpers.h"
@@ -209,7 +212,7 @@ private:
       }
       else {
         COLSEL_TRACE("COLSEL: painting for %p done and sending message\n");
-        colorSel->m_paintFlags |= DoneFlag;
+        colorSel->m_paintFlags |= PaintFlags::Done;
       }
     }
 
@@ -240,19 +243,71 @@ sk_sp<SkRuntimeEffect> ColorSelector::m_alphaEffect;
 
 ColorSelector::ColorSelector()
   : Widget(kGenericWidget)
-  , m_paintFlags(AllAreasFlag)
+  , m_paintFlags(PaintFlags::AllAreas)
   , m_lockColor(false)
   , m_timer(100, this)
+  , m_options({})
 {
+  m_options.Click.connect([this] {
+    if (m_impl)
+      m_impl->onOptions(this);
+  });
+  m_options.setVisible(false);
+  addChild(&m_options);
+
   initTheme();
   painter.addRef();
 
   m_appConn = App::instance()->ColorSpaceChange.connect(&ColorSelector::updateColorSpace, this);
+  m_shadersConn =
+    Preferences::instance().experimental.useShadersForColorSelectors.AfterChange.connect([this]() {
+#if SK_ENABLE_SKSL
+      m_mainShader.clear();
+      m_mainEffect.reset();
+      m_bottomShader.clear();
+      m_bottomEffect.reset();
+#endif
+      repaintAllAreas();
+    });
+  m_hueConn =
+    Preferences::instance().experimental.hueWithSatValueForColorSelector.AfterChange.connect(
+      [this]() {
+#if SK_ENABLE_SKSL
+        m_bottomShader.clear();
+        m_bottomEffect.reset();
+#endif
+        repaintAllAreas();
+      });
 }
 
 ColorSelector::~ColorSelector()
 {
   painter.releaseRef();
+}
+
+void ColorSelector::setType(const Type type)
+{
+  m_options.setVisible(false);
+  switch (m_type = type) {
+    case Type::SPECTRUM: m_impl = std::make_unique<Spectrum>(); break;
+    case Type::RGB_WHEEL:
+    case Type::RYB_WHEEL:
+    case Type::NORMAL_MAP_WHEEL:
+      m_impl = std::make_unique<Wheel>(type);
+      m_options.setVisible(true);
+      break;
+    case Type::TINT_SHADE_TONE:
+    default:                    m_impl = std::make_unique<TintShadeTone>(); break;
+  }
+
+#if SK_ENABLE_SKSL
+  m_mainShader.clear();
+  m_mainEffect.reset();
+  m_bottomShader.clear();
+  m_bottomEffect.reset();
+#endif
+
+  layout();
 }
 
 void ColorSelector::selectColor(const app::Color& color)
@@ -384,7 +439,7 @@ bool ColorSelector::onProcessMessage(ui::Message* msg)
           app::Color newColor = app::Color::fromHsv(newHue,
                                                     m_color.getHsvSaturation(),
                                                     m_color.getHsvValue(),
-                                                    getCurrentAlphaForNewColor());
+                                                    currentAlphaForNewColor());
 
           ColorChange(newColor, kButtonNone);
         }
@@ -392,7 +447,7 @@ bool ColorSelector::onProcessMessage(ui::Message* msg)
       break;
 
     case kTimerMessage:
-      if (m_paintFlags & DoneFlag) {
+      if ((m_paintFlags & PaintFlags::Done) == PaintFlags::Done) {
         m_timer.stop();
         invalidate();
         return true;
@@ -409,6 +464,9 @@ void ColorSelector::onInitTheme(ui::InitThemeEvent& ev)
 
   Widget::onInitTheme(ev);
   setBorder(theme->calcBorder(this, theme->styles.editorView()));
+
+  m_options.setStyle(theme->styles.colorWheelOptions());
+  setBgColor(theme->colors.editorFace());
 }
 
 void ColorSelector::onResize(ui::ResizeEvent& ev)
@@ -417,7 +475,14 @@ void ColorSelector::onResize(ui::ResizeEvent& ev)
 
   // We'll need to redraw the whole surface again with the new widget
   // size.
-  m_paintFlags = AllAreasFlag;
+  m_paintFlags = PaintFlags::AllAreas;
+
+  const gfx::Size prefSize = m_options.sizeHint();
+  gfx::Rect rc = childrenBounds();
+  rc.x += rc.w - prefSize.w;
+  rc.w = prefSize.w;
+  rc.h = prefSize.h;
+  m_options.setBounds(rc);
 }
 
 void ColorSelector::onPaint(ui::PaintEvent& ev)
@@ -433,6 +498,8 @@ void ColorSelector::onPaint(ui::PaintEvent& ev)
   gfx::Rect rc = clientChildrenBounds();
   if (rc.isEmpty())
     return;
+
+  m_hueWithSatValue = Preferences::instance().experimental.hueWithSatValueForColorSelector();
 
   gfx::Rect bottomBarBounds = this->bottomBarBounds();
   gfx::Rect alphaBarBounds = this->alphaBarBounds();
@@ -469,7 +536,7 @@ void ColorSelector::onPaint(ui::PaintEvent& ev)
 
       SkRuntimeShaderBuilder builder1(m_mainEffect);
       builder1.uniform("iRes") = SkV3{ float(rc2.w), float(rc2.h), 0.0f };
-      setShaderParams(builder1, true);
+      setShaderParams(builder1, this->color(), true);
       p.setShader(builder1.makeShader());
 
       if (isSRGB)
@@ -483,7 +550,7 @@ void ColorSelector::onPaint(ui::PaintEvent& ev)
 
       SkRuntimeShaderBuilder builder2(m_bottomEffect);
       builder2.uniform("iRes") = SkV3{ float(rc2.w), float(rc2.h), 0.0f };
-      setShaderParams(builder2, false);
+      setShaderParams(builder2, this->color(), false);
       p.setShader(builder2.makeShader());
 
       canvas->drawRect(SkRect::MakeXYWH(0, 0, rc2.w, rc2.h), p);
@@ -504,7 +571,7 @@ void ColorSelector::onPaint(ui::PaintEvent& ev)
     canvas->restore();
 
     // We already painted all areas
-    m_paintFlags = 0;
+    m_paintFlags = PaintFlags::None;
   }
   else
 #endif // SK_ENABLE_SKSL
@@ -516,11 +583,13 @@ void ColorSelector::onPaint(ui::PaintEvent& ev)
     g->drawSurface(painterSurface, rc.x, rc.y);
 
   rc.h -= bottomBarBounds.h + alphaBarBounds.h;
-  onPaintMainArea(g, rc);
+  if (m_impl)
+    m_impl->onPaintMainArea(this, g, rc);
 
   if (!bottomBarBounds.isEmpty()) {
     bottomBarBounds.offset(-bounds().origin());
-    onPaintBottomBar(g, bottomBarBounds);
+    if (m_impl)
+      m_impl->onPaintBottomBar(this, g, bottomBarBounds);
   }
 
   if (!alphaBarBounds.isEmpty()) {
@@ -528,8 +597,8 @@ void ColorSelector::onPaint(ui::PaintEvent& ev)
     onPaintAlphaBar(g, alphaBarBounds);
   }
 
-  if ((m_paintFlags & AllAreasFlag) != 0) {
-    m_paintFlags &= ~DoneFlag;
+  if ((m_paintFlags & PaintFlags::AllAreas) != PaintFlags::None) {
+    m_paintFlags &= ~PaintFlags::Done;
     m_timer.start();
 
     gfx::Point d = -rc.origin();
@@ -556,20 +625,31 @@ void ColorSelector::onPaintSurfaceInBgThread(os::Surface* s,
                                              const gfx::Rect& alpha,
                                              bool& stop)
 {
-  if ((m_paintFlags & AlphaBarFlag) && !alpha.isEmpty()) {
+  if (m_impl) {
+    m_impl->onPaintSurfaceInBgThread(s, this, main, bottom, alpha, m_paintFlags, stop);
+    if (stop)
+      return;
+    m_paintFlags &= ~(PaintFlags::MainArea | PaintFlags::BottomBar);
+  }
+
+  if (((m_paintFlags & PaintFlags::AlphaBar) == PaintFlags::AlphaBar) && !alpha.isEmpty()) {
     draw_alpha_slider(s, alpha, m_color);
     if (stop)
       return;
-    m_paintFlags ^= AlphaBarFlag;
+    m_paintFlags ^= PaintFlags::AlphaBar;
   }
 }
 
-int ColorSelector::onNeedsSurfaceRepaint(const app::Color& newColor)
+PaintFlags ColorSelector::onNeedsSurfaceRepaint(const app::Color& newColor)
 {
-  return (m_color.getRed() != newColor.getRed() || m_color.getGreen() != newColor.getGreen() ||
-              m_color.getBlue() != newColor.getBlue() ?
-            AlphaBarFlag :
-            0);
+  PaintFlags flags = PaintFlags::None;
+  if (m_impl)
+    flags |= m_impl->onNeedsSurfaceRepaint(this, newColor);
+  flags |= (m_color.getRed() != newColor.getRed() || m_color.getGreen() != newColor.getGreen() ||
+                m_color.getBlue() != newColor.getBlue() ?
+              PaintFlags::AlphaBar :
+              PaintFlags::None);
+  return flags;
 }
 
 void ColorSelector::paintColorIndicator(ui::Graphics* g, const gfx::Point& pos, const bool white)
@@ -583,7 +663,7 @@ void ColorSelector::paintColorIndicator(ui::Graphics* g, const gfx::Point& pos, 
                             pos.y - icon->height() / 2);
 }
 
-int ColorSelector::getCurrentAlphaForNewColor() const
+int ColorSelector::currentAlphaForNewColor() const
 {
   if (m_color.getType() != Color::MaskType)
     return m_color.getAlpha();
@@ -619,14 +699,28 @@ gfx::Rect ColorSelector::alphaBarBounds() const
 
 void ColorSelector::updateColorSpace()
 {
-  m_paintFlags |= AllAreasFlag;
+  m_paintFlags |= PaintFlags::AllAreas;
   invalidate();
 }
 
 #if SK_ENABLE_SKSL
 
+const char* ColorSelector::mainAreaShader() const
+{
+  if (m_mainShader.empty() && m_impl)
+    m_mainShader = m_impl->mainAreaShader();
+  return m_mainShader.c_str();
+}
+
+const char* ColorSelector::bottomBarShader() const
+{
+  if (m_bottomShader.empty() && m_impl)
+    m_bottomShader = m_impl->bottomBarShader(this);
+  return m_bottomShader.c_str();
+}
+
 // static
-const char* ColorSelector::getAlphaBarShader()
+const char* ColorSelector::alphaBarShader()
 {
   return R"(
 uniform half3 iRes;
@@ -648,26 +742,21 @@ bool ColorSelector::buildEffects()
     return false;
 
   if (!m_mainEffect) {
-    if (const char* code = getMainAreaShader())
+    if (const char* code = mainAreaShader())
       m_mainEffect = make_shader(code);
   }
 
   if (!m_bottomEffect) {
-    if (const char* code = getBottomBarShader())
+    if (const char* code = bottomBarShader())
       m_bottomEffect = make_shader(code);
   }
 
   if (!m_alphaEffect) {
-    if (const char* code = getAlphaBarShader())
+    if (const char* code = alphaBarShader())
       m_alphaEffect = make_shader(code);
   }
 
   return (m_mainEffect && m_bottomEffect && m_alphaEffect);
-}
-
-void ColorSelector::resetBottomEffect()
-{
-  m_bottomEffect.reset();
 }
 
 #endif // SK_ENABLE_SKSL

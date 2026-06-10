@@ -277,7 +277,7 @@
       <option id="bg_color" type="app::Color" default="app::Color::fromRgb(0, 0, 0)" />
       <option id="fg_tile" type="doc::tile_t" default="doc::notile" />
       <option id="bg_tile" type="doc::tile_t" default="doc::notile" />
-      <option id="selector" type="app::ColorBar::ColorSelector" default="app::ColorBar::ColorSelector::TINT_SHADE_TONE" />
+      <option id="selector" type="app::colsel::ColorSelector::Type" default="app::colsel::ColorSelector::Type::TINT_SHADE_TONE" />
       <option id="discrete_wheel" type="bool" default="false" />
       <option id="wheel_model" type="int" default="0" />
       <option id="harmony" type="int" default="0" />

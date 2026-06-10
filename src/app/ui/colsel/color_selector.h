@@ -11,9 +11,11 @@
 
 #include "app/color.h"
 #include "app/ui/color_source.h"
+#include "base/enum_flags.h"
 #include "obs/connection.h"
 #include "obs/signal.h"
 #include "os/surface.h"
+#include "ui/button.h"
 #include "ui/mouse_button.h"
 #include "ui/timer.h"
 #include "ui/widget.h"
@@ -36,63 +38,133 @@ inline bool cs_double_diff(double a, double b)
 
 namespace app::colsel {
 
+class ColorSelector;
+
+// Flags for onPaintSurfaceInBgThread and return value of
+// onNeedsSurfaceRepaint().
+enum class PaintFlags {
+  None = 0,
+  MainArea = 1,
+  BottomBar = 2,
+  AlphaBar = 4,
+  AllAreas = MainArea | BottomBar | AlphaBar,
+  Done = 8,
+};
+
+LAF_ENUM_FLAGS(PaintFlags);
+
+class ColorSelectorImpl {
+public:
+  virtual ~ColorSelectorImpl() {}
+
+#if SK_ENABLE_SKSL
+  virtual std::string mainAreaShader() const = 0;
+  virtual std::string bottomBarShader(const ColorSelector* colSel) const = 0;
+  virtual void setShaderParams(SkRuntimeShaderBuilder& builder,
+                               const ColorSelector* colSel,
+                               const app::Color& color,
+                               const bool main) = 0;
+#endif
+
+  virtual app::Color getMainAreaColor(const ColorSelector* colSel,
+                                      int u,
+                                      int umax,
+                                      int v,
+                                      int vmax) = 0;
+  virtual app::Color getBottomBarColor(const ColorSelector* colSel, int u, int umax) = 0;
+
+  virtual void onPaintMainArea(ColorSelector* colSel, ui::Graphics* g, const gfx::Rect& rc) = 0;
+  virtual void onPaintBottomBar(ColorSelector* colSel, ui::Graphics* g, const gfx::Rect& rc) = 0;
+  virtual void onPaintSurfaceInBgThread(os::Surface* s,
+                                        const ColorSelector* colSel,
+                                        const gfx::Rect& main,
+                                        const gfx::Rect& bottom,
+                                        const gfx::Rect& alpha,
+                                        PaintFlags paintFlags,
+                                        bool& stop) = 0;
+  virtual PaintFlags onNeedsSurfaceRepaint(const ColorSelector* colSel,
+                                           const app::Color& newColor) = 0;
+  virtual void onOptions(ColorSelector*) {}
+  virtual bool subColorPicked() { return false; }
+};
+
 class ColorSelector : public ui::Widget,
                       public IColorSource {
 public:
   class Painter;
 
+  enum Type {
+    NONE,
+    SPECTRUM,
+    RGB_WHEEL,
+    RYB_WHEEL,
+    TINT_SHADE_TONE,
+    NORMAL_MAP_WHEEL,
+    NTYPES,
+  };
+
   ColorSelector();
   ~ColorSelector();
 
+  Type type() const { return m_type; }
+  void setType(const Type type);
+
   void selectColor(const app::Color& color);
+  app::Color color() const { return m_color; }
+
+  // Returns the 255 if m_color is the mask color, or the
+  // m_color.getAlpha() if it's really a color.
+  int currentAlphaForNewColor() const;
 
   // IColorSource impl
   app::Color getColorByPosition(const gfx::Point& pos) override;
+
+  // To be called by ColorSelectorImpl functions
+  void paintColorIndicator(ui::Graphics* g, const gfx::Point& pos, const bool white);
+  bool hueWithSatValue() const { return m_hueWithSatValue; }
+  bool hasCaptureInMainArea() const { return m_capturedInMain; }
+  ui::Button& optionsButton() { return m_options; }
+  void repaintAllAreas()
+  {
+    m_paintFlags = PaintFlags::AllAreas;
+    invalidate();
+  }
 
   // Signals
   obs::signal<void(const app::Color&, ui::MouseButton)> ColorChange;
 
 protected:
-  // paintFlags for onPaintSurfaceInBgThread and return value of
-  // onNeedsSurfaceRepaint().
-  enum {
-    MainAreaFlag = 1,
-    BottomBarFlag = 2,
-    AlphaBarFlag = 4,
-    AllAreasFlag = MainAreaFlag | BottomBarFlag | AlphaBarFlag,
-    DoneFlag = 8,
-  };
-
   void onSizeHint(ui::SizeHintEvent& ev) override;
   bool onProcessMessage(ui::Message* msg) override;
   void onInitTheme(ui::InitThemeEvent& ev) override;
   void onResize(ui::ResizeEvent& ev) override;
   void onPaint(ui::PaintEvent& ev) override;
 
-  virtual const char* getMainAreaShader() { return nullptr; }
-  virtual const char* getBottomBarShader() { return nullptr; }
+  // Functions redirected to ColorSelectorImpl
 #if SK_ENABLE_SKSL
-  virtual void setShaderParams(SkRuntimeShaderBuilder& builder, bool main) {}
+  const char* mainAreaShader() const;
+  const char* bottomBarShader() const;
+  void setShaderParams(SkRuntimeShaderBuilder& builder, const app::Color& color, const bool main)
+  {
+    if (m_impl)
+      m_impl->setShaderParams(builder, this, color, main);
+  }
 #endif
-  virtual app::Color getMainAreaColor(const int u, const int umax, const int v, const int vmax) = 0;
-  virtual app::Color getBottomBarColor(const int u, const int umax) = 0;
-  virtual void onPaintMainArea(ui::Graphics* g, const gfx::Rect& rc) = 0;
-  virtual void onPaintBottomBar(ui::Graphics* g, const gfx::Rect& rc) = 0;
-  virtual void onPaintSurfaceInBgThread(os::Surface* s,
-                                        const gfx::Rect& main,
-                                        const gfx::Rect& bottom,
-                                        const gfx::Rect& alpha,
-                                        bool& stop);
-  virtual int onNeedsSurfaceRepaint(const app::Color& newColor);
-  virtual bool subColorPicked() { return false; }
-
-  void paintColorIndicator(ui::Graphics* g, const gfx::Point& pos, const bool white);
-
-  // Returns the 255 if m_color is the mask color, or the
-  // m_color.getAlpha() if it's really a color.
-  int getCurrentAlphaForNewColor() const;
-
-  bool hasCaptureInMainArea() const { return m_capturedInMain; }
+  app::Color getMainAreaColor(const int u, const int umax, const int v, const int vmax)
+  {
+    return m_impl ? m_impl->getMainAreaColor(this, u, umax, v, vmax) : app::Color();
+  }
+  app::Color getBottomBarColor(const int u, const int umax)
+  {
+    return m_impl ? m_impl->getBottomBarColor(this, u, umax) : app::Color();
+  }
+  void onPaintSurfaceInBgThread(os::Surface* s,
+                                const gfx::Rect& main,
+                                const gfx::Rect& bottom,
+                                const gfx::Rect& alpha,
+                                bool& stop);
+  PaintFlags onNeedsSurfaceRepaint(const app::Color& newColor);
+  bool subColorPicked() { return m_impl ? m_impl->subColorPicked() : false; }
 
   app::Color m_color;
 
@@ -100,12 +172,7 @@ protected:
   // background thread. Equal to DoneFlag when the surface is
   // already painted in the background thread surface. This must be
   // atomic because we need atomic bitwise operations.
-  std::atomic<int> m_paintFlags;
-
-protected:
-#if SK_ENABLE_SKSL
-  void resetBottomEffect();
-#endif
+  std::atomic<PaintFlags> m_paintFlags;
 
 private:
   app::Color getAlphaBarColor(const int u, const int umax);
@@ -117,9 +184,13 @@ private:
   void updateColorSpace();
 
 #if SK_ENABLE_SKSL
-  static const char* getAlphaBarShader();
+  static const char* alphaBarShader();
   bool buildEffects();
 #endif
+
+  Type m_type = Type::NONE;
+  std::unique_ptr<ColorSelectorImpl> m_impl;
+  bool m_hueWithSatValue = false;
 
   // Internal flag used to lock the modification of m_color.
   // E.g. When the user picks a color harmony, we don't want to
@@ -135,11 +206,15 @@ private:
   bool m_capturedInMain = false;
 
   ui::Timer m_timer;
+  ui::Button m_options;
 
   obs::scoped_connection m_appConn;
+  obs::scoped_connection m_shadersConn;
+  obs::scoped_connection m_hueConn;
 
 #if SK_ENABLE_SKSL
-  // Shaders
+  mutable std::string m_mainShader;
+  mutable std::string m_bottomShader;
   sk_sp<SkRuntimeEffect> m_mainEffect;
   sk_sp<SkRuntimeEffect> m_bottomEffect;
   static sk_sp<SkRuntimeEffect> m_alphaEffect;

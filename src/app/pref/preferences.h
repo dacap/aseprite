@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2023  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -20,6 +20,7 @@
 #include "app/tools/ink_type.h"
 #include "app/tools/rotation_algorithm.h"
 #include "app/ui/color_bar.h"
+#include "app/ui/colsel/color_selector.h"
 #include "doc/algorithm/resize_image.h"
 #include "doc/anidir.h"
 #include "doc/brush_pattern.h"

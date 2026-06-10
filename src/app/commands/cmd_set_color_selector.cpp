@@ -31,12 +31,12 @@ protected:
   std::string onGetFriendlyName() const override;
 
 private:
-  ColorBar::ColorSelector m_type;
+  colsel::ColorSelector::Type m_type;
 };
 
 SetColorSelectorCommand::SetColorSelectorCommand()
   : Command(CommandId::SetColorSelector())
-  , m_type(ColorBar::ColorSelector::SPECTRUM)
+  , m_type(colsel::ColorSelector::Type::SPECTRUM)
 {
 }
 
@@ -50,25 +50,25 @@ void SetColorSelectorCommand::onLoadParams(const Params& params)
   std::string type = params.get("type");
 
   if (type == "spectrum") {
-    m_type = ColorBar::ColorSelector::SPECTRUM;
+    m_type = colsel::ColorSelector::Type::SPECTRUM;
   }
   else if (type == "tint-shade-tone") {
-    m_type = ColorBar::ColorSelector::TINT_SHADE_TONE;
+    m_type = colsel::ColorSelector::Type::TINT_SHADE_TONE;
   }
   else if (type == "wheel" || type == "rgb-wheel") {
-    m_type = ColorBar::ColorSelector::RGB_WHEEL;
+    m_type = colsel::ColorSelector::Type::RGB_WHEEL;
   }
   else if (type == "ryb-wheel") {
-    m_type = ColorBar::ColorSelector::RYB_WHEEL;
+    m_type = colsel::ColorSelector::Type::RYB_WHEEL;
   }
   else if (type == "normal-map-wheel") {
-    m_type = ColorBar::ColorSelector::NORMAL_MAP_WHEEL;
+    m_type = colsel::ColorSelector::Type::NORMAL_MAP_WHEEL;
   }
 }
 
 bool SetColorSelectorCommand::onChecked(Context* context)
 {
-  return (ColorBar::instance()->getColorSelector() == m_type);
+  return (ColorBar::instance()->colorSelector() == m_type);
 }
 
 void SetColorSelectorCommand::onExecute(Context* context)
@@ -80,19 +80,19 @@ std::string SetColorSelectorCommand::onGetFriendlyName() const
 {
   std::string type;
   switch (m_type) {
-    case ColorBar::ColorSelector::SPECTRUM:
+    case colsel::ColorSelector::Type::SPECTRUM:
       type = Strings::commands_SetColorSelector_Spectrum();
       break;
-    case ColorBar::ColorSelector::TINT_SHADE_TONE:
+    case colsel::ColorSelector::Type::TINT_SHADE_TONE:
       type = Strings::commands_SetColorSelector_TintShadeTone();
       break;
-    case ColorBar::ColorSelector::RGB_WHEEL:
+    case colsel::ColorSelector::Type::RGB_WHEEL:
       type = Strings::commands_SetColorSelector_RGBWheel();
       break;
-    case ColorBar::ColorSelector::RYB_WHEEL:
+    case colsel::ColorSelector::Type::RYB_WHEEL:
       type = Strings::commands_SetColorSelector_RYBWheel();
       break;
-    case ColorBar::ColorSelector::NORMAL_MAP_WHEEL:
+    case colsel::ColorSelector::Type::NORMAL_MAP_WHEEL:
       type = Strings::commands_SetColorSelector_NormalMapWheel();
       break;
   }

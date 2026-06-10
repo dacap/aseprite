@@ -151,10 +151,6 @@ ColorBar::ColorBar(TooltipManager* tooltipManager)
   , m_tilesView(true, PaletteView::FgBgTiles, this, 16)
   , m_remapPalButton(Strings::color_bar_remap_palette())
   , m_remapTilesButton(Strings::color_bar_remap_tiles())
-  , m_selector(ColorSelector::NONE)
-  , m_tintShadeTone(nullptr)
-  , m_spectrum(nullptr)
-  , m_wheel(nullptr)
   , m_fgColor(app::Color::fromRgb(255, 255, 255), IMAGE_RGB, ColorBarButtonsOptions())
   , m_bgColor(app::Color::fromRgb(0, 0, 0), IMAGE_RGB, ColorBarButtonsOptions())
   , m_fgWarningIcon(new WarningIcon)
@@ -233,6 +229,9 @@ ColorBar::ColorBar(TooltipManager* tooltipManager)
   m_splitter.setExpansive(true);
   m_splitter.addChild(&m_palettePlaceholder);
   m_splitter.addChild(&m_selectorPlaceholder);
+
+  m_colorSelector.setExpansive(true);
+  m_selectorPlaceholder.addChild(&m_colorSelector);
 
   setColorSelector(pref.colorBar.selector());
 
@@ -361,6 +360,7 @@ ColorBar::ColorBar(TooltipManager* tooltipManager)
     UIContext::instance()->BeforeCommandExecution.connect(&ColorBar::onBeforeExecuteCommand, this);
   m_afterCmdConn =
     UIContext::instance()->AfterCommandExecution.connect(&ColorBar::onAfterExecuteCommand, this);
+  m_colSelConn = m_colorSelector.ColorChange.connect(&ColorBar::onPickSpectrum, this);
   m_fgConn = pref.colorBar.fgColor.AfterChange.connect(
     [this] { onFgColorChangeFromPreferences(); });
   m_bgConn = pref.colorBar.bgColor.AfterChange.connect(
@@ -447,73 +447,13 @@ doc::tile_index ColorBar::getBgTile() const
   return m_bgTile.getTile();
 }
 
-ColorBar::ColorSelector ColorBar::getColorSelector() const
+void ColorBar::setColorSelector(const ColorSelectorType type)
 {
-  return m_selector;
-}
-
-void ColorBar::setColorSelector(ColorSelector selector)
-{
-  if (m_selector == selector)
+  if (m_colorSelector.type() == type)
     return;
 
-  if (m_tintShadeTone)
-    m_tintShadeTone->setVisible(false);
-  if (m_spectrum)
-    m_spectrum->setVisible(false);
-  if (m_wheel)
-    m_wheel->setVisible(false);
-
-  m_selector = selector;
-  Preferences::instance().colorBar.selector(m_selector);
-
-  switch (m_selector) {
-    case ColorSelector::TINT_SHADE_TONE:
-      if (!m_tintShadeTone) {
-        m_tintShadeTone = new colsel::ColorTintShadeTone;
-        m_tintShadeTone->setExpansive(true);
-        m_tintShadeTone->selectColor(m_fgColor.getColor());
-        m_tintShadeTone->ColorChange.connect(&ColorBar::onPickSpectrum, this);
-        m_selectorPlaceholder.addChild(m_tintShadeTone);
-      }
-      m_tintShadeTone->setVisible(true);
-      break;
-
-    case ColorSelector::SPECTRUM:
-      if (!m_spectrum) {
-        m_spectrum = new colsel::ColorSpectrum;
-        m_spectrum->setExpansive(true);
-        m_spectrum->selectColor(m_fgColor.getColor());
-        m_spectrum->ColorChange.connect(&ColorBar::onPickSpectrum, this);
-        m_selectorPlaceholder.addChild(m_spectrum);
-      }
-      m_spectrum->setVisible(true);
-      break;
-
-    case ColorSelector::RGB_WHEEL:
-    case ColorSelector::RYB_WHEEL:
-    case ColorSelector::NORMAL_MAP_WHEEL:
-      if (!m_wheel) {
-        m_wheel = new colsel::ColorWheel;
-        m_wheel->setExpansive(true);
-        m_wheel->selectColor(m_fgColor.getColor());
-        m_wheel->ColorChange.connect(&ColorBar::onPickSpectrum, this);
-        m_selectorPlaceholder.addChild(m_wheel);
-      }
-      if (m_selector == ColorSelector::RGB_WHEEL) {
-        m_wheel->setColorModel(colsel::ColorWheel::ColorModel::RGB);
-      }
-      else if (m_selector == ColorSelector::RYB_WHEEL) {
-        m_wheel->setColorModel(colsel::ColorWheel::ColorModel::RYB);
-      }
-      else if (m_selector == ColorSelector::NORMAL_MAP_WHEEL) {
-        m_wheel->setColorModel(colsel::ColorWheel::ColorModel::NORMAL_MAP);
-      }
-      m_wheel->setVisible(true);
-      break;
-  }
-
-  m_selectorPlaceholder.layout();
+  m_colorSelector.setType(type);
+  Preferences::instance().colorBar.selector(type);
 }
 
 bool ColorBar::inEditMode() const
@@ -1419,14 +1359,7 @@ void ColorBar::onColorButtonChange(const app::Color& color)
     }
   }
 
-  if (m_tintShadeTone && m_tintShadeTone->isVisible())
-    m_tintShadeTone->selectColor(color);
-
-  if (m_spectrum && m_spectrum->isVisible())
-    m_spectrum->selectColor(color);
-
-  if (m_wheel && m_wheel->isVisible())
-    m_wheel->selectColor(color);
+  m_colorSelector.selectColor(color);
 }
 
 void ColorBar::onFgTileButtonChange(doc::tile_t tile)
