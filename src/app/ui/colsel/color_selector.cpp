@@ -329,23 +329,15 @@ void ColorSelector::onPaint(ui::PaintEvent& ev)
 
 #if SK_ENABLE_SKSL // Paint with shaders
   if (buildEffects()) {
-    SkCanvas* canvas;
-    bool isSRGB;
-    // TODO compare both color spaces
     auto displayCs = get_current_color_space(display());
     auto gCs = g->getInternalSurface()->colorSpace();
-    if ((!displayCs || displayCs->isSRGB()) && (!gCs || gCs->isSRGB())) {
-      // We can render directly in the ui::Graphics surface
-      canvas = &static_cast<os::SkiaSurface*>(g->getInternalSurface())->canvas();
-      isSRGB = true;
-    }
-    else {
-      // We'll paint in the ColorSelector::Painter canvas, and so we
-      // can convert color spaces.
-      painterSurface = getTempCanvas(display(), rc.w, rc.h, theme->colors.workspace());
-      canvas = &static_cast<os::SkiaSurface*>(painterSurface)->canvas();
-      isSRGB = false;
-    }
+
+    // Get a temporal canvas to paint each region, this surface will
+    // not be updated until PaintFlags are updated. So in successive
+    // onPaint() calls we reutilize m_tempCanvas to paint the
+    // background + the indicators.
+    painterSurface = getTempCanvas(display(), rc.w, rc.h, theme->colors.workspace());
+    SkCanvas* canvas = &static_cast<os::SkiaSurface*>(painterSurface)->canvas();
 
     canvas->save();
     {
@@ -355,44 +347,44 @@ void ColorSelector::onPaint(ui::PaintEvent& ev)
       // Main area
       gfx::Rect rc2(0, 0, rc.w, std::max(1, rc.h - bottomBarBounds.h - alphaBarBounds.h));
 
-      SkRuntimeShaderBuilder builder1(m_mainEffect);
-      builder1.uniform("iRes") = SkV3{ float(rc2.w), float(rc2.h), 0.0f };
-      setShaderParams(builder1, this->color(), true);
-      p.setShader(builder1.makeShader());
-
-      if (isSRGB)
-        canvas->translate(rc.x + g->getInternalDeltaX(), rc.y + g->getInternalDeltaY());
-
-      canvas->drawRect(SkRect::MakeXYWH(0, 0, rc2.w, rc2.h), p);
+      if ((m_paintFlags & PaintFlags::MainArea) == PaintFlags::MainArea) {
+        SkRuntimeShaderBuilder builder1(m_mainEffect);
+        builder1.uniform("iRes") = SkV3{ float(rc2.w), float(rc2.h), 0.0f };
+        setShaderParams(builder1, this->color(), true);
+        p.setShader(builder1.makeShader());
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, rc2.w, rc2.h), p);
+        m_paintFlags ^= PaintFlags::MainArea;
+      }
 
       // Bottom bar
       canvas->translate(0.0, rc2.h);
       rc2.h = bottomBarBounds.h;
+      if ((m_paintFlags & PaintFlags::BottomBar) == PaintFlags::BottomBar) {
+        SkRuntimeShaderBuilder builder2(m_bottomEffect);
+        builder2.uniform("iRes") = SkV3{ float(rc2.w), float(rc2.h), 0.0f };
+        setShaderParams(builder2, this->color(), false);
+        p.setShader(builder2.makeShader());
 
-      SkRuntimeShaderBuilder builder2(m_bottomEffect);
-      builder2.uniform("iRes") = SkV3{ float(rc2.w), float(rc2.h), 0.0f };
-      setShaderParams(builder2, this->color(), false);
-      p.setShader(builder2.makeShader());
-
-      canvas->drawRect(SkRect::MakeXYWH(0, 0, rc2.w, rc2.h), p);
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, rc2.w, rc2.h), p);
+        m_paintFlags ^= PaintFlags::BottomBar;
+      }
 
       // Alpha bar
       canvas->translate(0.0, rc2.h);
       rc2.h = alphaBarBounds.h;
+      if ((m_paintFlags & PaintFlags::AlphaBar) == PaintFlags::AlphaBar) {
+        SkRuntimeShaderBuilder builder3(m_alphaEffect);
+        builder3.uniform("iRes") = SkV3{ float(rc2.w), float(rc2.h), 0.0f };
+        builder3.uniform("iColor") = appColor_to_SkV4(m_color);
+        builder3.uniform("iBg1") = gfxColor_to_SkV4(grid_color1());
+        builder3.uniform("iBg2") = gfxColor_to_SkV4(grid_color2());
+        p.setShader(builder3.makeShader());
 
-      SkRuntimeShaderBuilder builder3(m_alphaEffect);
-      builder3.uniform("iRes") = SkV3{ float(rc2.w), float(rc2.h), 0.0f };
-      builder3.uniform("iColor") = appColor_to_SkV4(m_color);
-      builder3.uniform("iBg1") = gfxColor_to_SkV4(grid_color1());
-      builder3.uniform("iBg2") = gfxColor_to_SkV4(grid_color2());
-      p.setShader(builder3.makeShader());
-
-      canvas->drawRect(SkRect::MakeXYWH(0, 0, rc2.w, rc2.h), p);
+        canvas->drawRect(SkRect::MakeXYWH(0, 0, rc2.w, rc2.h), p);
+        m_paintFlags ^= PaintFlags::AlphaBar;
+      }
     }
     canvas->restore();
-
-    // We already painted all areas
-    m_paintFlags = PaintFlags::None;
   }
   else
 #endif // SK_ENABLE_SKSL
@@ -400,9 +392,11 @@ void ColorSelector::onPaint(ui::PaintEvent& ev)
     painterSurface = getTempCanvas(display(), rc.w, rc.h, theme->colors.workspace());
   }
 
+  // Paint background: main area + bottom bar + alpha bar
   if (painterSurface)
     g->drawSurface(painterSurface, rc.x, rc.y);
 
+  // Paint indicators and harmonies.
   rc.h -= bottomBarBounds.h + alphaBarBounds.h;
   if (m_impl)
     m_impl->onPaintMainArea(this, g, rc);
