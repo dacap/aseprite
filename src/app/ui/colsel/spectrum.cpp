@@ -126,48 +126,6 @@ void Spectrum::onPaintBottomBar(ColorSelector* colSel, ui::Graphics* g, const gf
   }
 }
 
-void Spectrum::onPaintSurfaceInBgThread(os::Surface* s,
-                                        const ColorSelector* colSel,
-                                        const gfx::Rect& main,
-                                        const gfx::Rect& bottom,
-                                        const gfx::Rect& alpha,
-                                        PaintFlags paintFlags,
-                                        bool& stop)
-{
-  const app::Color color = colSel->color();
-
-  if ((paintFlags & PaintFlags::MainArea) == PaintFlags::MainArea) {
-    const double sat = color.getHslSaturation();
-    const int umax = std::max(1, main.w - 1);
-    const int vmax = std::max(1, main.h - 1);
-
-    for (int y = 0; y < main.h && !stop; ++y) {
-      for (int x = 0; x < main.w && !stop; ++x) {
-        const double hue = 360.0 * double(x) / double(umax);
-        const double lit = 1.0 - double(y) / double(vmax);
-
-        const gfx::Color c = color_utils::color_for_ui(
-          app::Color::fromHsl(std::clamp(hue, 0.0, 360.0), sat, std::clamp(lit, 0.0, 1.0)));
-
-        s->putPixel(c, main.x + x, main.y + y);
-      }
-    }
-    if (stop)
-      return;
-  }
-
-  if ((paintFlags & PaintFlags::BottomBar) == PaintFlags::BottomBar) {
-    double lit = color.getHslLightness();
-    double hue = color.getHslHue();
-    os::Paint paint;
-    for (int x = 0; x < bottom.w && !stop; ++x) {
-      paint.color(
-        color_utils::color_for_ui(app::Color::fromHsl(hue, double(x) / double(bottom.w), lit)));
-      s->drawRect(gfx::Rect(bottom.x + x, bottom.y, 1, bottom.h), paint);
-    }
-  }
-}
-
 PaintFlags Spectrum::onNeedsSurfaceRepaint(const ColorSelector* colSel, const app::Color& newColor)
 {
   const app::Color color = colSel->color();

@@ -402,53 +402,6 @@ void Wheel::onPaintBottomBar(ColorSelector* colSel, ui::Graphics* g, const gfx::
   }
 }
 
-void Wheel::onPaintSurfaceInBgThread(os::Surface* s,
-                                     const ColorSelector* colSel,
-                                     const gfx::Rect& main,
-                                     const gfx::Rect& bottom,
-                                     const gfx::Rect& alpha,
-                                     const PaintFlags paintFlags,
-                                     bool& stop)
-{
-  const app::Color color = colSel->color();
-
-  if ((paintFlags & PaintFlags::MainArea) == PaintFlags::MainArea) {
-    const int umax = std::max(1, main.w - 1);
-    const int vmax = std::max(1, main.h - 1);
-
-    for (int y = 0; y < main.h && !stop; ++y) {
-      for (int x = 0; x < main.w && !stop; ++x) {
-        app::Color appColor = getMainAreaColor(colSel, x, umax, y, vmax);
-
-        gfx::Color color;
-        if (appColor.getType() != app::Color::MaskType) {
-          appColor.setAlpha(255);
-          color = color_utils::color_for_ui(appColor);
-        }
-        else {
-          color = colSel->bgColor();
-        }
-
-        s->putPixel(color, main.x + x, main.y + y);
-      }
-    }
-    if (stop)
-      return;
-  }
-
-  if ((paintFlags & PaintFlags::BottomBar) == PaintFlags::BottomBar) {
-    double hue = color.getHsvHue();
-    double sat = color.getHsvSaturation();
-    os::Paint paint;
-    for (int x = 0; x < bottom.w && !stop; ++x) {
-      paint.color(
-        color_utils::color_for_ui(app::Color::fromHsv(hue, sat, double(x) / double(bottom.w))));
-
-      s->drawRect(gfx::Rect(bottom.x + x, bottom.y, 1, bottom.h), paint);
-    }
-  }
-}
-
 PaintFlags Wheel::onNeedsSurfaceRepaint(const ColorSelector* colSel, const app::Color& newColor)
 {
   const app::Color color = colSel->color();

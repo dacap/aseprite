@@ -641,12 +641,6 @@
             <hbox id="best_fit_criteria_placeholder" />
           </grid>
           <separator text="@.performance" horizontal="true" />
-          <hbox>
-            <check id="shaders_for_color_selectors"
-                   text="@.shaders_for_color_selectors"
-                   pref="experimental.use_shaders_for_color_selectors" />
-            <link text="(#960)" for="shaders_for_color_selectors" url="https://github.com/aseprite/aseprite/issues/960" />
-          </hbox>
           <check id="cache_compressed_tilesets"
                  text="@.cache_compressed_tilesets"
                  pref="tileset.cache_compressed_tilesets" />

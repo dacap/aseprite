@@ -142,58 +142,6 @@ void TintShadeTone::onPaintBottomBar(ColorSelector* colSel, ui::Graphics* g, con
   }
 }
 
-void TintShadeTone::onPaintSurfaceInBgThread(os::Surface* s,
-                                             const ColorSelector* colSel,
-                                             const gfx::Rect& main,
-                                             const gfx::Rect& bottom,
-                                             const gfx::Rect& alpha,
-                                             const PaintFlags paintFlags,
-                                             bool& stop)
-{
-  const app::Color color = colSel->color();
-  const double hue = color.getHsvHue();
-  const int umax = std::max(1, main.w - 1);
-  const int vmax = std::max(1, main.h - 1);
-
-  if ((paintFlags & PaintFlags::MainArea) == PaintFlags::MainArea) {
-    for (int y = 0; y < main.h && !stop; ++y) {
-      for (int x = 0; x < main.w && !stop; ++x) {
-        const double sat = double(x) / double(umax);
-        const double val = 1.0 - double(y) / double(vmax);
-
-        const gfx::Color color = color_utils::color_for_ui(
-          app::Color::fromHsv(hue, std::clamp(sat, 0.0, 1.0), std::clamp(val, 0.0, 1.0)));
-
-        s->putPixel(color, main.x + x, main.y + y);
-      }
-    }
-    if (stop)
-      return;
-  }
-
-  if ((paintFlags & PaintFlags::BottomBar) == PaintFlags::BottomBar) {
-    os::Paint paint;
-    double sat, val;
-
-    if (colSel->hueWithSatValue()) {
-      sat = color.getHsvSaturation();
-      val = color.getHsvValue();
-    }
-    else {
-      sat = 1.0;
-      val = 1.0;
-    }
-
-    for (int x = 0; x < bottom.w && !stop; ++x) {
-      paint.color(color_utils::color_for_ui(app::Color::fromHsv((360.0 * x / bottom.w), sat, val)));
-
-      s->drawRect(gfx::Rect(bottom.x + x, bottom.y, 1, bottom.h), paint);
-    }
-    if (stop)
-      return;
-  }
-}
-
 PaintFlags TintShadeTone::onNeedsSurfaceRepaint(const ColorSelector* colSel,
                                                 const app::Color& newColor)
 {

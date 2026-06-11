@@ -58,13 +58,6 @@ public:
 
   void onPaintMainArea(ColorSelector* colSel, ui::Graphics* g, const gfx::Rect& rc) override;
   void onPaintBottomBar(ColorSelector* colSel, ui::Graphics* g, const gfx::Rect& rc) override;
-  void onPaintSurfaceInBgThread(os::Surface* s,
-                                const ColorSelector* colSel,
-                                const gfx::Rect& main,
-                                const gfx::Rect& bottom,
-                                const gfx::Rect& alpha,
-                                PaintFlags paintFlags,
-                                bool& stop) override;
   PaintFlags onNeedsSurfaceRepaint(const ColorSelector* colSel,
                                    const app::Color& newColor) override;
   bool subColorPicked() override { return m_harmonyPicked; }

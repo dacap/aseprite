@@ -17,10 +17,8 @@
 #include "os/surface.h"
 #include "ui/button.h"
 #include "ui/mouse_button.h"
-#include "ui/timer.h"
 #include "ui/widget.h"
 
-#include <atomic>
 #include <cmath>
 
 // TODO We should wrap the SkRuntimeEffect in laf-os, SkRuntimeEffect
@@ -40,15 +38,13 @@ namespace app::colsel {
 
 class ColorSelector;
 
-// Flags for onPaintSurfaceInBgThread and return value of
-// onNeedsSurfaceRepaint().
+// Flags for to know what part to paint.
 enum class PaintFlags {
   None = 0,
   MainArea = 1,
   BottomBar = 2,
   AlphaBar = 4,
   AllAreas = MainArea | BottomBar | AlphaBar,
-  Done = 8,
 };
 
 LAF_ENUM_FLAGS(PaintFlags);
@@ -75,13 +71,6 @@ public:
 
   virtual void onPaintMainArea(ColorSelector* colSel, ui::Graphics* g, const gfx::Rect& rc) = 0;
   virtual void onPaintBottomBar(ColorSelector* colSel, ui::Graphics* g, const gfx::Rect& rc) = 0;
-  virtual void onPaintSurfaceInBgThread(os::Surface* s,
-                                        const ColorSelector* colSel,
-                                        const gfx::Rect& main,
-                                        const gfx::Rect& bottom,
-                                        const gfx::Rect& alpha,
-                                        PaintFlags paintFlags,
-                                        bool& stop) = 0;
   virtual PaintFlags onNeedsSurfaceRepaint(const ColorSelector* colSel,
                                            const app::Color& newColor) = 0;
   virtual void onOptions(ColorSelector*) {}
@@ -158,21 +147,13 @@ protected:
   {
     return m_impl ? m_impl->getBottomBarColor(this, u, umax) : app::Color();
   }
-  void onPaintSurfaceInBgThread(os::Surface* s,
-                                const gfx::Rect& main,
-                                const gfx::Rect& bottom,
-                                const gfx::Rect& alpha,
-                                bool& stop);
   PaintFlags onNeedsSurfaceRepaint(const app::Color& newColor);
   bool subColorPicked() { return m_impl ? m_impl->subColorPicked() : false; }
 
   app::Color m_color;
 
-  // These flags indicate which areas must be redrawed in the
-  // background thread. Equal to DoneFlag when the surface is
-  // already painted in the background thread surface. This must be
-  // atomic because we need atomic bitwise operations.
-  std::atomic<PaintFlags> m_paintFlags;
+  // These flags indicate which areas must be repainted in onPaint().
+  PaintFlags m_paintFlags;
 
 private:
   app::Color getAlphaBarColor(const int u, const int umax);
@@ -205,11 +186,9 @@ private:
   bool m_capturedInAlpha = false;
   bool m_capturedInMain = false;
 
-  ui::Timer m_timer;
   ui::Button m_options;
 
   obs::scoped_connection m_appConn;
-  obs::scoped_connection m_shadersConn;
   obs::scoped_connection m_hueConn;
 
 #if SK_ENABLE_SKSL
@@ -219,6 +198,9 @@ private:
   sk_sp<SkRuntimeEffect> m_bottomEffect;
   static sk_sp<SkRuntimeEffect> m_alphaEffect;
 #endif
+
+  static os::Surface* getTempCanvas(ui::Display* display, int w, int h, gfx::Color bgColor);
+  static os::SurfaceRef m_tempCanvas;
 };
 
 } // namespace app::colsel

@@ -5,8 +5,6 @@
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
 
-#define COLSEL_TRACE(...)
-
 #ifdef HAVE_CONFIG_H
   #include "config.h"
 #endif
@@ -55,186 +53,30 @@ namespace app::colsel {
 using namespace app::skin;
 using namespace ui;
 
-// TODO This logic could be used to redraw any widget:
-// 1. We send a onPaintSurfaceInBgThread() to paint the widget on a
-//    offscreen buffer
-// 2. When the painting is done, we flip the buffer onto the screen
-// 3. If we receive another onPaint() we can cancel the background
-//    painting and start another onPaintSurfaceInBgThread()
-//
-// An alternative (better) way:
-// 1. Create an alternative ui::Graphics implementation that generates
-//    a list commands for the render thread
-// 2. Widgets can still use the same onPaint()
-// 3. The background threads consume the list of commands and render
-//    the screen.
-//
-// The bad side is that is harder to invalidate the commands that will
-// render an old state of the widget. So the render thread should
-// start caring about invalidating old commands (outdated regions) or
-// cleaning the queue if it gets too big.
-//
-class ColorSelector::Painter {
-public:
-  Painter() : m_canvas(nullptr) {}
+os::SurfaceRef ColorSelector::m_tempCanvas;
 
-  ~Painter() { ASSERT(!m_canvas); }
-
-  void addRef()
-  {
-    assert_ui_thread();
-
-    if (m_ref == 0)
-      m_paintingThread = std::thread([this] { paintingProc(); });
-
-    ++m_ref;
-  }
-
-  void releaseRef()
-  {
-    assert_ui_thread();
-
-    --m_ref;
-    if (m_ref == 0) {
-      {
-        std::unique_lock<std::mutex> lock(m_mutex);
-        stopCurrentPainting(lock);
-
-        m_killing = true;
-        m_paintingCV.notify_one();
-      }
-
-      m_paintingThread.join();
-      if (m_canvas)
-        m_canvas.reset();
+// static
+os::Surface* ColorSelector::getTempCanvas(Display* display, int w, int h, gfx::Color bgColor)
+{
+  auto activeCS = get_current_color_space(display);
+  if (!m_tempCanvas || m_tempCanvas->width() != w || m_tempCanvas->height() != h ||
+      m_tempCanvas->colorSpace() != activeCS) {
+    os::SurfaceRef oldCanvas = m_tempCanvas;
+    m_tempCanvas = os::System::instance()->makeSurface(w, h, activeCS);
+    os::Paint paint;
+    paint.color(bgColor);
+    paint.style(os::Paint::Fill);
+    m_tempCanvas->drawRect(gfx::Rect(0, 0, w, h), paint);
+    if (oldCanvas) {
+      m_tempCanvas->drawSurface(oldCanvas.get(),
+                                gfx::Rect(0, 0, oldCanvas->width(), oldCanvas->height()),
+                                gfx::Rect(0, 0, w, h),
+                                os::Sampling(),
+                                nullptr);
     }
   }
-
-  os::Surface* getCanvas(Display* display, int w, int h, gfx::Color bgColor)
-  {
-    assert_ui_thread();
-
-    auto activeCS = get_current_color_space(display);
-
-    if (!m_canvas || m_canvas->width() != w || m_canvas->height() != h ||
-        m_canvas->colorSpace() != activeCS) {
-      std::unique_lock<std::mutex> lock(m_mutex);
-      stopCurrentPainting(lock);
-
-      os::SurfaceRef oldCanvas = m_canvas;
-      m_canvas = os::System::instance()->makeSurface(w, h, activeCS);
-      os::Paint paint;
-      paint.color(bgColor);
-      paint.style(os::Paint::Fill);
-      m_canvas->drawRect(gfx::Rect(0, 0, w, h), paint);
-      if (oldCanvas) {
-        m_canvas->drawSurface(oldCanvas.get(),
-                              gfx::Rect(0, 0, oldCanvas->width(), oldCanvas->height()),
-                              gfx::Rect(0, 0, w, h),
-                              os::Sampling(),
-                              nullptr);
-      }
-    }
-    return m_canvas.get();
-  }
-
-  void startBgPainting(ColorSelector* colorSelector,
-                       const gfx::Rect& mainBounds,
-                       const gfx::Rect& bottomBarBounds,
-                       const gfx::Rect& alphaBarBounds)
-  {
-    assert_ui_thread();
-    COLSEL_TRACE("COLSEL: startBgPainting for %p\n", colorSelector);
-
-    std::unique_lock<std::mutex> lock(m_mutex);
-    stopCurrentPainting(lock);
-
-    m_colorSelector = colorSelector;
-    m_manager = colorSelector->manager();
-    m_mainBounds = mainBounds;
-    m_bottomBarBounds = bottomBarBounds;
-    m_alphaBarBounds = alphaBarBounds;
-
-    m_stopPainting = false;
-    m_paintingCV.notify_one();
-  }
-
-private:
-  void stopCurrentPainting(std::unique_lock<std::mutex>& lock)
-  {
-    // Stop current
-    if (m_colorSelector) {
-      COLSEL_TRACE("COLSEL: stoppping painting of %p\n", m_colorSelector);
-
-      // TODO use another condition variable here
-      m_stopPainting = true;
-      m_waitStopCV.wait(lock);
-    }
-
-    ASSERT(m_colorSelector == nullptr);
-  }
-
-  void paintingProc()
-  {
-    COLSEL_TRACE("COLSEL: paintingProc starts\n");
-
-    base::this_thread::set_name("colsel-painter");
-
-    std::unique_lock<std::mutex> lock(m_mutex);
-    while (true) {
-      m_paintingCV.wait(lock);
-
-      if (m_killing)
-        break;
-
-      auto colorSel = m_colorSelector;
-      if (!colorSel)
-        break;
-
-      COLSEL_TRACE("COLSEL: starting painting in bg for %p\n", colorSel);
-
-      // Do the intesive painting in the background thread
-      {
-        lock.unlock();
-        colorSel->onPaintSurfaceInBgThread(m_canvas.get(),
-                                           m_mainBounds,
-                                           m_bottomBarBounds,
-                                           m_alphaBarBounds,
-                                           m_stopPainting);
-        lock.lock();
-      }
-
-      m_colorSelector = nullptr;
-
-      if (m_stopPainting) {
-        COLSEL_TRACE("COLSEL: painting for %p stopped\n");
-        m_waitStopCV.notify_one();
-      }
-      else {
-        COLSEL_TRACE("COLSEL: painting for %p done and sending message\n");
-        colorSel->m_paintFlags |= PaintFlags::Done;
-      }
-    }
-
-    COLSEL_TRACE("COLSEL: paintingProc ends\n");
-  }
-
-  int m_ref = 0;
-  bool m_killing = false;
-  bool m_stopPainting = false;
-  std::mutex m_mutex;
-  std::condition_variable m_paintingCV;
-  std::condition_variable m_waitStopCV;
-  os::SurfaceRef m_canvas;
-  ColorSelector* m_colorSelector;
-  ui::Manager* m_manager;
-  gfx::Rect m_mainBounds;
-  gfx::Rect m_bottomBarBounds;
-  gfx::Rect m_alphaBarBounds;
-  std::thread m_paintingThread;
-};
-
-static ColorSelector::Painter painter;
+  return m_tempCanvas.get();
+}
 
 #if SK_ENABLE_SKSL
 // static
@@ -245,7 +87,6 @@ ColorSelector::ColorSelector()
   : Widget(kGenericWidget)
   , m_paintFlags(PaintFlags::AllAreas)
   , m_lockColor(false)
-  , m_timer(100, this)
   , m_options({})
 {
   m_options.Click.connect([this] {
@@ -256,19 +97,8 @@ ColorSelector::ColorSelector()
   addChild(&m_options);
 
   initTheme();
-  painter.addRef();
 
   m_appConn = App::instance()->ColorSpaceChange.connect(&ColorSelector::updateColorSpace, this);
-  m_shadersConn =
-    Preferences::instance().experimental.useShadersForColorSelectors.AfterChange.connect([this]() {
-#if SK_ENABLE_SKSL
-      m_mainShader.clear();
-      m_mainEffect.reset();
-      m_bottomShader.clear();
-      m_bottomEffect.reset();
-#endif
-      repaintAllAreas();
-    });
   m_hueConn =
     Preferences::instance().experimental.hueWithSatValueForColorSelector.AfterChange.connect(
       [this]() {
@@ -282,7 +112,6 @@ ColorSelector::ColorSelector()
 
 ColorSelector::~ColorSelector()
 {
-  painter.releaseRef();
 }
 
 void ColorSelector::setType(const Type type)
@@ -445,14 +274,6 @@ bool ColorSelector::onProcessMessage(ui::Message* msg)
         }
       }
       break;
-
-    case kTimerMessage:
-      if ((m_paintFlags & PaintFlags::Done) == PaintFlags::Done) {
-        m_timer.stop();
-        invalidate();
-        return true;
-      }
-      break;
   }
 
   return Widget::onProcessMessage(msg);
@@ -521,7 +342,7 @@ void ColorSelector::onPaint(ui::PaintEvent& ev)
     else {
       // We'll paint in the ColorSelector::Painter canvas, and so we
       // can convert color spaces.
-      painterSurface = painter.getCanvas(display(), rc.w, rc.h, theme->colors.workspace());
+      painterSurface = getTempCanvas(display(), rc.w, rc.h, theme->colors.workspace());
       canvas = &static_cast<os::SkiaSurface*>(painterSurface)->canvas();
       isSRGB = false;
     }
@@ -576,7 +397,7 @@ void ColorSelector::onPaint(ui::PaintEvent& ev)
   else
 #endif // SK_ENABLE_SKSL
   {
-    painterSurface = painter.getCanvas(display(), rc.w, rc.h, theme->colors.workspace());
+    painterSurface = getTempCanvas(display(), rc.w, rc.h, theme->colors.workspace());
   }
 
   if (painterSurface)
@@ -598,16 +419,8 @@ void ColorSelector::onPaint(ui::PaintEvent& ev)
   }
 
   if ((m_paintFlags & PaintFlags::AllAreas) != PaintFlags::None) {
-    m_paintFlags &= ~PaintFlags::Done;
-    m_timer.start();
-
-    gfx::Point d = -rc.origin();
-    rc.offset(d);
-    if (!bottomBarBounds.isEmpty())
-      bottomBarBounds.offset(d);
-    if (!alphaBarBounds.isEmpty())
-      alphaBarBounds.offset(d);
-    painter.startBgPainting(this, rc, bottomBarBounds, alphaBarBounds);
+    // In the past we offered an alternative way to paint color
+    // selectors without shaders, but the implementation was removed.
   }
 }
 
@@ -617,27 +430,6 @@ void ColorSelector::onPaintAlphaBar(ui::Graphics* g, const gfx::Rect& rc)
   const int alpha = m_color.getAlpha();
   const gfx::Point pos(rc.x + int(rc.w * alpha / 255), rc.y + rc.h / 2);
   paintColorIndicator(g, pos, lit < 0.5);
-}
-
-void ColorSelector::onPaintSurfaceInBgThread(os::Surface* s,
-                                             const gfx::Rect& main,
-                                             const gfx::Rect& bottom,
-                                             const gfx::Rect& alpha,
-                                             bool& stop)
-{
-  if (m_impl) {
-    m_impl->onPaintSurfaceInBgThread(s, this, main, bottom, alpha, m_paintFlags, stop);
-    if (stop)
-      return;
-    m_paintFlags &= ~(PaintFlags::MainArea | PaintFlags::BottomBar);
-  }
-
-  if (((m_paintFlags & PaintFlags::AlphaBar) == PaintFlags::AlphaBar) && !alpha.isEmpty()) {
-    draw_alpha_slider(s, alpha, m_color);
-    if (stop)
-      return;
-    m_paintFlags ^= PaintFlags::AlphaBar;
-  }
 }
 
 PaintFlags ColorSelector::onNeedsSurfaceRepaint(const app::Color& newColor)
@@ -738,9 +530,6 @@ half4 main(vec2 fragcoord) {
 
 bool ColorSelector::buildEffects()
 {
-  if (!Preferences::instance().experimental.useShadersForColorSelectors())
-    return false;
-
   if (!m_mainEffect) {
     if (const char* code = mainAreaShader())
       m_mainEffect = make_shader(code);
