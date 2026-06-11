@@ -507,6 +507,7 @@ float Entry::onGetTextBaseline() const
 
 void Entry::onChange()
 {
+  setEdited();
   Change();
 }
 

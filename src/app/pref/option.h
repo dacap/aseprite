@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -73,6 +73,8 @@ protected:
 template<typename T>
 class Option : public OptionBase {
 public:
+  using value_type = T;
+
   Option(Section* section, const char* id, const T& defaultValue = T())
     : OptionBase(section, id)
     , m_default(defaultValue)

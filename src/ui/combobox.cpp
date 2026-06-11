@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2018-2025  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2001-2017  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -595,8 +595,10 @@ void ComboBoxListBox::onChange()
   ListBox::onChange();
 
   int index = getSelectedIndex();
-  if (isValidItem(index))
+  if (isValidItem(index)) {
+    m_comboBox->setEdited();
     m_comboBox->setSelectedItemIndex(index);
+  }
 }
 
 // When the mouse is clicked we switch the visibility-status of the list-box
@@ -713,7 +715,7 @@ void ComboBox::onChange()
 
 void ComboBox::onEntryChange()
 {
-  // Do nothing
+  setEdited();
 }
 
 void ComboBox::onBeforeOpenListBox()

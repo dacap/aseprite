@@ -87,6 +87,54 @@ app::gen::ColorProfileBehavior missingCsMap[] = {
   app::gen::ColorProfileBehavior::ASK,
 };
 
+// Generic function to change an option value if the widget is edited.
+
+template<typename T>
+void set_edited_value(T& option, const ui::CheckBox* widget)
+{
+  if (widget->isEdited())
+    option(widget->isSelected());
+}
+
+template<typename T>
+void set_edited_value(T& option, const ui::ComboBox* widget)
+{
+  if (widget->isEdited())
+    option((typename T::value_type)widget->getSelectedItemIndex());
+}
+
+template<typename T>
+void set_edited_value_by_item_text(T& option, const ui::ComboBox* widget)
+{
+  if (widget->isEdited()) {
+    ui::Widget* item = widget->getSelectedItem();
+    ASSERT(item);
+    if (item)
+      option(item->text());
+  }
+}
+
+template<typename T>
+void set_edited_value(T& option, const ui::Slider* widget)
+{
+  if (widget->isEdited())
+    option(widget->getValue());
+}
+
+template<typename T>
+void set_edited_value(T& option, const ColorButton* widget)
+{
+  if (widget->isEdited())
+    option(widget->getColor());
+}
+
+template<typename T>
+void set_edited_value(T& option, const ExprEntry* widget)
+{
+  if (widget->isEdited())
+    option(widget->textInt());
+}
+
 // This property generates a lower case version of the widget's text, and a space-separated lower
 // case list of words. It includes any tooltips attached to the widget and for ComboBoxes it
 // combines all of the item text. This helps the preference search not have to repeatedly do all of
@@ -881,12 +929,16 @@ public:
       Strings::instance()->setCurrentLanguage(item->langId());
     }
 
-    m_globPref.timeline.firstFrame(firstFrame()->textInt());
-    m_pref.saveFile.defaultExtension(getExtension(defaultExtension()));
-    m_pref.exportFile.imageDefaultExtension(getExtension(exportImageDefaultExtension()));
-    m_pref.exportFile.animationDefaultExtension(getExtension(exportAnimationDefaultExtension()));
-    m_pref.spriteSheet.defaultExtension(getExtension(exportSpriteSheetDefaultExtension()));
-    {
+    set_edited_value(m_globPref.timeline.firstFrame, firstFrame());
+    set_edited_value_by_item_text(m_pref.saveFile.defaultExtension, defaultExtension());
+    set_edited_value_by_item_text(m_pref.exportFile.imageDefaultExtension,
+                                  exportImageDefaultExtension());
+    set_edited_value_by_item_text(m_pref.exportFile.animationDefaultExtension,
+                                  exportAnimationDefaultExtension());
+    set_edited_value_by_item_text(m_pref.spriteSheet.defaultExtension,
+                                  exportSpriteSheetDefaultExtension());
+
+    if (recentFiles()->isEdited()) {
       const int limit = recentFiles()->getValue();
       m_pref.general.recentItems(limit);
       App::instance()->recentFiles()->setLimit(limit);
@@ -926,57 +978,66 @@ public:
                   Strings::alerts_restart_by_preferences_keep_closed_sprite_on_memory_for();
     }
 
-    m_pref.editor.autoScrollSpeed(autoScrollSpeed()->getValue());
-    m_pref.editor.rightClickMode(
-      static_cast<app::gen::RightClickMode>(rightClickBehavior()->getSelectedItemIndex()));
+    set_edited_value(m_pref.editor.autoScrollSpeed, autoScrollSpeed());
+    set_edited_value(m_pref.editor.rightClickMode, rightClickBehavior());
     if (m_samplingSelector)
       m_samplingSelector->save();
-    m_pref.cursor.paintingCursorType(
-      static_cast<app::gen::PaintingCursorType>(paintingCursorType()->getSelectedItemIndex()));
-    m_pref.cursor.cursorColor(cursorColor()->getColor());
-    m_pref.cursor.brushPreview(
-      static_cast<app::gen::BrushPreview>(brushPreview()->getSelectedItemIndex()));
-    m_pref.cursor.useNativeCursor(nativeCursor()->isSelected());
-    m_pref.cursor.cursorScale(base::convert_to<int>(cursorScale()->getValue()));
-    m_pref.guides.layerEdgesColor(layerEdgesColor()->getColor());
-    m_pref.guides.autoGuidesColor(autoGuidesColor()->getColor());
-    m_pref.slices.defaultColor(defaultSliceColor()->getColor());
 
-    m_pref.color.workingRgbSpace(
-      workingRgbCs()->getItemText(workingRgbCs()->getSelectedItemIndex()));
-    m_pref.color.filesWithProfile(filesWithCsMap[filesWithCs()->getSelectedItemIndex()]);
-    m_pref.color.missingProfile(missingCsMap[missingCs()->getSelectedItemIndex()]);
+    set_edited_value(m_pref.cursor.paintingCursorType, paintingCursorType());
+    set_edited_value(m_pref.cursor.cursorColor, cursorColor());
+    set_edited_value(m_pref.cursor.brushPreview, brushPreview());
+    set_edited_value(m_pref.cursor.useNativeCursor, nativeCursor());
+    if (cursorScale()->isEdited())
+      m_pref.cursor.cursorScale(base::convert_to<int>(cursorScale()->getValue()));
 
-    int winCs = windowCs()->getSelectedItemIndex();
-    switch (winCs) {
-      case 0:  m_pref.color.windowProfile(gen::WindowColorProfile::MONITOR); break;
-      case 1:  m_pref.color.windowProfile(gen::WindowColorProfile::SRGB); break;
-      default: {
-        m_pref.color.windowProfile(gen::WindowColorProfile::SPECIFIC);
+    set_edited_value(m_pref.guides.layerEdgesColor, layerEdgesColor());
+    set_edited_value(m_pref.guides.autoGuidesColor, autoGuidesColor());
+    set_edited_value(m_pref.slices.defaultColor, defaultSliceColor());
 
-        std::string name;
-        int j = 2;
-        for (auto& cs : m_colorSpaces) {
-          // We add ICC profiles only
-          auto& gfxCs = cs->gfxColorSpace();
-          if (gfxCs->type() != gfx::ColorSpace::ICC)
-            continue;
+    if (workingRgbCs()->isEdited()) {
+      m_pref.color.workingRgbSpace(
+        workingRgbCs()->getItemText(workingRgbCs()->getSelectedItemIndex()));
+    }
+    if (filesWithCs()->isEdited()) {
+      m_pref.color.filesWithProfile(filesWithCsMap[filesWithCs()->getSelectedItemIndex()]);
+    }
+    if (missingCs()->isEdited()) {
+      m_pref.color.missingProfile(missingCsMap[missingCs()->getSelectedItemIndex()]);
+    }
 
-          if (j == winCs) {
-            name = gfxCs->name();
-            break;
+    if (windowCs()->isEdited()) {
+      int winCs = windowCs()->getSelectedItemIndex();
+      switch (winCs) {
+        case 0:  m_pref.color.windowProfile(gen::WindowColorProfile::MONITOR); break;
+        case 1:  m_pref.color.windowProfile(gen::WindowColorProfile::SRGB); break;
+        default: {
+          m_pref.color.windowProfile(gen::WindowColorProfile::SPECIFIC);
+
+          std::string name;
+          int j = 2;
+          for (auto& cs : m_colorSpaces) {
+            // We add ICC profiles only
+            auto& gfxCs = cs->gfxColorSpace();
+            if (gfxCs->type() != gfx::ColorSpace::ICC)
+              continue;
+
+            if (j == winCs) {
+              name = gfxCs->name();
+              break;
+            }
+            ++j;
           }
-          ++j;
-        }
 
-        m_pref.color.windowProfileName(name);
-        break;
+          m_pref.color.windowProfileName(name);
+          break;
+        }
       }
     }
+
     update_windows_color_profile_from_preferences();
 
-    m_pref.range.alpha(static_cast<app::gen::AlphaRange>(alpha()->getSelectedItemIndex()));
-    m_pref.range.opacity(static_cast<app::gen::AlphaRange>(opacity()->getSelectedItemIndex()));
+    set_edited_value(m_pref.range.alpha, alpha());
+    set_edited_value(m_pref.range.opacity, opacity());
 
     // Change sprite grid bounds
     if (m_context && m_context->activeDocument() && m_context->activeDocument()->sprite() &&
@@ -992,43 +1053,51 @@ public:
       }
     }
 
-    m_curPref->show.grid(gridVisible()->isSelected());
-    m_curPref->grid.bounds(gridBounds());
-    m_curPref->grid.color(gridColor()->getColor());
-    m_curPref->grid.opacity(gridOpacity()->getValue());
-    m_curPref->grid.autoOpacity(gridAutoOpacity()->isSelected());
+    set_edited_value(m_curPref->show.grid, gridVisible());
+    if (gridBoundsEdited())
+      m_curPref->grid.bounds(gridBounds());
+    set_edited_value(m_curPref->grid.color, gridColor());
+    set_edited_value(m_curPref->grid.opacity, gridOpacity());
+    set_edited_value(m_curPref->grid.autoOpacity, gridAutoOpacity());
 
-    m_curPref->show.pixelGrid(pixelGridVisible()->isSelected());
-    m_curPref->pixelGrid.color(pixelGridColor()->getColor());
-    m_curPref->pixelGrid.opacity(pixelGridOpacity()->getValue());
-    m_curPref->pixelGrid.autoOpacity(pixelGridAutoOpacity()->isSelected());
+    set_edited_value(m_curPref->show.pixelGrid, pixelGridVisible());
+    set_edited_value(m_curPref->pixelGrid.color, pixelGridColor());
+    set_edited_value(m_curPref->pixelGrid.opacity, pixelGridOpacity());
+    set_edited_value(m_curPref->pixelGrid.autoOpacity, pixelGridAutoOpacity());
 
-    m_curPref->bg.type(app::gen::BgType(checkeredBgSize()->getSelectedItemIndex()));
+    set_edited_value(m_curPref->bg.type, checkeredBgSize());
     if (m_curPref->bg.type() == app::gen::BgType::CHECKERED_CUSTOM) {
-      m_curPref->bg.size(
-        gfx::Size(checkeredBgCustomW()->textInt(), checkeredBgCustomH()->textInt()));
+      if (checkeredBgCustomW()->isEdited() || checkeredBgCustomH()->isEdited()) {
+        m_curPref->bg.size(
+          gfx::Size(checkeredBgCustomW()->textInt(), checkeredBgCustomH()->textInt()));
+      }
     }
-    m_curPref->bg.zoom(checkeredBgZoom()->isSelected());
-    m_curPref->bg.color1(checkeredBgColor1()->getColor());
-    m_curPref->bg.color2(checkeredBgColor2()->getColor());
+    set_edited_value(m_curPref->bg.zoom, checkeredBgZoom());
+    set_edited_value(m_curPref->bg.color1, checkeredBgColor1());
+    set_edited_value(m_curPref->bg.color2, checkeredBgColor2());
 
     // Alerts preferences
-    m_pref.openFile.openSequence(gen::SequenceDecision(openSequence()->getSelectedItemIndex()));
+    set_edited_value(m_pref.openFile.openSequence, openSequence());
 
-    int undo_size_limit_value;
-    undo_size_limit_value = undoSizeLimit()->textInt();
-    undo_size_limit_value = std::clamp(undo_size_limit_value, 0, 999999);
+    if (limitUndo()->isEdited() || undoSizeLimit()->isEdited()) {
+      int undo_size_limit_value;
+      undo_size_limit_value = undoSizeLimit()->textInt();
+      undo_size_limit_value = std::clamp(undo_size_limit_value, 0, 999999);
 
-    m_pref.undo.sizeLimit(undo_size_limit_value);
+      m_pref.undo.sizeLimit(undo_size_limit_value);
+    }
 
     // Aseprite format preferences
-    m_pref.asepriteFormat.celFormat(gen::CelContentFormat(celFormat()->getSelectedItemIndex()));
+    set_edited_value(m_pref.asepriteFormat.celFormat, celFormat());
 
     // Experimental features
-    m_pref.experimental.nonactiveLayersOpacity(nonactiveLayersOpacity()->getValue());
-    m_pref.quantization.rgbmapAlgorithm(m_rgbmapAlgorithmSelector.algorithm());
-    m_pref.quantization.fitCriteria(m_bestFitCriteriaSelector.criteria());
-    m_pref.experimental.tooltipDelay(tooltipDelay()->textInt());
+    set_edited_value(m_pref.experimental.nonactiveLayersOpacity, nonactiveLayersOpacity());
+    if (m_rgbmapAlgorithmSelector.isEdited())
+      m_pref.quantization.rgbmapAlgorithm(m_rgbmapAlgorithmSelector.algorithm());
+    if (m_bestFitCriteriaSelector.isEdited())
+      m_pref.quantization.fitCriteria(m_bestFitCriteriaSelector.criteria());
+
+    set_edited_value(m_pref.experimental.tooltipDelay, tooltipDelay());
 
 #if LAF_WINDOWS
     // Windows API tablet settings
@@ -2418,6 +2487,11 @@ private:
   gfx::Rect gridBounds() const
   {
     return gfx::Rect(gridX()->textInt(), gridY()->textInt(), gridW()->textInt(), gridH()->textInt());
+  }
+
+  bool gridBoundsEdited() const
+  {
+    return gridX()->isEdited() || gridY()->isEdited() || gridW()->isEdited() || gridH()->isEdited();
   }
 
   static std::string userThemeFolder()
