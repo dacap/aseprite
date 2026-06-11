@@ -1302,6 +1302,16 @@ bool Widget::paintEvent(Graphics* graphics, const bool isBg)
   }
 #endif
 
+#if PAINT_EDITED
+  if (isEdited()) {
+    Paint paint;
+    paint.style(os::Paint::Fill);
+    paint.color(gfx::rgba(255, 0, 0, 128));
+    paint.blendMode(os::BlendMode::SrcOver);
+    graphics->drawRect(clientBounds(), paint);
+  }
+#endif
+
   return ev.isPainted();
 }
 

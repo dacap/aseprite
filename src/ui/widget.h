@@ -9,6 +9,8 @@
 #define UI_WIDGET_H_INCLUDED
 #pragma once
 
+// #define PAINT_EDITED 1
+
 #include "gfx/border.h"
 #include "gfx/color.h"
 #include "gfx/point.h"
@@ -134,7 +136,13 @@ public:
 
   // True if the user changed this widget value.
   bool isEdited() const { return hasFlags(EDITED); }
-  void setEdited() { enableFlags(EDITED); }
+  void setEdited()
+  {
+    enableFlags(EDITED);
+#if PAINT_EDITED
+    invalidate();
+#endif
+  }
 
   // ===============================================================
   // LOOK & FEEL
