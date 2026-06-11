@@ -1,4 +1,5 @@
 // Aseprite
+// Copyright (C) 2026-present  Igara Studio S.A.
 // Copyright (C) 2018  David Capello
 //
 // This program is distributed under the terms of
@@ -62,14 +63,22 @@ protected:
     if (msg->type() == kSavePreferencesMessage) {
       ASSERT(m_option);
 
-      // Update Option value.
-      (*m_option)(this->isSelected());
+      // Update the Option value only if the user touched the widget.
+      if (m_modifiedByUser)
+        (*m_option)(this->isSelected());
     }
     return Base::onProcessMessage(msg);
   }
 
+  void onClick() override
+  {
+    Base::onClick();
+    m_modifiedByUser = true;
+  }
+
 private:
   Option<bool>* m_option;
+  bool m_modifiedByUser = false;
 };
 
 } // namespace app
