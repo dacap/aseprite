@@ -834,12 +834,11 @@ public:
 
     showScrollbars()->setSelected(m_pref.editor.showScrollbars());
     autoScroll()->setSelected(m_pref.editor.autoScroll());
-    autoScrollSpeed()->setTextf("%d", m_pref.editor.autoScrollSpeed());
-    autoScrollSpeed()->setEnabled(autoScroll()->isSelected());
-    autoScrollSpeedLabel()->setEnabled(autoScroll()->isSelected());
+    autoScrollSpeed()->setValue(m_pref.editor.autoScrollSpeed());
+    autoScrollSpeedPlaceholder()->setVisible(autoScroll()->isSelected());
     autoScroll()->Click.connect([this] {
-      autoScrollSpeed()->setEnabled(autoScroll()->isSelected());
-      autoScrollSpeedLabel()->setEnabled(autoScroll()->isSelected());
+      autoScrollSpeedPlaceholder()->setVisible(autoScroll()->isSelected());
+      layout();
     });
     straightLinePreview()->setSelected(m_pref.editor.straightLinePreview());
     discardBrush()->setSelected(m_pref.eyedropper.discardBrush());
@@ -956,7 +955,7 @@ public:
     m_pref.editor.zoomFromCenterWithKeys(zoomFromCenterWithKeys()->isSelected());
     m_pref.editor.showScrollbars(showScrollbars()->isSelected());
     m_pref.editor.autoScroll(autoScroll()->isSelected());
-    m_pref.editor.autoScrollSpeed(std::clamp(autoScrollSpeed()->textInt(), 10, 500));
+    m_pref.editor.autoScrollSpeed(autoScrollSpeed()->getValue());
     m_pref.editor.straightLinePreview(straightLinePreview()->isSelected());
     m_pref.eyedropper.discardBrush(discardBrush()->isSelected());
     m_pref.editor.rightClickMode(

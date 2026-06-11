@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2025  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -575,6 +575,7 @@ void WidgetLoader::fillWidgetWithXmlElementAttributes(const XMLElement* elem,
   const char* border = elem->Attribute("border");
   const char* styleid = elem->Attribute("style");
   const char* childspacing = elem->Attribute("childspacing");
+  const char* indent = elem->Attribute("indent");
 
   if (width) {
     if (!minwidth)
@@ -681,6 +682,20 @@ void WidgetLoader::fillWidgetWithXmlElementAttributes(const XMLElement* elem,
         widget->setStyle(style);
       else
         throw base::Exception("Style %s not found", styleIdStr.c_str());
+    });
+  }
+
+  // Special attribute to add some extra space at the beginning to
+  // align with other element, e.g. a check-box that is above
+  if (indent) {
+    std::string indentStr = indent;
+    widget->InitTheme.connect([widget, indentStr] {
+      auto* theme = SkinTheme::get(widget);
+      if (ui::Style* style = theme->getStyleById(indentStr)) {
+        gfx::Size size = theme->calcSizeHint(widget, style);
+        gfx::Border border = theme->calcBorder(widget, style);
+        widget->setBorder(gfx::Border(size.w - border.width(), 0, 0, 0));
+      }
     });
   }
 
