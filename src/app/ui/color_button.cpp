@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2020-2024  Igara Studio S.A.
+// Copyright (C) 2020-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -161,6 +161,7 @@ bool ColorButton::onProcessMessage(Message* msg)
 
         Widget* picked = manager()->pickFromScreenPos(screenPos);
         if (picked == this) {
+          setEdited();
           setColor(m_startDragColor);
           break;
         }
@@ -200,6 +201,7 @@ bool ColorButton::onProcessMessage(Message* msg)
 
         // Did the color change?
         if (color != m_color) {
+          setEdited();
           setColor(color);
         }
       }
@@ -421,6 +423,7 @@ void ColorButton::onWindowClose(ui::CloseEvent& ev)
 
 void ColorButton::onWindowColorChange(const app::Color& color)
 {
+  setEdited();
   setColor(color);
 }
 

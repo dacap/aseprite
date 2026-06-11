@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2019-2025  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2016  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -274,6 +274,7 @@ void Slider::onPaint(PaintEvent& ev)
 
 void Slider::onChange()
 {
+  setEdited();
   Change(); // Emit Change signal
 }
 
