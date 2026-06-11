@@ -83,10 +83,12 @@
           <check id="show_aseprite_file_dialog"
                  text="@.show_aseprite_file_dialog" />
           <check id="show_home"
-                 text="@.show_home" />
+                 text="@.show_home"
+                 pref="general.show_home" />
           <check id="expand_menubar_on_mouseover"
                  text="@.expand_menu_bar_items_on_mouseover"
-                 tooltip="@.expand_menu_bar_items_on_mouseover_tooltip" />
+                 tooltip="@.expand_menu_bar_items_on_mouseover_tooltip"
+                 pref="general.expand_menubar_on_mouseover" />
           <check id="color_bar_entries_separator"
                  text="@.color_bar_entries_separator"
                  tooltip="@.color_bar_entries_separator"
@@ -128,7 +130,8 @@
             <boxfiller />
             <check id="show_full_path"
                    text="@.show_full_path"
-                   tooltip="@.show_full_path_tooltip" />
+                   tooltip="@.show_full_path_tooltip"
+                   pref="general.show_full_path" />
           </grid>
 
           <separator text="@.recover_files" horizontal="true" />
@@ -244,11 +247,15 @@
                  pref="editor.zoom_with_wheel" />
           <check text="@.slide_zoom" id="slide_zoom"
                  pref="editor.zoom_with_slide" />
-          <check text="@.zoom_from_center_with_wheel" id="zoom_from_center_with_wheel" />
-          <check text="@.zoom_from_center_with_keys" id="zoom_from_center_with_keys" />
-          <check text="@.show_scrollbars" id="show_scrollbars" tooltip="@.show_scrollbars_tooltip" />
+          <check text="@.zoom_from_center_with_wheel" id="zoom_from_center_with_wheel"
+                 pref="editor.zoom_from_center_with_wheel" />
+          <check text="@.zoom_from_center_with_keys" id="zoom_from_center_with_keys"
+                 pref="editor.zoom_from_center_with_keys" />
+          <check text="@.show_scrollbars" id="show_scrollbars" tooltip="@.show_scrollbars_tooltip"
+                 pref="editor.show_scrollbars" />
           <vbox>
-            <check text="@.auto_scroll" id="auto_scroll" />
+            <check text="@.auto_scroll" id="auto_scroll"
+                   pref="editor.auto_scroll" />
             <hbox id="auto_scroll_speed_placeholder" indent="check_box">
               <label text="@.auto_scroll_speed" id="auto_scroll_speed_label" />
               <slider id="auto_scroll_speed" min="10" max="500" value="100" width="128" />
@@ -256,8 +263,10 @@
           </vbox>
           <check text="@.auto_fit" id="auto_fit"
                  pref="editor.auto_fit" />
-          <check text="@.straight_line_preview" id="straight_line_preview" tooltip="@.straight_line_preview_tooltip" />
-          <check text="@.discard_brush" id="discard_brush" />
+          <check text="@.straight_line_preview" id="straight_line_preview" tooltip="@.straight_line_preview_tooltip"
+                 pref="editor.straight_line_preview" />
+          <check text="@.discard_brush" id="discard_brush"
+                 pref="eyedropper.discard_brush" />
           <hbox id="sampling_placeholder" />
           <hbox>
             <label text="@.right_click" for="right_click_behavior" />
@@ -268,12 +277,18 @@
         <!-- Selection -->
         <vbox id="section_selection">
           <separator text="@.editor_selection" horizontal="true" />
-          <check text="@.auto_opaque" id="auto_opaque" tooltip="@.auto_opaque_tooltip" />
-          <check text="@.keep_selection_after_clear" id="keep_selection_after_clear" tooltip="@.keep_selection_after_clear_tooltip" />
-          <check text="@.auto_show_selection_edges" id="auto_show_selection_edges" tooltip="@.auto_show_selection_edges_tooltip" />
-          <check text="@.move_edges" id="move_edges" tooltip="@.move_edges_tooltip" />
-          <check text="@.modifiers_disable_handles" id="modifiers_disable_handles" tooltip="@.modifiers_disable_handles_tooltip" />
-          <check text="@.move_on_add_mode" id="move_on_add_mode" tooltip="@.move_on_add_mode_tooltip" />
+          <check text="@.auto_opaque" id="auto_opaque" tooltip="@.auto_opaque_tooltip"
+                 pref="selection.auto_opaque" />
+          <check text="@.keep_selection_after_clear" id="keep_selection_after_clear" tooltip="@.keep_selection_after_clear_tooltip"
+                 pref="selection.keep_selection_after_clear" />
+          <check text="@.auto_show_selection_edges" id="auto_show_selection_edges" tooltip="@.auto_show_selection_edges_tooltip"
+                 pref="selection.auto_show_selection_edges" />
+          <check text="@.move_edges" id="move_edges" tooltip="@.move_edges_tooltip"
+                 pref="selection.move_edges" />
+          <check text="@.modifiers_disable_handles" id="modifiers_disable_handles" tooltip="@.modifiers_disable_handles_tooltip"
+                 pref="selection.modifiers_disable_handles" />
+          <check text="@.move_on_add_mode" id="move_on_add_mode" tooltip="@.move_on_add_mode_tooltip"
+                 pref="selection.move_on_add_mode" />
           <check text="@.select_tile_with_double_click" id="select_tile_with_double_click"
                  pref="selection.doubleclick_select_tile" />
           <check text="@.snap_to_grid_selection"
@@ -484,9 +499,11 @@
           <vbox>
             <check id="undo_goto_modified"
                    text="@.undo_goto_modified"
-                   tooltip="@.undo_goto_modified_tooltip" />
+                   tooltip="@.undo_goto_modified_tooltip"
+                   pref="undo.goto_modified" />
             <check id="undo_allow_nonlinear_history"
-                   text="@.undo_allow_nonlinear_history" />
+                   text="@.undo_allow_nonlinear_history"
+                   pref="undo.allow_nonlinear_history" />
             <check text="@.undo_show_tooltip" id="undo_show_tooltip"
                    pref="undo.show_tooltip" />
           </vbox>
@@ -629,8 +646,10 @@
           <check id="tint_shade_tone_hue_with_sat_value"
                  text="@.hue_with_sat_value"
                  pref="experimental.hue_with_sat_value_for_color_selector" />
-          <check id="flash_layer" text="@.flash_selected_layer" />
-          <check id="use_selection_tool_loop" text="@.use_selection_tool_loop" />
+          <check id="flash_layer" text="@.flash_selected_layer"
+                 pref="experimental.flash_layer" />
+          <check id="use_selection_tool_loop" text="@.use_selection_tool_loop"
+                 pref="experimental.use_selection_tool_loop" />
           <hbox>
             <label for="tooltip_delay" text="@.tooltip_delay" />
             <expr id="tooltip_delay" suffix="@.tooltip_delay_unit" />

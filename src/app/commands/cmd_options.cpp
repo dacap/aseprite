@@ -761,8 +761,6 @@ public:
     firstFrame()->setTextf("%d", m_globPref.timeline.firstFrame());
 
     // Others
-    expandMenubarOnMouseover()->setSelected(m_pref.general.expandMenubarOnMouseover());
-
     enableDataRecovery()->setSelected(m_pref.general.dataRecovery());
 
     if (m_pref.general.dataRecovery() && m_pref.general.keepEditedSpriteData())
@@ -773,7 +771,6 @@ public:
     }
 
     keepClosedSpriteOnMemory()->setSelected(m_pref.general.keepClosedSpriteOnMemory());
-    showFullPath()->setSelected(m_pref.general.showFullPath());
 
     dataRecoveryPeriod()->setSelectedItemIndex(dataRecoveryPeriod()->findItemIndexByValue(
       base::convert_to<std::string>(m_pref.general.dataRecoveryPeriod())));
@@ -784,15 +781,6 @@ public:
     keepClosedSpriteOnMemoryFor()->setSelectedItemIndex(
       keepClosedSpriteOnMemoryFor()->findItemIndexByValue(
         base::convert_to<std::string>(m_pref.general.keepClosedSpriteOnMemoryFor())));
-
-    zoomFromCenterWithWheel()->setSelected(m_pref.editor.zoomFromCenterWithWheel());
-    zoomFromCenterWithKeys()->setSelected(m_pref.editor.zoomFromCenterWithKeys());
-    autoOpaque()->setSelected(m_pref.selection.autoOpaque());
-    keepSelectionAfterClear()->setSelected(m_pref.selection.keepSelectionAfterClear());
-    autoShowSelectionEdges()->setSelected(m_pref.selection.autoShowSelectionEdges());
-    moveEdges()->setSelected(m_pref.selection.moveEdges());
-    modifiersDisableHandles()->setSelected(m_pref.selection.modifiersDisableHandles());
-    moveOnAddMode()->setSelected(m_pref.selection.moveOnAddMode());
 
     // If the platform supports native cursors...
     if ((int(m_system->capabilities()) & int(os::Capabilities::CustomMouseCursor)) != 0) {
@@ -825,23 +813,17 @@ public:
     }
 #endif
 
-    useSelectionToolLoop()->setSelected(m_pref.experimental.useSelectionToolLoop());
-    flashLayer()->setSelected(m_pref.experimental.flashLayer());
     nonactiveLayersOpacity()->setValue(m_pref.experimental.nonactiveLayersOpacity());
 
     m_rgbmapAlgorithmSelector.algorithm(m_pref.quantization.rgbmapAlgorithm());
     m_bestFitCriteriaSelector.criteria(m_pref.quantization.fitCriteria());
 
-    showScrollbars()->setSelected(m_pref.editor.showScrollbars());
-    autoScroll()->setSelected(m_pref.editor.autoScroll());
     autoScrollSpeed()->setValue(m_pref.editor.autoScrollSpeed());
     autoScrollSpeedPlaceholder()->setVisible(autoScroll()->isSelected());
     autoScroll()->Click.connect([this] {
       autoScrollSpeedPlaceholder()->setVisible(autoScroll()->isSelected());
       layout();
     });
-    straightLinePreview()->setSelected(m_pref.editor.straightLinePreview());
-    discardBrush()->setSelected(m_pref.eyedropper.discardBrush());
 
     // Update the one/multiple window buttonset (and keep in on sync
     // with the old/experimental checkbox)
@@ -859,17 +841,12 @@ public:
     if (m_system->menus())
       showMenuBar()->setSelected(m_pref.general.showMenuBar());
 
-    showHome()->setSelected(m_pref.general.showHome());
-
     // Right-click
     rightClickBehavior()->setSelectedItemIndex((int)m_pref.editor.rightClickMode());
 
     // Undo preferences
     limitUndo()->setSelected(m_pref.undo.sizeLimit() != 0);
     onLimitUndoCheck();
-
-    undoGotoModified()->setSelected(m_pref.undo.gotoModified());
-    undoAllowNonlinearHistory()->setSelected(m_pref.undo.allowNonlinearHistory());
 
     onChangeBgScope();
     onChangeGridScope();
@@ -905,7 +882,6 @@ public:
     }
 
     m_globPref.timeline.firstFrame(firstFrame()->textInt());
-    m_pref.general.showFullPath(showFullPath()->isSelected());
     m_pref.saveFile.defaultExtension(getExtension(defaultExtension()));
     m_pref.exportFile.imageDefaultExtension(getExtension(exportImageDefaultExtension()));
     m_pref.exportFile.animationDefaultExtension(getExtension(exportAnimationDefaultExtension()));
@@ -916,8 +892,7 @@ public:
       App::instance()->recentFiles()->setLimit(limit);
     }
 
-    bool expandOnMouseover = expandMenubarOnMouseover()->isSelected();
-    m_pref.general.expandMenubarOnMouseover(expandOnMouseover);
+    const bool expandOnMouseover = expandMenubarOnMouseover()->isSelected();
     ui::MenuBar::setExpandOnMouseover(expandOnMouseover);
 
     std::string warnings;
@@ -951,13 +926,7 @@ public:
                   Strings::alerts_restart_by_preferences_keep_closed_sprite_on_memory_for();
     }
 
-    m_pref.editor.zoomFromCenterWithWheel(zoomFromCenterWithWheel()->isSelected());
-    m_pref.editor.zoomFromCenterWithKeys(zoomFromCenterWithKeys()->isSelected());
-    m_pref.editor.showScrollbars(showScrollbars()->isSelected());
-    m_pref.editor.autoScroll(autoScroll()->isSelected());
     m_pref.editor.autoScrollSpeed(autoScrollSpeed()->getValue());
-    m_pref.editor.straightLinePreview(straightLinePreview()->isSelected());
-    m_pref.eyedropper.discardBrush(discardBrush()->isSelected());
     m_pref.editor.rightClickMode(
       static_cast<app::gen::RightClickMode>(rightClickBehavior()->getSelectedItemIndex()));
     if (m_samplingSelector)
@@ -969,12 +938,6 @@ public:
       static_cast<app::gen::BrushPreview>(brushPreview()->getSelectedItemIndex()));
     m_pref.cursor.useNativeCursor(nativeCursor()->isSelected());
     m_pref.cursor.cursorScale(base::convert_to<int>(cursorScale()->getValue()));
-    m_pref.selection.autoOpaque(autoOpaque()->isSelected());
-    m_pref.selection.keepSelectionAfterClear(keepSelectionAfterClear()->isSelected());
-    m_pref.selection.autoShowSelectionEdges(autoShowSelectionEdges()->isSelected());
-    m_pref.selection.moveEdges(moveEdges()->isSelected());
-    m_pref.selection.modifiersDisableHandles(modifiersDisableHandles()->isSelected());
-    m_pref.selection.moveOnAddMode(moveOnAddMode()->isSelected());
     m_pref.guides.layerEdgesColor(layerEdgesColor()->getColor());
     m_pref.guides.autoGuidesColor(autoGuidesColor()->getColor());
     m_pref.slices.defaultColor(defaultSliceColor()->getColor());
@@ -1057,15 +1020,11 @@ public:
     undo_size_limit_value = std::clamp(undo_size_limit_value, 0, 999999);
 
     m_pref.undo.sizeLimit(undo_size_limit_value);
-    m_pref.undo.gotoModified(undoGotoModified()->isSelected());
-    m_pref.undo.allowNonlinearHistory(undoAllowNonlinearHistory()->isSelected());
 
     // Aseprite format preferences
     m_pref.asepriteFormat.celFormat(gen::CelContentFormat(celFormat()->getSelectedItemIndex()));
 
     // Experimental features
-    m_pref.experimental.useSelectionToolLoop(useSelectionToolLoop()->isSelected());
-    m_pref.experimental.flashLayer(flashLayer()->isSelected());
     m_pref.experimental.nonactiveLayersOpacity(nonactiveLayersOpacity()->getValue());
     m_pref.quantization.rgbmapAlgorithm(m_rgbmapAlgorithmSelector.algorithm());
     m_pref.quantization.fitCriteria(m_bestFitCriteriaSelector.criteria());
@@ -1161,8 +1120,6 @@ public:
     if (m_system->menus() && m_pref.general.showMenuBar() != showMenuBar()->isSelected()) {
       m_pref.general.showMenuBar(showMenuBar()->isSelected());
     }
-
-    m_pref.general.showHome(showHome()->isSelected());
 
     m_pref.save();
 
