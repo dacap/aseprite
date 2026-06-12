@@ -267,6 +267,25 @@ TEST(Engine, LingeringObjects)
   EXPECT_FALSE(engine->hasLingeringObjects());
 }
 
+TEST(Engine, LingeringSpriteEvents)
+{
+  INIT_ENGINE_TEST()
+
+  auto engine = std::make_shared<Engine>();
+
+  EXPECT_FALSE(engine->hasLingeringObjects());
+
+  engine->evalCode(R"(
+  sprite = Sprite(128, 128)
+  listener = sprite.events:on('filenamechange', function() end))");
+
+  EXPECT_TRUE(engine->hasLingeringObjects());
+
+  engine->evalCode("sprite:close()");
+
+  EXPECT_FALSE(engine->hasLingeringObjects());
+}
+
 TEST(Engine, MemoryLimit)
 {
   INIT_ENGINE_TEST()
