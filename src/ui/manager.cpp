@@ -10,7 +10,6 @@
 // #define REPORT_PAINT_MESSAGES     1
 // #define REPORT_TIMER_MESSAGES     1
 // #define REPORT_FOCUS_MOVEMENT     1
-// #define DEBUG_PAINT_MESSAGES      1
 // #define LIMIT_DISPATCH_TIME       1
 #define GARBAGE_TRACE(...) // TRACE(__VA_ARGS__)
 #define CAPTURE_TRACE(...) // TRACE(__VA_ARGS__)
@@ -46,13 +45,6 @@
 #include <thread>
 #include <utility>
 #include <vector>
-
-#if defined(_WIN32) && defined(DEBUG_PAINT_MESSAGES)
-  #define WIN32_LEAN_AND_MEAN
-  #include <windows.h>
-  #undef min
-  #undef max
-#endif
 
 namespace ui {
 
@@ -2044,26 +2036,26 @@ bool Manager::sendMessageToWidget(Message* msg, Widget* widget)
 
     if (surface->clipRect(paintMsg->rect())) {
 #if DEBUG_PAINT_MESSAGES
-      {
-        os::SurfaceLock lock(surface.get());
-        os::Paint p;
-        p.color(gfx::rgba(0, 0, 255));
-        p.style(os::Paint::Fill);
-        surface->drawRect(paintMsg->rect(), p);
+      if (!paintMsg->delayed()) {
+        // Paint a blue rectangle where the widget will be finally
+        // painted.
+        GraphicsPtr g = widget->getGraphics(widget->toClient(paintMsg->rect()));
+        g->fillRect(gfx::rgba(0, 0, 255), widget->clientBounds());
 
-        display->nativeWindow()->invalidateRegion(gfx::Region(paintMsg->rect()));
+        PaintMessage* delayedPaint = new PaintMessage(*paintMsg);
+        delayedPaint->delayed(true);
 
-  #ifdef _WIN32 // TODO add a display->nativeWindow()->updateNow() method ??
-        HWND hwnd = (HWND)display->nativeWindow()->nativeHandle();
-        UpdateWindow(hwnd);
-  #else
-        base::this_thread::sleep_for(0.002);
-  #endif
+        // Use the concurrent_msg_queue to send the message in a
+        // second generateMessages() call and give some time to the OS
+        // to process/display the blue rectangle.
+        concurrent_msg_queue.push(delayedPaint);
       }
-#endif
-
       // Call the message handler
-      used = widget->sendMessage(msg);
+      else
+#endif
+      {
+        used = widget->sendMessage(msg);
+      }
     }
 
     // Restore clip region for paint messages.
