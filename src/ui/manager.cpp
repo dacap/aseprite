@@ -1191,81 +1191,77 @@ void Manager::freeWidget(Widget* widget)
   ASSERT(!Manager::widgetAssociatedToManager(widget));
 }
 
-void Manager::removeMessagesFor(Widget* widget)
+void Manager::removeQueuedMessageIf(std::function<bool(Message*)> pred)
 {
   ASSERT(manager_thread == std::this_thread::get_id());
 
-  for (Message* msg : msg_queue)
-    msg->removeRecipient(widget);
+  Messages queues[] = {
+    msg_queue,
+    used_msg_queue,
+  };
 
-  for (Message* msg : used_msg_queue)
+  for (Messages& queue : queues) {
+    for (auto it = queue.begin(), end = queue.end(); it != end;) {
+      Message* msg = *it;
+      if (pred(msg)) {
+        it = queue.erase(it);
+        end = queue.end();
+      }
+      else {
+        ++it;
+      }
+    }
+  }
+}
+
+void Manager::removeMessagesFor(Widget* widget)
+{
+  removeQueuedMessageIf([widget](Message* msg) {
     msg->removeRecipient(widget);
+    return false;
+  });
 }
 
 void Manager::removeMessagesFor(Widget* widget, MessageType type)
 {
-  ASSERT(manager_thread == std::this_thread::get_id());
-
-  for (Message* msg : msg_queue)
+  removeQueuedMessageIf([widget, type](Message* msg) {
     if (msg->type() == type)
       msg->removeRecipient(widget);
-
-  for (Message* msg : used_msg_queue)
-    if (msg->type() == type)
-      msg->removeRecipient(widget);
+    return false;
+  });
 }
 
 void Manager::removeMessagesForTimer(Timer* timer)
 {
-  ASSERT(manager_thread == std::this_thread::get_id());
-
-  for (Message* msg : msg_queue) {
+  removeQueuedMessageIf([timer](Message* msg) {
     if (msg->type() == kTimerMessage && static_cast<TimerMessage*>(msg)->timer() == timer) {
       msg->removeRecipient(msg->recipient());
       static_cast<TimerMessage*>(msg)->_resetTimer();
     }
-  }
-
-  for (Message* msg : used_msg_queue) {
-    if (msg->type() == kTimerMessage && static_cast<TimerMessage*>(msg)->timer() == timer) {
-      msg->removeRecipient(msg->recipient());
-      static_cast<TimerMessage*>(msg)->_resetTimer();
-    }
-  }
+    return false;
+  });
 }
 
 void Manager::removeMessagesForDisplay(Display* display)
 {
-  ASSERT(manager_thread == std::this_thread::get_id());
-
-  for (Message* msg : msg_queue) {
+  removeQueuedMessageIf([display](Message* msg) {
     if (msg->display() == display) {
       msg->removeRecipient(msg->recipient());
       msg->setDisplay(nullptr);
     }
-  }
-
-  for (Message* msg : used_msg_queue) {
-    if (msg->display() == display) {
-      msg->removeRecipient(msg->recipient());
-      msg->setDisplay(nullptr);
-    }
-  }
+    return false;
+  });
 }
 
 void Manager::removePaintMessagesForDisplay(Display* display)
 {
-  ASSERT(manager_thread == std::this_thread::get_id());
-
-  for (auto it = msg_queue.begin(); it != msg_queue.end();) {
-    Message* msg = *it;
+  removeQueuedMessageIf([display](Message* msg) {
     if (msg->type() == kPaintMessage && msg->display() == display) {
       delete msg;
-      it = msg_queue.erase(it);
+      return true;
     }
-    else
-      ++it;
-  }
+    return false;
+  });
 }
 
 void Manager::addMessageFilter(int message, Widget* widget)
