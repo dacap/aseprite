@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2024  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -37,6 +37,7 @@
 #include "ui/base.h"
 #include "ui/cursor_type.h"
 #include "ui/mouse_button.h"
+#include "ui/system.h"
 
 #include <fstream>
 #include <sstream>
@@ -630,7 +631,20 @@ SpriteEvents* Engine::spriteEvents(const Sprite* sprite)
   auto* spriteEvents = new SpriteEvents(L, sprite);
   auto id = sprite->id();
   m_spriteEvents[id].reset(spriteEvents);
-  spriteEvents->SpriteClosed.connect([this, id] { m_spriteEvents.erase(id); });
+
+  spriteEvents->SpriteClosed.connect([this, id] {
+    auto it = m_spriteEvents.find(id);
+    if (it != m_spriteEvents.end()) {
+      // We cannot delete the SpriteEvent here because we are
+      // iterating the same SpriteClosed connection of this
+      // SpriteEvent.
+      m_deletedSpriteEvents.push_back(std::move(it->second));
+      m_spriteEvents.erase(it);
+
+      ui::execute_from_ui_thread([this] { m_deletedSpriteEvents.clear(); });
+    }
+  });
+
   return spriteEvents;
 }
 

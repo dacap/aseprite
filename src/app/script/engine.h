@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2025  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -132,6 +132,7 @@ private:
   std::unique_ptr<AppEvents> m_appEvents;
   std::unique_ptr<WindowEvents> m_windowEvents;
   std::map<doc::ObjectId, std::unique_ptr<SpriteEvents>> m_spriteEvents;
+  std::vector<std::unique_ptr<SpriteEvents>> m_deletedSpriteEvents;
 
   // Holds the base "entry point" of this engine, the last filename with which evalUserFile was
   // called, remains after execution has finished, for any events/dialogs that might need to run
