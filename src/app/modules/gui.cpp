@@ -156,10 +156,10 @@ static bool create_main_window(bool gpuAccel, bool& maximized, std::string& last
   }
 
   if (main_window) {
-    // Change the scale value only in the first run (this will be
-    // saved when the program is closed).
+    // Change the default Screen Scale value to the one configured in
+    // the main window by default.
     if (scale == 0)
-      Preferences::instance().general.screenScale(main_window->scale());
+      Preferences::instance().general.screenScale.setValueAndDefault(main_window->scale());
 
     main_window->setGpuAcceleration(gpuAccel);
 
