@@ -9,12 +9,25 @@
 #define APP_PREF_OPTION_H_INCLUDED
 #pragma once
 
+// Uncomment to trace preference changes
+// #define TRACE_PREF_CHANGES 1
+
 #include "obs/signal.h"
-#include <string>
 
 #ifdef ENABLE_SCRIPTING
   #include "app/script/values.h"
 #endif
+
+#if TRACE_PREF_CHANGES
+  #include "app/color.h"
+  #include "base/convert_to.h"
+  #include "gfx/point_io.h"
+  #include "gfx/rect_io.h"
+  #include "gfx/size_io.h"
+#endif
+
+#include <string>
+#include <type_traits>
 
 namespace app {
 
@@ -89,13 +102,8 @@ public:
   // Changes the default value and the current one.
   void setValueAndDefault(const T& value)
   {
-    bool wasDirty = isDirty();
-
     setDefaultValue(value);
-    setValue(value);
-
-    if (!wasDirty)
-      cleanDirtyFlag();
+    setValue(value, false);
   }
 
   const T& defaultValue() const { return m_default; }
@@ -105,10 +113,30 @@ public:
   void forceDirtyFlag() { m_dirty = true; }
   void cleanDirtyFlag() { m_dirty = false; }
 
-  void setValue(const T& newValue)
+  void setValue(const T& newValue, const bool touchDirty = true)
   {
+#if TRACE_PREF_CHANGES
+    if (touchDirty && m_section) {
+      std::stringstream s;
+      if constexpr (std::is_enum<T>::value) {
+        s << std::underlying_type_t<T>(newValue);
+      }
+      else if constexpr (std::is_scalar<T>::value) {
+        s << newValue;
+      }
+      else if constexpr (std::is_same<T, app::Color>::value) {
+        s << newValue.toString();
+      }
+      else {
+        s << newValue;
+      }
+      TRACE("%s.%s = %s\n", m_section->name(), id(), s.str().c_str());
+    }
+#endif // TRACE_PREF_CHANGES
+
     if (m_value == newValue) {
-      m_dirty = true;
+      if (touchDirty)
+        m_dirty = true;
       return;
     }
 
@@ -117,7 +145,8 @@ public:
       m_section->BeforeChange();
 
     m_value = newValue;
-    m_dirty = true;
+    if (touchDirty)
+      m_dirty = true;
 
     AfterChange(newValue);
     if (m_section)
