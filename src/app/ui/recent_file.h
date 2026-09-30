@@ -203,12 +203,17 @@ protected:
   void onSizeHint(SizeHintEvent& ev) override
   {
     gfx::Size textSize;
+
+    // Create blobs & rectangles
+    filenameBlob();
+    pathBlob();
+
     if (Preferences::instance().general.showFullPath()) {
-      textSize = gfx::Size(std::max<int>(pathBlob()->bounds().w, filenameBlob()->bounds().w),
-                           pathBlob()->bounds().h + (2 * guiscale()) + filenameBlob()->bounds().h);
+      textSize = gfx::Size(std::max<int>(m_pathBlobBounds.w, m_filenameBlobBounds.w),
+                           m_pathBlobBounds.h + (2 * guiscale()) + m_filenameBlobBounds.h);
     }
     else {
-      textSize = gfx::Size(pathBlob()->bounds().w, pathBlob()->bounds().h + (2 * guiscale()));
+      textSize = gfx::Size(m_pathBlobBounds.w, m_pathBlobBounds.h + (2 * guiscale()));
     }
 
     if (m_isHorizontal) {
@@ -224,6 +229,10 @@ protected:
   void onPaint(PaintEvent& ev) override
   {
     Graphics* g = ev.graphics();
+
+    // Create blobs & rectangles
+    filenameBlob();
+    pathBlob();
 
     const auto* theme = skin::SkinTheme::get(this);
     const bool underline = hasFlags(HAS_MOUSE) || hasFocus();
@@ -301,11 +310,11 @@ protected:
       textPoint = gfx::PointF(
         thumb.x2() + lineSeparation,
         point.y + (thumb.h / 2.0) -
-          ((filenameBlob()->bounds().h + lineSeparation + pathBlob()->bounds().h) / 2.0));
+          ((m_filenameBlobBounds.h + lineSeparation + m_pathBlobBounds.h) / 2.0));
     }
     else if (m_isHorizontal) {
       textPoint = gfx::PointF(thumb.x2() + lineSeparation,
-                              point.y + (thumb.h / 2.0) - (filenameBlob()->bounds().h / 2.0));
+                              point.y + (thumb.h / 2.0) - (m_filenameBlobBounds.h / 2.0));
     }
     else {
       textPoint = gfx::PointF(thumb.x, thumb.y2() + lineSeparation);
@@ -327,16 +336,16 @@ protected:
     paint.color(theme->colors.workspaceText());
 
     if (underline)
-      g->drawLine(textPoint + gfx::PointF(0, m_filenameBlob->bounds().h),
-                  textPoint + gfx::PointF(m_filenameBlob->bounds().w, m_filenameBlob->bounds().h),
+      g->drawLine(textPoint + gfx::PointF(0, m_filenameBlobBounds.h),
+                  textPoint + gfx::PointF(m_filenameBlobBounds.w, m_filenameBlobBounds.h),
                   paint);
 
     if (path) {
-      textPoint += gfx::Point(0, m_filenameBlob->bounds().h + lineSeparation);
+      textPoint += gfx::Point(0, m_filenameBlobBounds.h + lineSeparation);
       g->drawTextBlob(pathBlob(), textPoint, paint);
       if (underline)
-        g->drawLine(textPoint + gfx::PointF(0, m_pathBlob->bounds().h),
-                    textPoint + gfx::PointF(m_pathBlob->bounds().w, m_pathBlob->bounds().h),
+        g->drawLine(textPoint + gfx::PointF(0, m_pathBlobBounds.h),
+                    textPoint + gfx::PointF(m_pathBlobBounds.w, m_pathBlobBounds.h),
                     paint);
     }
   }
@@ -347,6 +356,8 @@ private:
     if (!m_filenameBlob) {
       const auto* theme = skin::SkinTheme::get(this);
       m_filenameBlob = text::TextBlob::MakeWithShaper(theme->fontMgr(), font(), m_filename);
+      if (m_filenameBlob)
+        m_filenameBlobBounds = m_filenameBlob->bounds();
     }
     return m_filenameBlob;
   }
@@ -357,6 +368,8 @@ private:
       const auto* theme = skin::SkinTheme::get(this);
       m_pathBlob =
         text::TextBlob::MakeWithShaper(theme->fontMgr(), theme->getMiniFont(), m_visiblePath);
+      if (m_pathBlob)
+        m_pathBlobBounds = m_pathBlob->bounds();
     }
     return m_pathBlob;
   }
@@ -393,6 +406,9 @@ private:
 
   text::TextBlobRef m_filenameBlob;
   text::TextBlobRef m_pathBlob;
+
+  gfx::Rect m_filenameBlobBounds;
+  gfx::Rect m_pathBlobBounds;
 
   int m_thumbnailSize;
   bool m_isPinned;
