@@ -458,8 +458,7 @@ void BrushPopup::onBrushChanges()
     getDrawableRegion(rgn, kCutTopWindowsAndUseChildArea);
 
     Display* mainDisplay = manager()->display();
-    regenerate(mainDisplay,
-               mainDisplay->nativeWindow()->pointFromScreen(boundsOnScreen().origin()));
+    regenerate(mainDisplay, mainDisplay->pointFromScreen(boundsOnScreen().origin()));
     invalidate();
 
     parent()->invalidateRegion(rgn);

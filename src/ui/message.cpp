@@ -92,19 +92,16 @@ Shortcut KeyMessage::shortcut() const
 
 gfx::Point MouseMessage::positionForDisplay(Display* anotherDisplay) const
 {
-  if (display() == anotherDisplay) {
+  if (display() == anotherDisplay)
     return position(); // There is no need for transformation
-  }
-  else {
-    ASSERT(anotherDisplay);
-    ASSERT(anotherDisplay->nativeWindow());
-    return anotherDisplay->nativeWindow()->pointFromScreen(screenPosition());
-  }
+
+  ASSERT(anotherDisplay);
+  return anotherDisplay->pointFromScreen(screenPosition());
 }
 
 gfx::Point MouseMessage::screenPosition() const
 {
-  return display()->nativeWindow()->pointToScreen(position());
+  return display()->pointToScreen(position());
 }
 
 Shortcut MouseMessage::shortcut() const

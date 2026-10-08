@@ -204,7 +204,7 @@ bool ListBox::onProcessMessage(Message* msg)
       if (hasCapture()) {
         gfx::Point screenPos = msg->display()->nativeWindow()->pointToScreen(
           static_cast<MouseMessage*>(msg)->position());
-        gfx::Point mousePos = display()->nativeWindow()->pointFromScreen(screenPos);
+        gfx::Point mousePos = display()->pointFromScreen(screenPos);
         View* view = View::getView(this);
         bool pick_item = true;
 

@@ -273,10 +273,10 @@ bool TipWindow::pointAt(int arrowAlign, const gfx::Rect& target, const ui::Displ
 
     if (get_multiple_displays()) {
       const gfx::Rect waBounds = nativeParentWindow->screen()->workarea();
-      gfx::Point pt = nativeParentWindow->pointToScreen(gfx::Point(x, y));
+      gfx::Point pt = display->pointToScreen(gfx::Point(x, y));
       pt.x = std::clamp(pt.x, waBounds.x, std::max(waBounds.x, waBounds.x2() - w));
       pt.y = std::clamp(pt.y, waBounds.y, std::max(waBounds.y, waBounds.y2() - h));
-      pt = nativeParentWindow->pointFromScreen(pt);
+      pt = display->pointFromScreen(pt);
       x = pt.x;
       y = pt.y;
     }
@@ -320,8 +320,8 @@ void TipWindow::adjustTargetFrom(const ui::Display* targetDisplay)
   // Convert the target relative to this window coordinates
   if (get_multiple_displays()) {
     gfx::Point pt = m_target.origin();
-    pt = targetDisplay->nativeWindow()->pointToScreen(pt);
-    pt = display()->nativeWindow()->pointFromScreen(pt);
+    pt = targetDisplay->pointToScreen(pt);
+    pt = display()->pointFromScreen(pt);
     m_target.setOrigin(pt);
   }
   else {

@@ -101,14 +101,14 @@ bool TileButton::onProcessMessage(Message* msg)
         // tile from other display, i.e. and editor in other native
         // window.
         if (!tileSource && get_multiple_displays()) {
-          os::Window* nativeWindow = display()->nativeWindow();
-          gfx::Point screenPos = nativeWindow->pointToScreen(mousePos);
+          Display* display = this->display();
+          gfx::Point screenPos = display->pointToScreen(mousePos);
 
           picked = manager()->pickFromScreenPos(screenPos);
           tileSource = (picked != this ? dynamic_cast<ITileSource*>(picked) : nullptr);
           if (tileSource) {
-            nativeWindow = picked->display()->nativeWindow();
-            mousePos = nativeWindow->pointFromScreen(screenPos);
+            display = picked->display();
+            mousePos = display->pointFromScreen(screenPos);
           }
         }
 

@@ -330,7 +330,7 @@ DropViewAtResult WorkspacePanel::dropViewAt(const gfx::Point& screenPos,
 
 int WorkspacePanel::calculateDropArea(const gfx::Point& screenPos) const
 {
-  const gfx::Point pos = display()->nativeWindow()->pointFromScreen(screenPos);
+  const gfx::Point pos = display()->pointFromScreen(screenPos);
   const gfx::Rect rc = childrenBounds();
   if (rc.contains(pos)) {
     int left = ABS(rc.x - pos.x);

@@ -179,10 +179,7 @@ void EyedropperCommand::onExecute(Context* context)
     return;
 
   Editor* editor = static_cast<Editor*>(widget);
-  executeOnMousePos(context,
-                    editor,
-                    editor->display()->nativeWindow()->pointFromScreen(mousePos),
-                    !m_background);
+  executeOnMousePos(context, editor, editor->display()->pointFromScreen(mousePos), !m_background);
 }
 
 void EyedropperCommand::executeOnMousePos(Context* context,

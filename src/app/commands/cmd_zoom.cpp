@@ -110,7 +110,7 @@ void ZoomCommand::onExecute(Context* context)
 
   editor->setZoomAndCenterInMouse(
     zoom,
-    editor->display()->nativeWindow()->pointFromScreen(mousePos),
+    editor->display()->pointFromScreen(mousePos),
     (focus == Focus::Center ? Editor::ZoomBehavior::CENTER : Editor::ZoomBehavior::MOUSE));
 }
 
