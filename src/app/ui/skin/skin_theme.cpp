@@ -1396,8 +1396,7 @@ public:
     : m_widget(widget)
     , m_graphics(graphics)
     , m_caretDrawn(false)
-    // m_lastX is an absolute position on screen
-    , m_lastX(pos.x + m_widget->bounds().x)
+    , m_lastX(pos.x)
     , m_y(pos.y)
     , m_h(h)
   {
@@ -1450,19 +1449,16 @@ public:
     m_textBounds |= charBounds;
     m_charStartX = charBounds.x;
 
-    if (charBounds.x2() - m_widget->bounds().x < m_widget->clientBounds().x2()) {
+    if (charBounds.x2() < m_widget->clientBounds().x2()) {
       if (m_bg != ColorNone) {
         // Fill the background here, accounts for regions with TTF fonts where the char is smaller
         // than the text bounds [m_y,m_y+m_h)
-        m_graphics->fillRect(
-          m_bg,
-          gfx::Rect(m_lastX - m_widget->bounds().x, m_y, charBounds.x2() - m_lastX, m_h));
+        m_graphics->fillRect(m_bg, gfx::Rect(m_lastX, m_y, charBounds.x2() - m_lastX, m_h));
       }
       m_lastX = charBounds.x2();
       return true;
     }
-    else
-      return false;
+    return false;
   }
 
   void postDrawChar(const gfx::Rect& charBounds) override
@@ -1470,7 +1466,7 @@ public:
     // Caret
     if (m_state && m_index == m_caret && m_widget->hasFocus() && m_widget->isEnabled()) {
       auto theme = SkinTheme::get(m_widget);
-      theme->drawEntryCaret(m_graphics, m_widget, m_charStartX - m_widget->bounds().x, m_y);
+      theme->drawEntryCaret(m_graphics, m_widget, m_charStartX, m_y);
       m_caretDrawn = true;
     }
 
@@ -1489,7 +1485,7 @@ private:
   gfx::Color m_bg;
   int m_lastX; // Last position used to fill the background
   int m_y, m_h;
-  int m_charStartX;
+  int m_charStartX = 0;
   int m_suffixIndex;
 };
 
@@ -1497,9 +1493,7 @@ private:
 
 void SkinTheme::drawEntryText(ui::Graphics* g, ui::Entry* widget)
 {
-  // Draw the text
   gfx::Rect bounds = widget->getEntryTextBounds();
-
   DrawEntryTextDelegate delegate(widget, g, bounds.origin(), widget->textHeight());
   int scroll = delegate.index();
 
@@ -1539,10 +1533,7 @@ void SkinTheme::drawEntryText(ui::Graphics* g, ui::Entry* widget)
   if (!delegate.caretDrawn()) {
     bounds.x += delegate.textBounds().w;
 
-    gfx::Rect charBounds(bounds.x + widget->bounds().x,
-                         bounds.y + widget->bounds().y,
-                         0,
-                         widget->textHeight());
+    gfx::Rect charBounds(bounds.x, bounds.y, 0, widget->textHeight());
     delegate.preDrawChar(charBounds);
     delegate.postDrawChar(charBounds);
   }
@@ -1552,7 +1543,7 @@ void SkinTheme::paintListBox(PaintEvent& ev)
 {
   Graphics* g = ev.graphics();
 
-  g->fillRect(colors.background(), g->getClipBounds());
+  g->fillRect(colors.background(), g->localClipBounds());
 }
 
 void SkinTheme::paintMenu(PaintEvent& ev)
@@ -1560,7 +1551,7 @@ void SkinTheme::paintMenu(PaintEvent& ev)
   Widget* widget = static_cast<Widget*>(ev.getSource());
   Graphics* g = ev.graphics();
 
-  g->fillRect(BGCOLOR, g->getClipBounds());
+  g->fillRect(BGCOLOR, g->localClipBounds());
 }
 
 void SkinTheme::paintMenuItem(ui::PaintEvent& ev)
